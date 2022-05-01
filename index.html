@@ -187,7 +187,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-05-01 11:12:05 / 修改时间：11:16:29" itemprop="dateCreated datePublished" datetime="2022-05-01T11:12:05+08:00">2022-05-01</time>
+              <time title="创建时间：2022-05-01 11:12:05 / 修改时间：11:20:25" itemprop="dateCreated datePublished" datetime="2022-05-01T11:12:05+08:00">2022-05-01</time>
             </span>
 
           
@@ -201,7 +201,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="51-N-皇后"><a href="#51-N-皇后" class="headerlink" title="51. N 皇后"></a>51. N 皇后</h1><p><a target="_blank" rel="noopener" href="https://programmercarl.com/0051.N%E7%9A%87%E5%90%8E.html#%E6%80%9D%E8%B7%AF">代码随想录</a>中将的巨明白，我自己的总结如下：</p>
+          <h1 id="51-N-皇后"><a href="#51-N-皇后" class="headerlink" title="51. N 皇后"></a>51. N 皇后</h1><p><a target="_blank" rel="noopener" href="https://programmercarl.com/0051.N%E7%9A%87%E5%90%8E.html#%E6%80%9D%E8%B7%AF">代码随想录</a>中讲的巨明白，我自己的总结如下：</p>
 <ul>
 <li>首先，弄清楚N皇后解决的问题，参数和返回值<ul>
 <li>要求我们要返回一系列n维的矩阵，其中每个矩阵满足一定的条件</li>
@@ -217,129 +217,6 @@
 </li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    vector&lt;vector&lt;string&gt;&gt; res;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">backtracing</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span> row,vector&lt;string&gt;&amp; chessborad)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(row == n)&#123;</span><br><span class="line">            res.<span class="built_in">push_back</span>(chessborad);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> col = <span class="number">0</span>; col &lt; n; col++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">IsVaild</span>(n,row,col,chessborad))&#123;</span><br><span class="line">                chessborad[row][col] = <span class="string">&#x27;Q&#x27;</span>;</span><br><span class="line">                <span class="built_in">backtracing</span>(n,row + <span class="number">1</span>,chessborad); <span class="comment">//列元素都要检查，所以列元素不传入</span></span><br><span class="line">                chessborad[row][col] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">IsVaild</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span> row,<span class="type">int</span> col, vector&lt;string&gt;&amp; chessborad)</span></span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; row; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(chessborad[i][col] == <span class="string">&#x27;Q&#x27;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = row - <span class="number">1</span>, j = col - <span class="number">1</span>; i &gt;= <span class="number">0</span> &amp;&amp; j &gt;= <span class="number">0</span>; i--, j--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(chessborad[i][j] == <span class="string">&#x27;Q&#x27;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = row - <span class="number">1</span>, j = col + <span class="number">1</span>; i &gt;= <span class="number">0</span> &amp;&amp; j &lt; n; i--, j++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(chessborad[i][j] == <span class="string">&#x27;Q&#x27;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    vector&lt;vector&lt;string&gt;&gt; <span class="built_in">solveNQueens</span>(<span class="type">int</span> n) &#123;</span><br><span class="line">        <span class="comment">//初始化一个矩阵</span></span><br><span class="line">        <span class="function">vector&lt;string&gt; <span class="title">chessborad</span><span class="params">(n,string(n,<span class="string">&#x27;.&#x27;</span>))</span></span>;</span><br><span class="line">        <span class="built_in">backtracing</span>(n,<span class="number">0</span>,chessborad);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/05/01/My-New-Post/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Ning">
-      <meta itemprop="description" content="宁宁加油呀">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="黄沙百战穿金甲">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/01/My-New-Post/" class="post-title-link" itemprop="url">My New Post</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-05-01 08:18:24 / 修改时间：08:19:39" itemprop="dateCreated datePublished" datetime="2022-05-01T08:18:24+08:00">2022-05-01</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/30/PROJECT%201%20Buffer%20Pool%20Manager%20f87f6a3c1b8d4682964a04c49ea665e7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Ning">
-      <meta itemprop="description" content="宁宁加油呀">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="黄沙百战穿金甲">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/04/30/PROJECT%201%20Buffer%20Pool%20Manager%20f87f6a3c1b8d4682964a04c49ea665e7/" class="post-title-link" itemprop="url">未命名</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-04-30 22:53:07" itemprop="dateCreated datePublished" datetime="2022-04-30T22:53:07+08:00">2022-04-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-04-25 03:01:02" itemprop="dateModified" datetime="2022-04-25T03:01:02+08:00">2022-04-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="PROJECT-1-Buffer-Pool-Manager"><a href="#PROJECT-1-Buffer-Pool-Manager" class="headerlink" title="PROJECT 1 Buffer Pool Manager"></a>PROJECT 1 Buffer Pool Manager</h1><p>⭐⭐⭐⭐⭐文档一定要先读明白</p>
-<h3 id="Task-1-LRU-replacement-policy"><a href="#Task-1-LRU-replacement-policy" class="headerlink" title="Task #1 LRU replacement policy"></a>Task #1 LRU replacement policy</h3>
       
     </div>
 
@@ -420,14 +297,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">1</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">1</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
