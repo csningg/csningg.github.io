@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>C++ debug-is protected within this context c++</title>
+      <link href="/2022/05/03/is-protected-within-this-context-c/"/>
+      <url>/2022/05/03/is-protected-within-this-context-c/</url>
+      
+        <content type="html"><![CDATA[<h1 id="is-protected-within-this-context-c"><a href="#is-protected-within-this-context-c" class="headerlink" title="is protected within this context c++"></a>is protected within this context c++</h1><p>大概率是访问对象是由于继承关系出现了问题</p><ol><li><a href="https://stackoverflow.com/questions/9443102/error-constructor-is-protected-within-this-context">stackoverflow</a> 里面讲了一种情况，讲的很清楚</li><li>我这里再列举一种情况<span id="more"></span> 《C++ Prime》中说 派生类只能通过派生类对象访问其基类的protected成员，派生类对其基类类型对象的protected成员没有特殊的访问权限。 我的理解是 我们访问基类的protected成员，必须在派生类的函数中才能访问，比如说我们用派生类中定义一个对象，这个对象是无法访问基类protected的成员的 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line"><span class="type">int</span> a;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived_base</span> : <span class="keyword">public</span> Base</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>: <span class="comment">// 这里什么继承均可</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">print</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//--------------------------------</span></span><br><span class="line"><span class="type">void</span> Derived_base :: <span class="built_in">print</span>()</span><br><span class="line">&#123;</span><br><span class="line">cout &lt;&lt; a &lt;&lt; endl; <span class="comment">//这里是可以的，我们是在派生类的函数中访问的</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//---------------------------------</span></span><br><span class="line">Derived_base s;</span><br><span class="line">s.a = b; <span class="comment">//这样是不行的</span></span><br></pre></td></tr></table></figure></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> C++ </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> bug </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CMU15-445-Bustub 笔记-Project 1:Buffer Pool Manager</title>
       <link href="/2022/05/02/Project-1-Buffer-Pool-Manager/"/>
       <url>/2022/05/02/Project-1-Buffer-Pool-Manager/</url>
