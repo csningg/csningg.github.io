@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Algorithm-浅析递归函数中的return</title>
+      <link href="/2022/05/04/Algorithm-%E6%B5%85%E6%9E%90%E9%80%92%E5%BD%92%E5%87%BD%E6%95%B0%E4%B8%AD%E7%9A%84return/"/>
+      <url>/2022/05/04/Algorithm-%E6%B5%85%E6%9E%90%E9%80%92%E5%BD%92%E5%87%BD%E6%95%B0%E4%B8%AD%E7%9A%84return/</url>
+      
+        <content type="html"><![CDATA[<h1 id="浅析递归中的return"><a href="#浅析递归中的return" class="headerlink" title="浅析递归中的return"></a>浅析递归中的return</h1><p>很多人把递归比喻成</p><blockquote><p>从前有座山，山上有座庙，庙里有个老和尚，老和尚对小和尚说：<br>从前有座山，山上有座庙，庙里有个老和尚，老和尚对小和尚说：<br>……</p></blockquote><p>我觉得这是不严谨的，因为没有递归的终止条件，这样会内存溢出的；</p><span id="more"></span><p>对于 return true，return false这种，可以参考任何一个讲递归的博客，应该都有讲；我们这里讲稍微复杂一点的，return 后面还是递归函数，也就是说什么时候递归函数前面要加return；什么时候不加return；</p><p>举个例子🥔  </p><blockquote><p>我们假设在十天之内你一定会中彩票，彩票的金额有10块，和100块两种，并且在这十天，你一定会中到100块，这就是你的目标，当你中到100块时，你就不买了，当然也有可能中10块，中10块停一天再买；以上是游戏的规则。</p></blockquote><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span> <span class="type">bool</span> 买彩票()&#123;</span><br><span class="line"><span class="number">2.</span> <span class="keyword">if</span>(中<span class="number">100</span>块)</span><br><span class="line"><span class="number">3.</span><span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"><span class="number">4.</span><span class="keyword">if</span>(中<span class="number">10</span>块)</span><br><span class="line"><span class="number">5.</span>买彩票(调整参数隔一天买);</span><br><span class="line"><span class="number">6.</span>买彩票;</span><br><span class="line"><span class="number">7.</span> &#125;</span><br></pre></td></tr></table></figure><p>我们这里讨论的是第5行的买彩票前要不要加上return，答案是要的</p><p>如果不加，我们假设执行完第5行的买彩票，中了100块，然后返回true，返回到第5行一个true，没有return，也就是相当于没有返回true，中100块等于白中了，会继续执行第6行的买彩票。此时逻辑已经错误了。</p><p>如果加了return，返回到第5行之后，相当于 return true，继续返回上一层，此时逻辑才是正确的；</p><p>什么时候递归函数前面加return呢？</p><p>如果前面是满足一定的条件才执行这个递归函数呢，那么需要加上return。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Algorithm </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 编程思想 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>LeetCode 笔记-37.解数独</title>
       <link href="/2022/05/04/LeetCode-%E7%AC%94%E8%AE%B0-37-%E8%A7%A3%E6%95%B0%E7%8B%AC/"/>
       <url>/2022/05/04/LeetCode-%E7%AC%94%E8%AE%B0-37-%E8%A7%A3%E6%95%B0%E7%8B%AC/</url>
