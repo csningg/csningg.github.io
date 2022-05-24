@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>DBMS-浅谈slotted page</title>
+      <link href="/2022/05/24/%E6%B5%85%E8%B0%88slotted-page/"/>
+      <url>/2022/05/24/%E6%B5%85%E8%B0%88slotted-page/</url>
+      
+        <content type="html"><![CDATA[<h1 id="浅谈Slotted-Pages"><a href="#浅谈Slotted-Pages" class="headerlink" title="浅谈Slotted Pages"></a>浅谈Slotted Pages</h1><blockquote><p>本文章服务于CMU15-445</p></blockquote><p>数据库中的一个page内部是怎么组织的呢？本文浅浅的介绍一下slotted page的组织方式。</p><p><img src="https://s2.loli.net/2022/05/24/wYITDo8JClgjR4m.png" alt="1.png"></p><p>slotted page大致如上图所示，包括三个部分</p><ul><li>page header : 存放meta data，比如checksum等</li><li>slotted array ：每个slotted 都是固定大小的，从前到后依次标号为0，1，2，3，4……里面会存放其所指tuple的起始位置，大小等。说</li><li>data : data区域存放的是tuples</li></ul><p>我们如何定位一个 tuple 呢？是二维定位的比如（21,2），那么我们就定位了该元组</p><p><img src="https://s2.loli.net/2022/05/24/oDQfaYKWEjixbUG.png" alt="Untitled 1.png"></p><p>slotted page的特点：</p><ol><li>元组在页内移动，其对外部的索引是不变的，我们称之为 physical data indepence，既无论<strong>元组在页面内如何移动，对外索引是不改变的</strong></li><li>slotted array 会从从上到下，从左到右依次增长，是fixed size的，tuple 是从下到上增长的，当二者相遇了，说明此页面满了。</li><li>当删除某个tuple时，我们直接在slotted array对应的位置上标记 non-exist</li><li>假如说我们将（21,2）号元组移动到其他的page，我们仍然可以不改变其对外的索引，比如说我们将（21,2）移动到了（45,3），我们只需将红色记录为（45,3）即可。</li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> CMU15-445 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> DBMS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>LeetCode 笔记-435.无重叠区间</title>
       <link href="/2022/05/24/LeetCode-%E7%AC%94%E8%AE%B0-435-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%8C%BA%E9%97%B4/"/>
       <url>/2022/05/24/LeetCode-%E7%AC%94%E8%AE%B0-435-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%8C%BA%E9%97%B4/</url>
