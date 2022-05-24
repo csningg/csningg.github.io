@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>LeetCode 笔记-435.无重叠区间</title>
+      <link href="/2022/05/24/LeetCode-%E7%AC%94%E8%AE%B0-435-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%8C%BA%E9%97%B4/"/>
+      <url>/2022/05/24/LeetCode-%E7%AC%94%E8%AE%B0-435-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%8C%BA%E9%97%B4/</url>
+      
+        <content type="html"><![CDATA[<h1 id="435-无重叠区间"><a href="#435-无重叠区间" class="headerlink" title="435. 无重叠区间"></a>435. 无重叠区间</h1><p>我们目标：从一组数序对中选择互不重合的最大数量</p><p>首先，排序是跑不掉的了，那么应该怎么样排呢？</p><p>我们可以类比会议安排问题，一个数序对是一个会议的次序时间，我们怎样安排才能使一天中开会的次数最多？</p><span id="more"></span><p>显然我们应该按照结束时间进行排列，结束的越早，才能给后面留下更多的时间，如果说按照开始时间进行排序，那么以下这种情况怎么处理呢？</p><p>![Untitled](D:&#x2F;study&#x2F;LeetCode&#x2F;435&#x2F;435 无重叠区间 b91bc505497548399e99ba77a352ef6d&#x2F;Untitled.png)</p><p>好！现在我们已经确定按照结束时间进行排序，那么如果说上一个会议结束前，下一个会议就开始了，我们要将其pass掉，对应的代码为</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> <span class="type">bool</span> <span class="title">cmp</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; p, vector&lt;<span class="type">int</span>&gt;&amp; q)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> p[<span class="number">1</span>] &lt; q[<span class="number">1</span>];</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">eraseOverlapIntervals</span><span class="params">(vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;&amp; intervals)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">sort</span>(intervals.<span class="built_in">begin</span>(),intervals.<span class="built_in">end</span>(),cmp);</span><br><span class="line">        <span class="type">int</span> count = <span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> j = <span class="number">0</span>; <span class="comment">// j用来保存上一个符合条件的区间代号</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt; intervals.<span class="built_in">size</span>(); i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(intervals[i][<span class="number">0</span>] &gt;= intervals[j][<span class="number">1</span>])&#123;</span><br><span class="line">                j = i;</span><br><span class="line">                count++;</span><br><span class="line">            &#125; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> intervals.<span class="built_in">size</span>() - count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><p>按照开始时间进行排序真的就没有办法了吗？</p><p>如果我们按照开始时间进行排序，我们可以从后向前遍历，选择开始时间最晚的，如果说上一个会议的结束时间在后一个会议的开始时间之前，我们也将其pass掉。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> LeetCode </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 贪心 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Algorithm-浅析递归函数中的return</title>
       <link href="/2022/05/04/Algorithm-%E6%B5%85%E6%9E%90%E9%80%92%E5%BD%92%E5%87%BD%E6%95%B0%E4%B8%AD%E7%9A%84return/"/>
       <url>/2022/05/04/Algorithm-%E6%B5%85%E6%9E%90%E9%80%92%E5%BD%92%E5%87%BD%E6%95%B0%E4%B8%AD%E7%9A%84return/</url>
