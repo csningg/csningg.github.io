@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>CMU15-445 lec9 排序和聚集</title>
+      <link href="/2022/06/03/CMU15-445-lec9-%E6%8E%92%E5%BA%8F%E5%92%8C%E8%81%9A%E9%9B%86/"/>
+      <url>/2022/06/03/CMU15-445-lec9-%E6%8E%92%E5%BA%8F%E5%92%8C%E8%81%9A%E9%9B%86/</url>
+      
+        <content type="html"><![CDATA[<h1 id="排序和聚集"><a href="#排序和聚集" class="headerlink" title="排序和聚集"></a>排序和聚集</h1><blockquote><p>本文服务于CMU15-445 Lec9 sorting&amp;aggregation，主要讲外部排序的方法，以及聚集方法</p></blockquote><span id="more"></span><p>我们假设数据的内容都是存在磁盘上的，但是我们的SQL语句有order by，并且数据库的输出大部分都是按照顺序进行输出的，那么怎么办呢？</p><p>我们数据库中我们为了方便用户的使用，增加了许多聚集函数，比如count，sum，AVG，max，min等，我们如何获得呢？</p><hr><h2 id="外部排序"><a href="#外部排序" class="headerlink" title="外部排序"></a>外部排序</h2><ul><li>我们假设数据不能一次性读入磁盘，只能分批读入</li><li>外部排序分为两步1️⃣内存中进行排序，然后将其写会磁盘2️⃣将排好序的重新组成更大的块。</li><li>在排序时，一轮排序称为sort run,如果排序过程中key和value一起称为early materialization(早物化)，如果只是记录ID，而后根据ID去主表中找value，称为late materialization(晚物化)</li></ul><h3 id="1️⃣-2-WAY-EXTERNAL-MERGE-SORT（2路（阶）归并排序）"><a href="#1️⃣-2-WAY-EXTERNAL-MERGE-SORT（2路（阶）归并排序）" class="headerlink" title="1️⃣ 2-WAY EXTERNAL MERGE SORT（2路（阶）归并排序）"></a>1️⃣ 2-WAY EXTERNAL MERGE SORT（2路（阶）归并排序）</h3><blockquote><p>2指的是内存中一次性需要排序两个页面</p></blockquote><p>假如磁盘中有N个页面，内存中能装载B个页面</p><ul><li><p>Pass #0</p><p>因为内存有B个页面，所以我们第0趟从磁盘中读取B个页面一次性读入到内存中，进行内部排序算法，再将这个B个页面写回磁盘，此时磁盘中已经有B个内部已经排好顺序的页面。</p><p><img src="https://s2.loli.net/2022/06/03/Tac35WbQPLoUxny.png" alt="Untitled.png"></p></li><li><p>Pass #1</p><ul><li>我们在内存中开辟3个页面，两个作为原始页，一个作为输出页。、</li><li>我们将（3,4）（2,6）这两个页读入内存中，进行内部排序，先得到（2,3）页，将其写会磁盘，再得到（4,6）页，再将其写会磁盘，整个过程只需要3个页面即可。</li><li>然后我们读入（4,9）（7,8）页，依次得到（4,7）（8,9）</li><li>依次类推</li></ul><p><img src="https://s2.loli.net/2022/06/03/51ZlCGgLebjfVWu.png" alt="Untitled 1.png"></p></li><li><p>Pass #2</p><ul><li>我们将（2,3）（4,7）读入内存，得到排好序的（2,3）页，然后读入（4,6）页，此时内存中有（4,6）（4,7）页，我们得到排好序的（4,4）页，然后将上面两页合并为（6,7），再讲（8,9）页读入，输出（6,7），再输出（8,9）</li></ul><p><img src="https://s2.loli.net/2022/06/03/vo3NPZEFwGuDTdj.png" alt="Untitled 2.png"></p></li><li><p>Pass #3</p><ul><li>我们将（1,2）（2,3）读入，得到（1,2）输出，再读入（3,5），得到（2,3）页，再读入（4,4）页，得到（3,4）页，将剩余的4,5合并得到（4,5）页，然后再读入（6,7）页，输出得到（4,5）页，再读入（6）得到（6,6），读入（8,9）得到（7,8），再度入（∞）得到（9）（∞）</li></ul><p><img src="https://s2.loli.net/2022/06/03/ezRd63rUQkl8C5Z.png" alt="Untitled 3.png"></p></li></ul><p>上述讲的是内存中有3个页面，这样还是不够快，我们如何优化呢？</p><ol><li>DOUBLE BUFFERING OPTIMIZATION</li></ol><ul><li>可以进行预取，提前将需要排序的页面加载到内存中</li></ul><ol><li>GENERAL EXTENTRAL MERGE SORT</li></ol><ul><li>上面讲的2路归并，我们当然可以进行3路，4路归并</li></ul><p>时间复杂度 假设我们有N&#x3D;108，B&#x3D; 5；则从Pass#1开始我们每次只能进行四个页面的排序，因为需要留出一个页面给待排好的页面。</p><p><img src="https://s2.loli.net/2022/06/03/E6321xNFDfViKTR.png" alt="Untitled 4.png"></p><h3 id="2️⃣使用B-树排序"><a href="#2️⃣使用B-树排序" class="headerlink" title="2️⃣使用B+树排序"></a>2️⃣使用B+树排序</h3><p>B+树的叶子节点是排好序的，我们可以利用这个特性进行排序</p><ul><li>聚簇B+树（cluster B+ tree）：叶子节点不包含数据</li><li>非聚簇B+树（uncluster B+ tree）：叶子节点包含数据</li></ul><p>B+树是比外部排序好的，因为没有计算花销，并且磁盘的读取是顺序的。</p><hr><h2 id="聚集（Aggregations）"><a href="#聚集（Aggregations）" class="headerlink" title="聚集（Aggregations）"></a>聚集（Aggregations）</h2><blockquote><p>所谓的聚集就是数据库中的count，sum，AVG，min，max</p></blockquote><p>我们实现agg，有两种实现方式，sorting和hashing</p><h3 id="1️⃣sorting-aggregation"><a href="#1️⃣sorting-aggregation" class="headerlink" title="1️⃣sorting aggregation"></a>1️⃣sorting aggregation</h3><p>我们按照SQL语句，一步步的进行，然后对对应的列进行排序</p><p><img src="https://s2.loli.net/2022/06/03/RAXaUbeSKkF2OJV.png" alt="Untitled 5.png"></p><h3 id="2️⃣hashing-aggregation"><a href="#2️⃣hashing-aggregation" class="headerlink" title="2️⃣hashing aggregation"></a>2️⃣hashing aggregation</h3><ol><li><p>Partition</p><p>先按照hash函数将对应的组分到冉的bucket，当bucket满的时候，将其写UI磁盘</p></li><li><p>rehash</p><p>因为根据第一次hash不可避免的会把有相同hash值得写到同一个bucket里，需要进行再hash，再进行rehash的时候，可以根据聚集函数直接计算</p></li></ol><p>对于用排序还是hash并没有严格的规定，如果实现数据是已经排列好的，可以用sort，如果试试hash的，那可以用hash的方法。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CMU15-445 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> DBMS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>LeetCode 笔记-56. 合并区间</title>
       <link href="/2022/06/03/LeetCode-%E7%AC%94%E8%AE%B0-56-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/"/>
       <url>/2022/06/03/LeetCode-%E7%AC%94%E8%AE%B0-56-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/</url>
