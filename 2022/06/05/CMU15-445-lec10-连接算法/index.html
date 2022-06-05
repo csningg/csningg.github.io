@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="连接算法 本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMU15-445 lec10 连接算法">
+<meta property="og:url" content="http://example.com/2022/06/05/CMU15-445-lec10-%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="连接算法 本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/06/05/CuXxMdf8i3pnHKk.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/05/NxHyLz4pZvhe5BE.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/05/jYUN2tPE1DOSevX.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/05/mIAkWNarVUlyfQz.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/05/sAb2WhS3UQEKFDO.png">
+<meta property="article:published_time" content="2022-06-05T07:53:49.000Z">
+<meta property="article:modified_time" content="2022-06-05T07:55:08.238Z">
+<meta property="article:author" content="Ning">
+<meta property="article:tag" content="DBMS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/06/05/CuXxMdf8i3pnHKk.png">
+
+<link rel="canonical" href="http://example.com/2022/06/05/CMU15-445-lec10-%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CMU15-445 lec10 连接算法 | 黄沙百战穿金甲</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/05/CMU15-445-lec10-%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CMU15-445 lec10 连接算法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-06-05 15:53:49 / 修改时间：15:55:08" itemprop="dateCreated datePublished" datetime="2022-06-05T15:53:49+08:00">2022-06-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="连接算法"><a href="#连接算法" class="headerlink" title="连接算法"></a>连接算法</h1><blockquote>
+<p>本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="连接算法综述"><a href="#连接算法综述" class="headerlink" title="连接算法综述"></a>连接算法综述</h2><blockquote>
+<p>我们为什么需要连接算法？我们基于正则理论涉及的数据库最大程度的减小了信息的冗余，在执行SQL语句的时候，我们需要重构数据库，因此需要连接算法</p>
+</blockquote>
+<h3 id="算子输出"><a href="#算子输出" class="headerlink" title="算子输出"></a>算子输出</h3><p>我们假设有table R和table S，其中table R有M个pages，共有m个tuples，作为<strong>外表</strong>，table S有N个pages，n个tuples，作为<strong>内表</strong>。<strong>我们将小表作为外表，大表作为内表</strong>，缓冲池想一次性缓冲更多的外表</p>
+<p>在SQL语句中往上层的输出可能有所不同，取决于处理模型，存储模型，查询中数据的要求</p>
+<p>假如 r∈ R，s∈S，并且两个的属性匹配上了，我们将其输出，输出的时候有两种模式，一个是早物化，既我们直接输出数据，我们没必要回到原表总去查询数据了，一个是晚物化，我们输出ID，再根据ID去找原表去查找具体的数据</p>
+<h3 id="成本分析"><a href="#成本分析" class="headerlink" title="成本分析"></a>成本分析</h3><p>我们分析不同连接算法的成本是计算用于连接的磁盘I&#x2F;O的次数，也包括中间数据写入磁盘而产生的磁盘I&#x2F;O</p>
+<h2 id="Nested-Loop-Join"><a href="#Nested-Loop-Join" class="headerlink" title="Nested Loop Join"></a>Nested Loop Join</h2><h3 id="Simple-x2F-Stupid-nested-loop-join"><a href="#Simple-x2F-Stupid-nested-loop-join" class="headerlink" title="Simple&#x2F;Stupid nested loop join"></a>Simple&#x2F;Stupid nested loop join</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foreach tuple r ∈ R: <span class="comment">// R是outer 在SQL语句的左边</span></span><br><span class="line">	foreach tuple s ∈ S: <span class="comment">// S是Inner 在SQL语句的有变</span></span><br><span class="line">		emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
+
+<p>我们按照每个tuple进行循环，对于R中的每个tuple,我们都轮询检查以便S中的tuple，故而称其为stupid</p>
+<p>cost：M + （m * N）R表有M个page，所以装载R表需要M次IO，R表有m个tuple，对于每个tuple，我们都需要装载一次S表，装载一次S表需要N次IO</p>
+<h3 id="Block-nested-loop-join"><a href="#Block-nested-loop-join" class="headerlink" title="Block nested loop join"></a>Block nested loop join</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">foreach block BR ∈ R:</span><br><span class="line">	foreach block BS ∈ S:</span><br><span class="line">		foreach tuple r ∈ BR:</span><br><span class="line">			foreach tuple s ∈ Bs:</span><br><span class="line">				emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
+
+<p>上述的Stupid方案是每次一个个tuple进行循环，而Block方案是将table分成Block，先加载Block，再在block里面进行循环的查验tuple，最外层的循环次数还是越小越好，因为我们使用小表做外表；</p>
+<p>假设有B个缓冲池，我们使用B - 2个缓冲池做外表，1个做内表，一个做输出表。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">foreach B - <span class="number">2</span> blocks bR ∈ R:</span><br><span class="line">	foreach block bS ∈ S:</span><br><span class="line">		foreach tuple r ∈ B - <span class="number">2</span> blocks:</span><br><span class="line">					foreach tuple s ∈ bs:</span><br><span class="line">						emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
+
+<p>cost：$M + (\lceil M &#x2F; B - 2 \rceil * N)$ 其中M 是外表加载的次数，外表共有B-2个缓冲池的页面，所有共缓冲的次数是$\lceil M &#x2F; B - 2 \rceil$，每次缓冲，都得将S表加载内存一次。</p>
+<h3 id="Index-nested-loop-join"><a href="#Index-nested-loop-join" class="headerlink" title="Index nested loop join"></a>Index nested loop join</h3><p>因为上述都要进行轮询检查每个tuple，所以效率很慢，因为要遍历整个表，所以接下来我们引入了带索引的嵌套循环查询。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foreach tuple r ∈ R:</span><br><span class="line">	foreach tuple s ∈ <span class="built_in">Index</span>(ri = sj):</span><br><span class="line">		emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
+
+<p>cost：M + （m * C）M是外表总要加载到内存中，对于R表中的每一个tuple，我们假设是index查询需要c的时间，故而时间复杂度如上述所示。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>我们选择小表作为外表，尽可能装载更多的外表，假如我们能一次性将所以的外表装载完成，那么内表只需要加载一次就可以了</li>
+<li>循环查询内表的各个元组，或者使用索引进行查询。</li>
+</ul>
+<h2 id="Sort-Merge-Join"><a href="#Sort-Merge-Join" class="headerlink" title="Sort-Merge Join"></a>Sort-Merge Join</h2><blockquote>
+<p>先对table进行sort，然后对table保持两个游标，进行挨个比较，</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sort R,S on join keys</span><br><span class="line">cursorR ← Rsorted, cursorS ← Ssorted</span><br><span class="line"><span class="keyword">while</span> cursorR <span class="keyword">and</span> cursorS:</span><br><span class="line">	<span class="keyword">if</span> cursorR &gt; cursorS:</span><br><span class="line">		increment cursorS</span><br><span class="line">	<span class="keyword">if</span> cursorR &lt; cursorS:</span><br><span class="line">		increment cursorR</span><br><span class="line">	elif cursorR <span class="keyword">and</span> cursorS match:</span><br><span class="line">		emit</span><br><span class="line">		increment cursorS</span><br></pre></td></tr></table></figure>
+
+<p>其中有一种特殊情况需要考虑，如下图所示</p>
+<p><img src="https://s2.loli.net/2022/06/05/CuXxMdf8i3pnHKk.png" alt="Untitled.png"></p>
+<p>cost:</p>
+<p><img src="https://s2.loli.net/2022/06/05/NxHyLz4pZvhe5BE.png" alt="Untitled 1.png"></p>
+<h3 id="Hash-Join"><a href="#Hash-Join" class="headerlink" title="Hash Join"></a>Hash Join</h3><blockquote>
+<p>hash join的思路很简单,我们把外表hash到不同的桶中，然后查询的时候去桶里用嵌套循环查询</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![Untitled <span class="number">2.</span>png](https:<span class="comment">//s2.loli.net/2022/06/05/jYUN2tPE1DOSevX.png)build hash table HTR for R</span></span><br><span class="line">foreach tuple s ∈ S</span><br><span class="line">	output, <span class="keyword">if</span> <span class="built_in">h1</span>(s) ∈ HTR</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2022/06/05/jYUN2tPE1DOSevX.png" alt="Untitled 2.png"></p>
+<p>小tips:</p>
+<ul>
+<li>为了增加查询的速度，我们可以在S表中加一个bloom filter</li>
+</ul>
+<h3 id="Grace-hash-Join"><a href="#Grace-hash-Join" class="headerlink" title="Grace hash Join"></a>Grace hash Join</h3><blockquote>
+<p>对于R和S做相同的hash，进行匹配的时候，我们RS的桶中的元素，进行一一匹配，如果说hash的桶的值过多，那么我们可以对桶再做hash，映射的不同的桶中，</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2022/06/05/mIAkWNarVUlyfQz.png" alt="Untitled 3.png"></p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p><img src="https://s2.loli.net/2022/06/05/sAb2WhS3UQEKFDO.png" alt="Untitled 4.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DBMS/" rel="tag"># DBMS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/03/CMU15-445-lec9-%E6%8E%92%E5%BA%8F%E5%92%8C%E8%81%9A%E9%9B%86/" rel="prev" title="CMU15-445 lec9 排序和聚集">
+      <i class="fa fa-chevron-left"></i> CMU15-445 lec9 排序和聚集
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">连接算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95%E7%BB%BC%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">连接算法综述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E5%AD%90%E8%BE%93%E5%87%BA"><span class="nav-number">1.1.1.</span> <span class="nav-text">算子输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%90%E6%9C%AC%E5%88%86%E6%9E%90"><span class="nav-number">1.1.2.</span> <span class="nav-text">成本分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nested-Loop-Join"><span class="nav-number">1.2.</span> <span class="nav-text">Nested Loop Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Simple-x2F-Stupid-nested-loop-join"><span class="nav-number">1.2.1.</span> <span class="nav-text">Simple&#x2F;Stupid nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Block-nested-loop-join"><span class="nav-number">1.2.2.</span> <span class="nav-text">Block nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-nested-loop-join"><span class="nav-number">1.2.3.</span> <span class="nav-text">Index nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sort-Merge-Join"><span class="nav-number">1.3.</span> <span class="nav-text">Sort-Merge Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash-Join"><span class="nav-number">1.3.1.</span> <span class="nav-text">Hash Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grace-hash-Join"><span class="nav-number">1.3.2.</span> <span class="nav-text">Grace hash Join</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">26k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">23 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
