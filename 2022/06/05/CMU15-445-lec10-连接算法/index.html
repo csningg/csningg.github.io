@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://s2.loli.net/2022/06/05/mIAkWNarVUlyfQz.png">
 <meta property="og:image" content="https://s2.loli.net/2022/06/05/sAb2WhS3UQEKFDO.png">
 <meta property="article:published_time" content="2022-06-05T07:53:49.000Z">
-<meta property="article:modified_time" content="2022-06-05T07:55:08.238Z">
+<meta property="article:modified_time" content="2022-06-05T08:09:51.924Z">
 <meta property="article:author" content="Ning">
 <meta property="article:tag" content="DBMS">
 <meta name="twitter:card" content="summary">
@@ -227,7 +227,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-06-05 15:53:49 / 修改时间：15:55:08" itemprop="dateCreated datePublished" datetime="2022-06-05T15:53:49+08:00">2022-06-05</time>
+              <time title="创建时间：2022-06-05 15:53:49 / 修改时间：16:09:51" itemprop="dateCreated datePublished" datetime="2022-06-05T15:53:49+08:00">2022-06-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,7 +252,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.1k</span>
+              <span>2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -293,11 +293,11 @@
 <p>假设有B个缓冲池，我们使用B - 2个缓冲池做外表，1个做内表，一个做输出表。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">foreach B - <span class="number">2</span> blocks bR ∈ R:</span><br><span class="line">	foreach block bS ∈ S:</span><br><span class="line">		foreach tuple r ∈ B - <span class="number">2</span> blocks:</span><br><span class="line">					foreach tuple s ∈ bs:</span><br><span class="line">						emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
 
-<p>cost：$M + (\lceil M &#x2F; B - 2 \rceil * N)$ 其中M 是外表加载的次数，外表共有B-2个缓冲池的页面，所有共缓冲的次数是$\lceil M &#x2F; B - 2 \rceil$，每次缓冲，都得将S表加载内存一次。</p>
+<p>cost： $M + (\lceil M &#x2F; B - 2 \rceil * N)$ 其中M 是外表加载的次数，外表共有B-2个缓冲池的页面，所有共缓冲的次数是$\lceil M &#x2F; B - 2 \rceil$，每次缓冲，都得将S表加载内存一次。</p>
 <h3 id="Index-nested-loop-join"><a href="#Index-nested-loop-join" class="headerlink" title="Index nested loop join"></a>Index nested loop join</h3><p>因为上述都要进行轮询检查每个tuple，所以效率很慢，因为要遍历整个表，所以接下来我们引入了带索引的嵌套循环查询。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foreach tuple r ∈ R:</span><br><span class="line">	foreach tuple s ∈ <span class="built_in">Index</span>(ri = sj):</span><br><span class="line">		emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
 
-<p>cost：M + （m * C）M是外表总要加载到内存中，对于R表中的每一个tuple，我们假设是index查询需要c的时间，故而时间复杂度如上述所示。</p>
+<p>cost： M + （m * C）M是外表总要加载到内存中，对于R表中的每一个tuple，我们假设是index查询需要c的时间，故而时间复杂度如上述所示。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
 <li>我们选择小表作为外表，尽可能装载更多的外表，假如我们能一次性将所以的外表装载完成，那么内表只需要加载一次就可以了</li>
 <li>循环查询内表的各个元组，或者使用索引进行查询。</li>
@@ -314,7 +314,7 @@
 <h3 id="Hash-Join"><a href="#Hash-Join" class="headerlink" title="Hash Join"></a>Hash Join</h3><blockquote>
 <p>hash join的思路很简单,我们把外表hash到不同的桶中，然后查询的时候去桶里用嵌套循环查询</p>
 </blockquote>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![Untitled <span class="number">2.</span>png](https:<span class="comment">//s2.loli.net/2022/06/05/jYUN2tPE1DOSevX.png)build hash table HTR for R</span></span><br><span class="line">foreach tuple s ∈ S</span><br><span class="line">	output, <span class="keyword">if</span> <span class="built_in">h1</span>(s) ∈ HTR</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">build hash table HTR <span class="keyword">for</span> R</span><br><span class="line">foreach tuple s ∈ S</span><br><span class="line">	output, <span class="function"><span class="keyword">if</span> <span class="title">h1</span><span class="params">(s)</span> ∈ HTR</span></span><br></pre></td></tr></table></figure>
 
 <p><img src="https://s2.loli.net/2022/06/05/jYUN2tPE1DOSevX.png" alt="Untitled 2.png"></p>
 <p>小tips:</p>
@@ -474,7 +474,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">26k</span>
+    <span title="站点总字数">25k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
