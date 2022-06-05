@@ -275,28 +275,23 @@
 <p>本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法</p>
 </blockquote>
 <span id="more"></span>
-
 <h2 id="连接算法综述"><a href="#连接算法综述" class="headerlink" title="连接算法综述"></a>连接算法综述</h2><blockquote>
 <p>我们为什么需要连接算法？我们基于正则理论涉及的数据库最大程度的减小了信息的冗余，在执行SQL语句的时候，我们需要重构数据库，因此需要连接算法</p>
 </blockquote>
 <h3 id="算子输出"><a href="#算子输出" class="headerlink" title="算子输出"></a>算子输出</h3><p>我们假设有table R和table S，其中table R有M个pages，共有m个tuples，作为<strong>外表</strong>，table S有N个pages，n个tuples，作为<strong>内表</strong>。<strong>我们将小表作为外表，大表作为内表</strong>，缓冲池想一次性缓冲更多的外表</p>
 <p>在SQL语句中往上层的输出可能有所不同，取决于处理模型，存储模型，查询中数据的要求</p>
 <p>假如 r∈ R，s∈S，并且两个的属性匹配上了，我们将其输出，输出的时候有两种模式，一个是早物化，既我们直接输出数据，我们没必要回到原表总去查询数据了，一个是晚物化，我们输出ID，再根据ID去找原表去查找具体的数据</p>
-<h3 id="成本分析"><a href="#成本分析" class="headerlink" title="成本分析"></a>成本分析</h3><p>我们分析不同连接算法的成本是计算用于连接的磁盘I&#x2F;O的次数，也包括中间数据写入磁盘而产生的磁盘I&#x2F;O</p>
-<h2 id="Nested-Loop-Join"><a href="#Nested-Loop-Join" class="headerlink" title="Nested Loop Join"></a>Nested Loop Join</h2><h3 id="Simple-x2F-Stupid-nested-loop-join"><a href="#Simple-x2F-Stupid-nested-loop-join" class="headerlink" title="Simple&#x2F;Stupid nested loop join"></a>Simple&#x2F;Stupid nested loop join</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foreach tuple r ∈ R: <span class="comment">// R是outer 在SQL语句的左边</span></span><br><span class="line">	foreach tuple s ∈ S: <span class="comment">// S是Inner 在SQL语句的有变</span></span><br><span class="line">		emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
-
+<h3 id="成本分析"><a href="#成本分析" class="headerlink" title="成本分析"></a>成本分析</h3><p>我们分析不同连接算法的成本是计算用于连接的磁盘I/O的次数，也包括中间数据写入磁盘而产生的磁盘I/O</p>
+<h2 id="Nested-Loop-Join"><a href="#Nested-Loop-Join" class="headerlink" title="Nested Loop Join"></a>Nested Loop Join</h2><h3 id="Simple-Stupid-nested-loop-join"><a href="#Simple-Stupid-nested-loop-join" class="headerlink" title="Simple/Stupid nested loop join"></a>Simple/Stupid nested loop join</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foreach tuple r ∈ R: <span class="comment">// R是outer 在SQL语句的左边</span></span><br><span class="line">	foreach tuple s ∈ S: <span class="comment">// S是Inner 在SQL语句的有变</span></span><br><span class="line">		emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
 <p>我们按照每个tuple进行循环，对于R中的每个tuple,我们都轮询检查以便S中的tuple，故而称其为stupid</p>
 <p>cost：M + （m * N）R表有M个page，所以装载R表需要M次IO，R表有m个tuple，对于每个tuple，我们都需要装载一次S表，装载一次S表需要N次IO</p>
 <h3 id="Block-nested-loop-join"><a href="#Block-nested-loop-join" class="headerlink" title="Block nested loop join"></a>Block nested loop join</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">foreach block BR ∈ R:</span><br><span class="line">	foreach block BS ∈ S:</span><br><span class="line">		foreach tuple r ∈ BR:</span><br><span class="line">			foreach tuple s ∈ Bs:</span><br><span class="line">				emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
-
 <p>上述的Stupid方案是每次一个个tuple进行循环，而Block方案是将table分成Block，先加载Block，再在block里面进行循环的查验tuple，最外层的循环次数还是越小越好，因为我们使用小表做外表；</p>
 <p>假设有B个缓冲池，我们使用B - 2个缓冲池做外表，1个做内表，一个做输出表。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">foreach B - <span class="number">2</span> blocks bR ∈ R:</span><br><span class="line">	foreach block bS ∈ S:</span><br><span class="line">		foreach tuple r ∈ B - <span class="number">2</span> blocks:</span><br><span class="line">					foreach tuple s ∈ bs:</span><br><span class="line">						emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
-
-<p>cost： $M + (\lceil M &#x2F; B - 2 \rceil * N)$ 其中M 是外表加载的次数，外表共有B-2个缓冲池的页面，所有共缓冲的次数是$\lceil M &#x2F; B - 2 \rceil$，每次缓冲，都得将S表加载内存一次。</p>
+<p>cost： $M + (\lceil M / B - 2 \rceil * N)$ 其中M 是外表加载的次数，外表共有B-2个缓冲池的页面，所有共缓冲的次数是$\lceil M / B - 2 \rceil$，每次缓冲，都得将S表加载内存一次。</p>
 <h3 id="Index-nested-loop-join"><a href="#Index-nested-loop-join" class="headerlink" title="Index nested loop join"></a>Index nested loop join</h3><p>因为上述都要进行轮询检查每个tuple，所以效率很慢，因为要遍历整个表，所以接下来我们引入了带索引的嵌套循环查询。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foreach tuple r ∈ R:</span><br><span class="line">	foreach tuple s ∈ <span class="built_in">Index</span>(ri = sj):</span><br><span class="line">		emit, <span class="keyword">if</span> r <span class="keyword">and</span> s match</span><br></pre></td></tr></table></figure>
-
 <p>cost： M + （m * C）M是外表总要加载到内存中，对于R表中的每一个tuple，我们假设是index查询需要c的时间，故而时间复杂度如上述所示。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
 <li>我们选择小表作为外表，尽可能装载更多的外表，假如我们能一次性将所以的外表装载完成，那么内表只需要加载一次就可以了</li>
@@ -306,7 +301,6 @@
 <p>先对table进行sort，然后对table保持两个游标，进行挨个比较，</p>
 </blockquote>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sort R,S on join keys</span><br><span class="line">cursorR ← Rsorted, cursorS ← Ssorted</span><br><span class="line"><span class="keyword">while</span> cursorR <span class="keyword">and</span> cursorS:</span><br><span class="line">	<span class="keyword">if</span> cursorR &gt; cursorS:</span><br><span class="line">		increment cursorS</span><br><span class="line">	<span class="keyword">if</span> cursorR &lt; cursorS:</span><br><span class="line">		increment cursorR</span><br><span class="line">	elif cursorR <span class="keyword">and</span> cursorS match:</span><br><span class="line">		emit</span><br><span class="line">		increment cursorS</span><br></pre></td></tr></table></figure>
-
 <p>其中有一种特殊情况需要考虑，如下图所示</p>
 <p><img src="https://s2.loli.net/2022/06/05/CuXxMdf8i3pnHKk.png" alt="Untitled.png"></p>
 <p>cost:</p>
@@ -315,7 +309,6 @@
 <p>hash join的思路很简单,我们把外表hash到不同的桶中，然后查询的时候去桶里用嵌套循环查询</p>
 </blockquote>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">build hash table HTR <span class="keyword">for</span> R</span><br><span class="line">foreach tuple s ∈ S</span><br><span class="line">	output, <span class="function"><span class="keyword">if</span> <span class="title">h1</span><span class="params">(s)</span> ∈ HTR</span></span><br></pre></td></tr></table></figure>
-
 <p><img src="https://s2.loli.net/2022/06/05/jYUN2tPE1DOSevX.png" alt="Untitled 2.png"></p>
 <p>小tips:</p>
 <ul>
@@ -406,7 +399,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">连接算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95%E7%BB%BC%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">连接算法综述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E5%AD%90%E8%BE%93%E5%87%BA"><span class="nav-number">1.1.1.</span> <span class="nav-text">算子输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%90%E6%9C%AC%E5%88%86%E6%9E%90"><span class="nav-number">1.1.2.</span> <span class="nav-text">成本分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nested-Loop-Join"><span class="nav-number">1.2.</span> <span class="nav-text">Nested Loop Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Simple-x2F-Stupid-nested-loop-join"><span class="nav-number">1.2.1.</span> <span class="nav-text">Simple&#x2F;Stupid nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Block-nested-loop-join"><span class="nav-number">1.2.2.</span> <span class="nav-text">Block nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-nested-loop-join"><span class="nav-number">1.2.3.</span> <span class="nav-text">Index nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sort-Merge-Join"><span class="nav-number">1.3.</span> <span class="nav-text">Sort-Merge Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash-Join"><span class="nav-number">1.3.1.</span> <span class="nav-text">Hash Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grace-hash-Join"><span class="nav-number">1.3.2.</span> <span class="nav-text">Grace hash Join</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">连接算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95%E7%BB%BC%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">连接算法综述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E5%AD%90%E8%BE%93%E5%87%BA"><span class="nav-number">1.1.1.</span> <span class="nav-text">算子输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%90%E6%9C%AC%E5%88%86%E6%9E%90"><span class="nav-number">1.1.2.</span> <span class="nav-text">成本分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nested-Loop-Join"><span class="nav-number">1.2.</span> <span class="nav-text">Nested Loop Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Simple-Stupid-nested-loop-join"><span class="nav-number">1.2.1.</span> <span class="nav-text">Simple&#x2F;Stupid nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Block-nested-loop-join"><span class="nav-number">1.2.2.</span> <span class="nav-text">Block nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-nested-loop-join"><span class="nav-number">1.2.3.</span> <span class="nav-text">Index nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sort-Merge-Join"><span class="nav-number">1.3.</span> <span class="nav-text">Sort-Merge Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash-Join"><span class="nav-number">1.3.1.</span> <span class="nav-text">Hash Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grace-hash-Join"><span class="nav-number">1.3.2.</span> <span class="nav-text">Grace hash Join</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -545,6 +538,8 @@
 
 
 
+
+  
 
   
 

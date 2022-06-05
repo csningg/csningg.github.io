@@ -253,14 +253,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.7k</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -276,7 +276,6 @@
 <p>本文服务于CMU15-445 Lec9 sorting&amp;aggregation，主要讲外部排序的方法，以及聚集方法</p>
 </blockquote>
 <span id="more"></span>
-
 <p>我们假设数据的内容都是存在磁盘上的，但是我们的SQL语句有order by，并且数据库的输出大部分都是按照顺序进行输出的，那么怎么办呢？</p>
 <p>我们数据库中我们为了方便用户的使用，增加了许多聚集函数，比如count，sum，AVG，max，min等，我们如何获得呢？</p>
 <hr>
@@ -329,7 +328,7 @@
 <ul>
 <li>上面讲的2路归并，我们当然可以进行3路，4路归并</li>
 </ul>
-<p>时间复杂度 假设我们有N&#x3D;108，B&#x3D; 5；则从Pass#1开始我们每次只能进行四个页面的排序，因为需要留出一个页面给待排好的页面。</p>
+<p>时间复杂度 假设我们有N=108，B= 5；则从Pass#1开始我们每次只能进行四个页面的排序，因为需要留出一个页面给待排好的页面。</p>
 <p><img src="https://s2.loli.net/2022/06/03/E6321xNFDfViKTR.png" alt="Untitled 4.png"></p>
 <h3 id="2️⃣使用B-树排序"><a href="#2️⃣使用B-树排序" class="headerlink" title="2️⃣使用B+树排序"></a>2️⃣使用B+树排序</h3><p>B+树的叶子节点是排好序的，我们可以利用这个特性进行排序</p>
 <ul>
@@ -575,6 +574,8 @@
 
 
 
+
+  
 
   
 

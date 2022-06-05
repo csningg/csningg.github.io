@@ -276,7 +276,6 @@
 <p>相同的字母必须在同一个组合内</p>
 </blockquote>
 <span id="more"></span>
-
 <p>如何保证相同的字母必须在同一个组合内呢？</p>
 <p>tip💌相同的字母做同样的标记，当后面没有这个标记时，说明这里应该是切割点。</p>
 <p>另外，对于 a……a，假如中间元素不同，不管中间是什么元素，我们都不管;</p>
@@ -290,7 +289,6 @@
 <li>切割数组，切割线应该始终处于当前下标和之前字母最后出现位置的最大值。比如上述我们在省略号之间遍历时，切割线应该始终位于最后的a那里。</li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">partitionLabels</span><span class="params">(string s)</span> </span>&#123;</span><br><span class="line">        unordered_map&lt;<span class="type">int</span>,<span class="type">int</span>&gt; mp;</span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; res;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++)&#123;</span><br><span class="line">            mp[s[i]] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> left = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> right = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> j = <span class="number">0</span>; j &lt; s.<span class="built_in">size</span>(); j++)&#123;</span><br><span class="line">            right = <span class="built_in">max</span>(right,mp[s[j]]);</span><br><span class="line">            <span class="keyword">if</span>(right == j)&#123;</span><br><span class="line">                res.<span class="built_in">push_back</span>(right - left + <span class="number">1</span>);</span><br><span class="line">                left = j + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
 
     </div>
 
@@ -513,6 +511,8 @@
 
 
 
+
+  
 
   
 

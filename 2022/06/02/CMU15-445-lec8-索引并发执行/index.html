@@ -273,7 +273,6 @@
 <p>本文章服务于CMU15445 lec8，主要聚焦于hash table 和 B+ tree 如何加锁才能实现并发，避免死锁，提高效率</p>
 </blockquote>
 <span id="more"></span>
-
 <p>本文主要分为四个部分</p>
 <ol>
 <li>latch的介绍</li>
@@ -345,7 +344,7 @@
 <h3 id="B-tree的并发操作"><a href="#B-tree的并发操作" class="headerlink" title="B+ tree的并发操作"></a>B+ tree的并发操作</h3><p><img src="https://s2.loli.net/2022/06/02/RZaK5bfutLxl69B.png" alt="Untitled 2.png"></p>
 <p>假如我们没有并发控制，我们删除完44后，查找41，然后进行Rebalance时，41到了I节点处了，则会导致查找失败</p>
 <p>所以我们要进行加锁</p>
-<p>Latch crabbing&#x2F;coupling</p>
+<p>Latch crabbing/coupling</p>
 <p>基本观点：</p>
 <p>先给父节点加锁，再给子节点加锁，只有当父节点安全时才将其锁释放，什么是安全的呢？当且仅当其不会被分裂或者合并时。</p>
 <p>基本过程：</p>
@@ -580,6 +579,8 @@
 
 
 
+
+  
 
   
 
