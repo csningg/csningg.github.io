@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>LeetCode 笔记-738.单调递增的数字</title>
+      <link href="/2022/06/06/LeetCode-%E7%AC%94%E8%AE%B0-738-%E5%8D%95%E8%B0%83%E9%80%92%E5%A2%9E%E7%9A%84%E6%95%B0%E5%AD%97/"/>
+      <url>/2022/06/06/LeetCode-%E7%AC%94%E8%AE%B0-738-%E5%8D%95%E8%B0%83%E9%80%92%E5%A2%9E%E7%9A%84%E6%95%B0%E5%AD%97/</url>
+      
+        <content type="html"><![CDATA[<h1 id="738-单调递增的数字"><a href="#738-单调递增的数字" class="headerlink" title="738.单调递增的数字"></a>738.单调递增的数字</h1><p>先想明白算法的大致逻辑！肯定需要遍历数字的，是从左往右，还是从有往左呢？</p><span id="more"></span><ul><li>1234：符合条件，无论从左往右还是从右往左都可以</li><li>10：符合条件的是9，如果num[i-1] &lt; num[i],既1&lt;0,我们让1—，0变成9，此时是符合条件的</li><li>21：符合条件的是19，我们是2—，1变成9</li><li>4321：符合条件的是3999，4&lt;3,我们将4—，后面的全部变成9</li><li>54213566：符合条件的是49999999，我们还是将5变成4，后面的全变成9</li></ul><p>有什么规律呢？从右往左遍历，记录最后一个不符合要求的序数对，让后将序数对左边的减1，右边多有的都变成9。</p><p><a href="https://leetcode.cn/problems/monotone-increasing-digits/">题目</a>：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">monotoneIncreasingDigits</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        string num = <span class="built_in">to_string</span>(n);</span><br><span class="line">        <span class="type">int</span> flag = <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = num.<span class="built_in">size</span>() - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(num[i] &lt; num[i - <span class="number">1</span>])&#123;</span><br><span class="line">                flag = i;</span><br><span class="line">                num[i - <span class="number">1</span>] = num[i - <span class="number">1</span>] - <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(flag != <span class="number">-1</span>)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i = flag; i &lt; num.<span class="built_in">size</span>(); i++)&#123;</span><br><span class="line">                num[i] = <span class="string">&#x27;9&#x27;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">stoi</span>(num);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> LeetCode </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 贪心 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CMU15-445 lec10 连接算法</title>
       <link href="/2022/06/05/CMU15-445-lec10-%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95/"/>
       <url>/2022/06/05/CMU15-445-lec10-%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95/</url>
