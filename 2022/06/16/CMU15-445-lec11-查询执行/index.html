@@ -22,20 +22,25 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="56. 合并区间 本题的思路其实蛮简单的，判断下一个区间的开始位置是否在上个区间内，若在其中就合并">
+  <meta name="description" content="查询执行 Part I 本文章服务于CMU15-445 lec 11 查询执行的第一部分，主要讲述执行模型，存取方法，修改查询，以及表达式评估几个方面！">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LeetCode 笔记-56. 合并区间">
-<meta property="og:url" content="http://example.com/2022/06/03/LeetCode-%E7%AC%94%E8%AE%B0-56-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/index.html">
+<meta property="og:title" content="CMU15-445 lec11查询执行">
+<meta property="og:url" content="http://example.com/2022/06/16/CMU15-445-lec11-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C/index.html">
 <meta property="og:site_name" content="黄沙百战穿金甲">
-<meta property="og:description" content="56. 合并区间 本题的思路其实蛮简单的，判断下一个区间的开始位置是否在上个区间内，若在其中就合并">
+<meta property="og:description" content="查询执行 Part I 本文章服务于CMU15-445 lec 11 查询执行的第一部分，主要讲述执行模型，存取方法，修改查询，以及表达式评估几个方面！">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-06-03T02:25:16.000Z">
-<meta property="article:modified_time" content="2022-06-03T05:37:20.381Z">
+<meta property="og:image" content="https://s2.loli.net/2022/06/16/JgMeIpavF8QTCPW.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/16/gBRaFT5431KfqtQ.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/16/8rqi6m2DVC5bsl1.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/16/NDB4AjptdxQXZGP.png">
+<meta property="article:published_time" content="2022-06-16T11:36:55.000Z">
+<meta property="article:modified_time" content="2022-06-16T11:37:58.252Z">
 <meta property="article:author" content="Ning">
-<meta property="article:tag" content="贪心">
+<meta property="article:tag" content="DBMS">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/06/16/JgMeIpavF8QTCPW.png">
 
-<link rel="canonical" href="http://example.com/2022/06/03/LeetCode-%E7%AC%94%E8%AE%B0-56-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/">
+<link rel="canonical" href="http://example.com/2022/06/16/CMU15-445-lec11-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C/">
 
 
 <script id="page-configurations">
@@ -48,7 +53,7 @@
   };
 </script>
 
-  <title>LeetCode 笔记-56. 合并区间 | 黄沙百战穿金甲</title>
+  <title>CMU15-445 lec11查询执行 | 黄沙百战穿金甲</title>
   
 
 
@@ -197,7 +202,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/03/LeetCode-%E7%AC%94%E8%AE%B0-56-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/16/CMU15-445-lec11-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -210,7 +215,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          LeetCode 笔记-56. 合并区间
+          CMU15-445 lec11查询执行
         </h1>
 
         <div class="post-meta">
@@ -221,7 +226,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-06-03 10:25:16 / 修改时间：13:37:20" itemprop="dateCreated datePublished" datetime="2022-06-03T10:25:16+08:00">2022-06-03</time>
+              <time title="创建时间：2022-06-16 19:36:55 / 修改时间：19:37:58" itemprop="dateCreated datePublished" datetime="2022-06-16T19:36:55+08:00">2022-06-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -229,7 +234,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LeetCode/" itemprop="url" rel="index"><span itemprop="name">LeetCode</span></a>
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
                 </span>
             </span>
 
@@ -246,14 +251,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.2k</span>
+              <span>2.1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -265,21 +270,82 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="56-合并区间"><a href="#56-合并区间" class="headerlink" title="56. 合并区间"></a>56. 合并区间</h1><blockquote>
-<p>本题的思路其实蛮简单的，判断下一个区间的<strong>开始位置</strong>是否在上个区间<strong>内</strong>，若在其中就合并</p>
+        <h1 id="查询执行-Part-I"><a href="#查询执行-Part-I" class="headerlink" title="查询执行 Part I"></a>查询执行 Part I</h1><blockquote>
+<p>本文章服务于CMU15-445 lec 11 查询执行的第一部分，主要讲述执行模型，存取方法，修改查询，以及表达式评估几个方面！</p>
 </blockquote>
 <span id="more"></span>
-<ol>
-<li>首先，肯定要对区间进行排序，我们按照区间的开始位置进行排序</li>
-<li>从第二个开始遍历，如果第二个元素的起始位置在第一个区间内，则更新最右边的位置，遍历第三个元素，依次往后推</li>
-<li>如果第二个元素的起始位置不在第一个元素的区间内，则直接将第一个区间的首位加入到最后的结果中。</li>
-</ol>
-<p>本题的难点主要有两个：</p>
+<p>我们知道SQL语句在执行的时候都会转换成一个查询计划，查询计划一般呈树状分布，树的节点是操作符，数据流从叶子节点流向根节点，根节点输出查询的结果，我们来看一下这中间的秘密！</p>
+<h2 id="Processing-model"><a href="#Processing-model" class="headerlink" title="Processing model"></a>Processing model</h2><p>根据不同的工作负债，我们可以选择不同的执行模型，执行模型决定的是如何执行一个查询计划</p>
+<h3 id="火山模型（Iterator-model）"><a href="#火山模型（Iterator-model）" class="headerlink" title="火山模型（Iterator model）"></a>火山模型（Iterator model）</h3><blockquote>
+<p>每一个查询计划的算子都实现了next函数，上层的算子调用next向下层要数据，下层再调用next向更下层要数据，直到叶子节点位置，并且我们每次只返回一个tuple</p>
+</blockquote>
+<p>大致的过程如图所示</p>
+<p><img src="https://s2.loli.net/2022/06/16/JgMeIpavF8QTCPW.png" alt="Untitled.png"></p>
 <ul>
-<li>最后区间需要单独处理，如果说不单独处理，且最后一个区间没有合并，则其无法加入到最后的结果中</li>
-<li>我们在合并区间的时候，需要循环合并，直到不能合并位置</li>
+<li>1️⃣是根节点，其调用其子节点的next算子，然后将其投影出来，但是此时其子节点还没运行到，因此其要阻塞</li>
+<li>2️⃣是连接算子，1️⃣向2️⃣要数据，2️⃣使用的是hash join，其先构建hash table，如何构建呢？其向3️⃣和4️⃣要数据</li>
+<li>3️⃣循环R表，输出其一个个tuple到2️⃣构建hash表</li>
+<li>执行到2️⃣的第二个循环，第二个循环需要右侧的的算子，然后执行到4️⃣,4️⃣再向5️⃣要数据，然后执行到5️⃣,5️⃣的输出结果一个tuple一个tuple的返回给4️⃣</li>
+<li>4️⃣的结果再一个tuple一个tuple的返回给2️⃣，然后2️⃣的第二个循环开始探测，将满足结果的返回给1️⃣,然后1️⃣进行输出</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> <span class="type">bool</span> <span class="title">cmp</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; p, vector&lt;<span class="type">int</span>&gt;&amp; q)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> p[<span class="number">0</span>] &lt; q[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    vector&lt;vector&lt;<span class="type">int</span>&gt;&gt; <span class="built_in">merge</span>(vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;&amp; intervals) &#123;</span><br><span class="line">        vector&lt;vector&lt;<span class="type">int</span>&gt;&gt; res;</span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; tmp;</span><br><span class="line">        <span class="keyword">if</span>(intervals.<span class="built_in">size</span>() == <span class="number">0</span>) <span class="keyword">return</span> res;</span><br><span class="line">        <span class="built_in">sort</span>(intervals.<span class="built_in">begin</span>(), intervals.<span class="built_in">end</span>(), cmp);</span><br><span class="line">        <span class="type">bool</span> flag = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> left, right;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt; intervals.<span class="built_in">size</span>(); i++)&#123;</span><br><span class="line">            left = intervals[i - <span class="number">1</span>][<span class="number">0</span>];</span><br><span class="line">            right = intervals[i - <span class="number">1</span>][<span class="number">1</span>];</span><br><span class="line">            <span class="keyword">while</span>(i &lt; intervals.<span class="built_in">size</span>() &amp;&amp; intervals[i][<span class="number">0</span>] &lt;= right)&#123;</span><br><span class="line">                right = <span class="built_in">max</span>(right,intervals[i][<span class="number">1</span>]);</span><br><span class="line">                <span class="keyword">if</span>(i == intervals.<span class="built_in">size</span>() - <span class="number">1</span>)&#123;</span><br><span class="line">                    flag = <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                i++;</span><br><span class="line">            &#125;</span><br><span class="line">            tmp.<span class="built_in">push_back</span>(left);</span><br><span class="line">            tmp.<span class="built_in">push_back</span>(right);</span><br><span class="line">            res.<span class="built_in">push_back</span>(tmp);</span><br><span class="line">            tmp.<span class="built_in">clear</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(flag == <span class="literal">false</span>)&#123;</span><br><span class="line">            tmp.<span class="built_in">push_back</span>(intervals[intervals.<span class="built_in">size</span>() - <span class="number">1</span>][<span class="number">0</span>]);</span><br><span class="line">            tmp.<span class="built_in">push_back</span>(intervals[intervals.<span class="built_in">size</span>() - <span class="number">1</span>][<span class="number">1</span>]);</span><br><span class="line">            res.<span class="built_in">push_back</span>(tmp);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>火山模型每次都是一个一个tuple的输出，如果没有tuple，则向上提交一个空的作为标记。</p>
+<p>有一些操作符可能会被阻塞，直到其子节点输出其所有的元组</p>
+<h3 id="物化模型（Materialization-model）"><a href="#物化模型（Materialization-model）" class="headerlink" title="物化模型（Materialization model）"></a>物化模型（Materialization model）</h3><blockquote>
+<p>火山模型的输出一次输出一个tuple，物化模型在火上模型的基础上进行了改进，每一次不输出一个tuple了，每个算子只输出一次，输出一个数组。</p>
+</blockquote>
+<ul>
+<li>算子一次性要输出其孩子的所有元组，且不用回去检索更多的数据了。</li>
+<li>这种方法更适用于OLTP型的业务，因为每次就返回几行数据，不适合OLAP的数据，因为OLAP返回的数据太大。</li>
+</ul>
+<p>大致过程如图：</p>
+<p><img src="https://s2.loli.net/2022/06/16/gBRaFT5431KfqtQ.png" alt="Untitled 1.png"></p>
+<h3 id="向量模型（Vectorized-Batch-model）"><a href="#向量模型（Vectorized-Batch-model）" class="headerlink" title="向量模型（Vectorized/Batch model）"></a>向量模型（Vectorized/Batch model）</h3><blockquote>
+<p>有了上述两个模型，其两个组合就有了向量模型，既我们讲要输出的数据分批输出</p>
+</blockquote>
+<p>每个next方法输出一个数组，返回一个tuple batch，一次是返回一批数据</p>
+<p><img src="https://s2.loli.net/2022/06/16/8rqi6m2DVC5bsl1.png" alt="Untitled 2.png"></p>
+<p>向量模型对于OLAP的查询比较友好，因为对于next的函数的调用少</p>
+<h3 id="查询处理的方向"><a href="#查询处理的方向" class="headerlink" title="查询处理的方向"></a>查询处理的方向</h3><ol>
+<li>Top-to-bottom：从根节点向子节点拉去数据，元组总是通过函数的调用来相互传递</li>
+<li>Bottom-to-top：从根节点开始，向上层push数据，我们需要更谨慎的处理缓冲池或者寄存器中的数据</li>
+</ol>
+<h2 id="Access-Methods"><a href="#Access-Methods" class="headerlink" title="Access Methods"></a>Access Methods</h2><blockquote>
+<p>存取方法讲的是DBMS如何去存取在表中的数据，主要分为两种，一是顺序扫描，另一种是索引扫描</p>
+</blockquote>
+<h3 id="顺序扫描"><a href="#顺序扫描" class="headerlink" title="顺序扫描"></a>顺序扫描</h3><blockquote>
+<p>顺序扫描是一页一页的扫描表中的数据，当页面在缓冲池中的时候，然后根据算子的输出结果决定是否要输出</p>
+</blockquote>
+<p>在顺序扫描的过程中，DBMS会维持一个游标来记录上次扫描到哪里了</p>
+<p>如果单纯的顺序扫描，那么会导致其效率极低，我们会采用一些方法来提高顺序扫描的效率</p>
+<ul>
+<li>Prefetching:预取，提前取几个页面到内存中，以至于再DBMS在不至于等待IO</li>
+<li>Buffer Pool Bypass：如果某些页面只用一次，那么不让他去缓冲到内存中了，直接移到寄存器中，用完直接丢掉</li>
+<li>Parallelization：可以从表的不同地方开始扫描表</li>
+<li>Zone Map：我们给每个表设置一个概况统计，比如，最大值，最小值，平均值等<ul>
+<li>这样设置纯在一些问题，比如，这个Zone Map存在哪里，且简单的修改一次数据可能引起Zone Map的大量改动</li>
+</ul>
+</li>
+<li>Late Materialization：即记录查询的索引，在输出索引后再会原表去合并数据，这样能够保证每次上下传递的</li>
+<li>Heap Clustering：元组存储在堆的页面上</li>
+</ul>
+<h3 id="索引扫描"><a href="#索引扫描" class="headerlink" title="索引扫描"></a>索引扫描</h3><blockquote>
+<p>在索引扫描过程中，DBMS还可以用index去查询需要的tuple</p>
+</blockquote>
+<p>对于index的查询，我们需要考虑几个因素</p>
+<ul>
+<li>索引包含什么属性</li>
+<li>查询所需要的属性</li>
+<li>属性的值域</li>
+</ul>
+<p>我们在用索引扫描的过程中，应该尽量选择按照属性区分力度大的属性</p>
+<p><img src="https://s2.loli.net/2022/06/16/NDB4AjptdxQXZGP.png" alt="Untitled 3.png"></p>
+<p>更高级的DBMS系统可以支持多索引的扫描，扫描之后可以求交集也可以求并集，可以进行再</p>
+<h2 id="Modification-Queries"><a href="#Modification-Queries" class="headerlink" title="Modification Queries"></a>Modification Queries</h2><blockquote>
+<p>我们在数据库的更新，插入和删除的时候，必须要为此一个指针，用来记录已经修改了哪些元组</p>
+</blockquote>
+<p>在进行修改时（插入，删除，更新）等，我们仍然有两种方案，早物化和晚物化！</p>
+<h3 id="Halloween-Problem"><a href="#Halloween-Problem" class="headerlink" title="Halloween Problem"></a>Halloween Problem</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> people</span><br><span class="line">	<span class="keyword">SET</span> salary <span class="operator">=</span> salary <span class="operator">+</span> <span class="number">100</span></span><br><span class="line">	<span class="keyword">WHERE</span> salary <span class="operator">&lt;</span> <span class="number">1100</span></span><br></pre></td></tr></table></figure>
+<p>比如我们给每个人的工资加100块，我们给每个人加上索引，如果我们不记录每次更新的位置，那么假如给工资500的人加100变成600，我们等再次走到600的时候，我们发现其仍然满足符合条件，会继续更新，直到其更新到大于1000为止，这显然是有问题的，因此我们更新数据的时候，要用指针去记录他！</p>
 
     </div>
 
@@ -289,7 +355,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag"># 贪心</a>
+              <a href="/tags/DBMS/" rel="tag"># DBMS</a>
           </div>
 
         
@@ -298,13 +364,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/06/02/CMU15-445-lec8-%E7%B4%A2%E5%BC%95%E5%B9%B6%E5%8F%91%E6%89%A7%E8%A1%8C/" rel="prev" title="CMU15-445 lec8 索引并发执行">
-      <i class="fa fa-chevron-left"></i> CMU15-445 lec8 索引并发执行
+    <a href="/2022/06/06/LeetCode-%E7%AC%94%E8%AE%B0-738-%E5%8D%95%E8%B0%83%E9%80%92%E5%A2%9E%E7%9A%84%E6%95%B0%E5%AD%97/" rel="prev" title="LeetCode 笔记-738.单调递增的数字">
+      <i class="fa fa-chevron-left"></i> LeetCode 笔记-738.单调递增的数字
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/06/03/CMU15-445-lec9-%E6%8E%92%E5%BA%8F%E5%92%8C%E8%81%9A%E9%9B%86/" rel="next" title="CMU15-445 lec9 排序和聚集">
-      CMU15-445 lec9 排序和聚集 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -363,7 +426,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#56-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4"><span class="nav-number">1.</span> <span class="nav-text">56. 合并区间</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C-Part-I"><span class="nav-number">1.</span> <span class="nav-text">查询执行 Part I</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Processing-model"><span class="nav-number">1.1.</span> <span class="nav-text">Processing model</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%81%AB%E5%B1%B1%E6%A8%A1%E5%9E%8B%EF%BC%88Iterator-model%EF%BC%89"><span class="nav-number">1.1.1.</span> <span class="nav-text">火山模型（Iterator model）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%A9%E5%8C%96%E6%A8%A1%E5%9E%8B%EF%BC%88Materialization-model%EF%BC%89"><span class="nav-number">1.1.2.</span> <span class="nav-text">物化模型（Materialization model）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E6%A8%A1%E5%9E%8B%EF%BC%88Vectorized-Batch-model%EF%BC%89"><span class="nav-number">1.1.3.</span> <span class="nav-text">向量模型（Vectorized&#x2F;Batch model）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86%E7%9A%84%E6%96%B9%E5%90%91"><span class="nav-number">1.1.4.</span> <span class="nav-text">查询处理的方向</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Access-Methods"><span class="nav-number">1.2.</span> <span class="nav-text">Access Methods</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E6%89%AB%E6%8F%8F"><span class="nav-number">1.2.1.</span> <span class="nav-text">顺序扫描</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E6%89%AB%E6%8F%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">索引扫描</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Modification-Queries"><span class="nav-number">1.3.</span> <span class="nav-text">Modification Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Halloween-Problem"><span class="nav-number">1.3.1.</span> <span class="nav-text">Halloween Problem</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
