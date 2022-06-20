@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>CMU15-445lec13 查询优化1</title>
+      <link href="/2022/06/20/CMU15-445-lec13-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%961/"/>
+      <url>/2022/06/20/CMU15-445-lec13-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%961/</url>
+      
+        <content type="html"><![CDATA[<h1 id="查询计划-amp-优化-Part1"><a href="#查询计划-amp-优化-Part1" class="headerlink" title="查询计划&amp;优化 Part1"></a>查询计划&amp;优化 Part1</h1><blockquote><p>本篇文章服务于CMU15-445 lec 13查询优化第一节，主要讲述基于启发式（规则式）的优化方法</p></blockquote><h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><p>为什么有查询优化呢？</p><p>因为SQL语句是声明式的，查询语句只告诉DBMS去执行什么，而不管其怎么去执行；不同的查询计划之间的效率是有很大的不同的，因此DBMS需要找到一种高效的查询计划。</p><p>大致上查询优化从上层分为两种：</p><ol><li>启发式的，使用一种静态的规则，遇到什么就去怎么做，DBMS并不知道使用了这种规则后查询计划的性能时候更好，它只是按照我们约定的规则去操作的。</li><li>基于代价式的，我们需要评估每个查询计划的代价，然后根据代价去选择更小的查询计划。</li></ol><h3 id="逻辑计划-VS-物理计划"><a href="#逻辑计划-VS-物理计划" class="headerlink" title="逻辑计划 VS 物理计划"></a>逻辑计划 VS 物理计划</h3><p>逻辑计划是从上层进行描述的，比如说进行join</p><p>物理计划是从实操的层面上得，比如是next loop join 还是 hash join</p><p>优化器会从逻辑上的代数表达式生成一个实际的物理表达式；这两个表达式大致是相当的</p><p>每一个物理的算子都有一个特定的执行策略，其依赖于数据的物理格式，物理和逻辑上得计划并不是一 一对应的。</p><h3 id="SQL执行的过程"><a href="#SQL执行的过程" class="headerlink" title="SQL执行的过程"></a>SQL执行的过程</h3><p><img src="https://s2.loli.net/2022/06/20/Of5NEwaUSPt4xjc.png" alt="Untitled.png"></p><ol><li>当应用程序发来了SQL语句时，先经过SQL重写，在文本字符串上做一些优化</li><li>将重写的SQL语句发给解析器，解析器会生成抽象的语法树</li><li>语法树经过Binder，将索引与实际物理相结合，生成逻辑执行计划</li><li>然后经过树重写，将系统表的信息录入后再生成进一步的逻辑计划，最后送进优化器</li><li>优化器经过代价评估最后生成物理的执行计划。</li></ol><h2 id="Relational-Algebra-Equivalences"><a href="#Relational-Algebra-Equivalences" class="headerlink" title="Relational Algebra Equivalences"></a>Relational Algebra Equivalences</h2><blockquote><p>当两个算数表达式产生结果，我们称其为等价的</p></blockquote><p>DBMS无需经过代价模型，可以直接求得较好的算数表达式，我们有时候称其为查询重写</p><h3 id="Predicate-pushdown"><a href="#Predicate-pushdown" class="headerlink" title="Predicate pushdown"></a>Predicate pushdown</h3><p><img src="https://s2.loli.net/2022/06/20/KjMwNG24TY8Ed3n.png" alt="Untitled 1.png"></p><h3 id="Relational-Algebra-Equivalences-1"><a href="#Relational-Algebra-Equivalences-1" class="headerlink" title="Relational Algebra Equivalences"></a>Relational Algebra Equivalences</h3><p><img src="https://s2.loli.net/2022/06/20/pV5wSZD3eKIRO2G.png" alt="Untitled 2.png"></p><ul><li>X = Y AND Y = 3 ⇒ X = 3 AND Y =3</li><li>投影算子尽量尽早的执行，将复杂的算子往下移，能最大成都减少复杂性</li><li>Join算子支持交换律和结合律，不同的顺序对开销影响很大</li></ul><h3 id="Projection-Pushdown"><a href="#Projection-Pushdown" class="headerlink" title="Projection Pushdown"></a>Projection Pushdown</h3><p><img src="https://s2.loli.net/2022/06/20/4ZpikMqXVDjaKSO.png" alt="Untitled 3.png"></p><h2 id="Logical-Query-Optimization"><a href="#Logical-Query-Optimization" class="headerlink" title="Logical Query Optimization"></a>Logical Query Optimization</h2><blockquote><p>把一个逻辑的查询计划转化为等价的逻辑查询计划，增加列举最优计划的可能性</p></blockquote><ol><li><p>Split Conjunction Predicates</p><blockquote><p>解剖连接谓词，把连接在一块的谓词分开</p></blockquote><p>比如将一连串的多个选择转化分别转化为几个选择，并且如果选择算子选择的属性只在某个表中出现，可以将这个选择放到这个表的</p></li><li><p>Replace Cartesian Products with Joins</p><p>我们可以将笛卡尔积换成内部的连接</p></li><li><p>Projection Pushdown</p><p>如果说投影算子所投影的属性只在某个表中出现，则可以讲这个投影算子下移到这个表中</p></li></ol><h2 id="Nested-Queries"><a href="#Nested-Queries" class="headerlink" title="Nested Queries"></a>Nested Queries</h2><blockquote><p>把可以提前计算好的先计算好，然后替换掉</p></blockquote><ol><li>重新来去除他们之间的相关性，或者是展开他们</li><li>把嵌套的子查询分开然后把结果存储在暂时的表中</li></ol><h2 id="Expression-Rewriting"><a href="#Expression-Rewriting" class="headerlink" title="Expression Rewriting"></a>Expression Rewriting</h2><blockquote><p>优化器会将查询表达式转化为最优的表达式</p></blockquote><p>比如 1 = 0，这种简单的直接去掉</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CMU15-445 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> DBMS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>CMU15-445-lec14 查询优化2</title>
+      <link href="/2022/06/20/CMU15-445-lec14-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%962/"/>
+      <url>/2022/06/20/CMU15-445-lec14-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%962/</url>
+      
+        <content type="html"><![CDATA[<h1 id="查询计划-amp-优化-II"><a href="#查询计划-amp-优化-II" class="headerlink" title="查询计划&amp;优化 II"></a>查询计划&amp;优化 II</h1><blockquote><p>本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法</p></blockquote><h2 id="Cost-Estimations"><a href="#Cost-Estimations" class="headerlink" title="Cost Estimations"></a>Cost Estimations</h2><blockquote><p>DBMS会用代价评估模型去估算执行一个计划的代价，这些计划是等价的（能够输出相同的结果），然后去选择代价最小的计划作为最终的执行路径</p></blockquote><p>代价评估主要依托于：</p><ul><li>CPU：代价很小，但是很难去评估</li><li>Disk IO：共需要传输多少磁盘块</li><li>Memory：使用了多少DRAM</li><li>Network：有多少讯息需要传递</li></ul><p>代价评估不可能详尽的列举所有查询计划的方案，因为这样太慢了，比如说Join算法，其具有结合律和交换律，加入说有4个表需要join，就有$4^n$个连接方案，优化器不可能将所有的组合走一遍的。</p><p>为了估计查询的代价，DBMS维护了一些内部的信息，这些内部信息是关于表，属性和索引的。为什么要维护这些内部信息呢？为了避免重复的计算，不同的系统内部存储的信息是不同的，我们不能拿不同DBMS的维护的信息去做比较，这些信息会在后台进行更新。</p><p>对于每一个表R，我们有以下统计信息</p><ul><li>$N_R$ : R中tuple的数量</li><li>$V (A,R)$ : 在表中R中，属性为A的值得数量</li></ul><p>由上面的信息，我们可以得到 <code>选择基数</code> SC(selection cardinality) 统计量，这个选择基数是属性为A的记录的平均数量，记作 $N_R/V(A,R)$，我们这个公式是基于数据的一致性的， 但是事实情况并不是如此的。</p><h3 id="Selection-Statistics"><a href="#Selection-Statistics" class="headerlink" title="Selection Statistics"></a>Selection Statistics</h3><blockquote><p>选择基数可以用于确定特性输入的数量</p></blockquote><p>如果谓词是相等的谓词估计，这将很简单，但是如果是范围选择， 这样会复杂一些</p><p>谓词P的选择是符号谓词条件的元组所在的分数，对于复杂谓词的选择很难去评估其准确性，并且其也有可能会产生某些问题，</p><p><img src="https://s2.loli.net/2022/06/20/Zl41hWLIXsvbtpU.png" alt="image.png"></p><p>我们发现，谓词的选择与符合该谓词的元组的概率是相当的。因此很多概率得的公式会被用于谓词的计算上，这在处理复杂谓词的的选择率上是很有用的。假如说我们假设进行并的谓词是独立的，那么概率的公式可以被用于谓词的计算，我们计算总的选择性可以用单个的选择性去相乘。</p><h3 id="Selectivity-Computation-Assumptions"><a href="#Selectivity-Computation-Assumptions" class="headerlink" title="Selectivity Computation Assumptions"></a>Selectivity Computation Assumptions</h3><p>在计算谓词的选择概率上是，我们需要遵守以下的规则</p><ul><li>Uniform data：均匀分布，我们假设值得分布式均匀的。</li><li>Independent Prediactes：谓词的属性都是独立的</li><li>Inclusion Principle：连接键是重叠的，内部表的属性在外部表也都能找到。</li></ul><h2 id="Histograms"><a href="#Histograms" class="headerlink" title="Histograms"></a>Histograms</h2><blockquote><p>真实的数据通常是有偏差的，很难做出假设，但是数据集是重要的，我们不能舍弃，我们为了节省内存，我们可以采用直方图的方式去把数据分组</p></blockquote><p>我们可以设置等宽的直方图去存储数据</p><p><img src="https://s2.loli.net/2022/06/20/M5dj79kSBbs3Y6t.png" alt="image.png"></p><p>我们可以用等深的直方图去存储数据，可以改变桶的宽度，使得每个桶中出现的次数大致相同的。</p><p><img src="https://s2.loli.net/2022/06/20/3ChcTKWtpGuydmN.png" alt="image.png"></p><h2 id="Sampling"><a href="#Sampling" class="headerlink" title="Sampling"></a>Sampling</h2><blockquote><p>DBMS可以使用采样将用来估计谓词的选择性，这样会使得样本量变小，如果基础表的更改量超过了某个阈值，那么DBMS就会自动更新样本</p></blockquote><p><img src="https://s2.loli.net/2022/06/20/uGem2lH951RcCBg.png" alt="image.png"></p><h2 id="Plan-Enumeration"><a href="#Plan-Enumeration" class="headerlink" title="Plan Enumeration"></a>Plan Enumeration</h2><blockquote><p>基于代价式的查询计划的分类</p></blockquote><h3 id="Single-Relation-Query-Plans"><a href="#Single-Relation-Query-Plans" class="headerlink" title="Single-Relation Query Plans"></a>Single-Relation Query Plans</h3><p>对于单表查询，最大的障碍是如何设置存取方法， 比如是是顺序扫描，索引扫描，或者二分查找等等。大多数数据库都是使用的启发式的，而不是基于代价式的模型</p><p>对于OLTP事务型的查询，这是非常简单的，因为他们是基于索引搜索的，其必定存在最佳的索引搜索，这可以是简单的启发式的。</p><h3 id="Multi-Relation-Query-Plans"><a href="#Multi-Relation-Query-Plans" class="headerlink" title="Multi-Relation Query Plans"></a>Multi-Relation Query Plans</h3><p>对于多表查询，随着表的数量增加，可以选择的Join组合增长的很快的，所以我们需要设定固定的搜索空间，IBM System R涉及处了左深度搜索，这是因为左深度收搜更适合管道模型， 因为DBMS不需要具体的连接运算符输出，如果DBMS的优化器仅仅考虑左深度搜索，这样会减少很多的查询时间。</p><p><img src="https://s2.loli.net/2022/06/20/Ykc7yefgoN9MJjF.png" alt="dd.png"></p><ol><li>枚举所有的关系表排序，</li><li>枚举连接算法的选择，比如HJ或者NLJ</li><li>枚举访问方法找到代价最小的路径。</li></ol><p><img src="https://s2.loli.net/2022/06/20/WbP8t4EFKZUBqi9.png" alt="image.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CMU15-445 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> DBMS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CMU15-445lec12-查询执行2</title>
       <link href="/2022/06/20/CMU15-445-lec12-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C2/"/>
       <url>/2022/06/20/CMU15-445-lec12-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C2/</url>

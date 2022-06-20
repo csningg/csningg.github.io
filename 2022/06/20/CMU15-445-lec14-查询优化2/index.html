@@ -22,20 +22,27 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="51. N 皇后代码随想录中讲的巨明白，我自己的总结如下：">
+  <meta name="description" content="查询计划&amp;优化 II 本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法  Cost Estimations DBMS会用代价评估模型去估算执行一个计划的代价，这些计划是等价的（能够输出相同的结果），然后去选择代价最小的计划作为最终的执行路径  代价评估主要依托于：  CPU：代价很小，但是很难去评估 Disk IO：共需要传输多少磁盘块 Memo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LeetCode 笔记-51.N皇后">
-<meta property="og:url" content="http://example.com/2022/05/01/51-N%E7%9A%87%E5%90%8E/index.html">
+<meta property="og:title" content="CMU15-445-lec14 查询优化2">
+<meta property="og:url" content="http://example.com/2022/06/20/CMU15-445-lec14-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%962/index.html">
 <meta property="og:site_name" content="黄沙百战穿金甲">
-<meta property="og:description" content="51. N 皇后代码随想录中讲的巨明白，我自己的总结如下：">
+<meta property="og:description" content="查询计划&amp;优化 II 本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法  Cost Estimations DBMS会用代价评估模型去估算执行一个计划的代价，这些计划是等价的（能够输出相同的结果），然后去选择代价最小的计划作为最终的执行路径  代价评估主要依托于：  CPU：代价很小，但是很难去评估 Disk IO：共需要传输多少磁盘块 Memo">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-05-01T03:12:05.000Z">
-<meta property="article:modified_time" content="2022-05-24T11:50:09.087Z">
+<meta property="og:image" content="https://s2.loli.net/2022/06/20/Zl41hWLIXsvbtpU.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/20/M5dj79kSBbs3Y6t.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/20/3ChcTKWtpGuydmN.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/20/uGem2lH951RcCBg.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/20/Ykc7yefgoN9MJjF.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/20/WbP8t4EFKZUBqi9.png">
+<meta property="article:published_time" content="2022-06-20T10:44:11.000Z">
+<meta property="article:modified_time" content="2022-06-20T10:56:06.047Z">
 <meta property="article:author" content="Ning">
-<meta property="article:tag" content="回溯">
+<meta property="article:tag" content="DBMS">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/06/20/Zl41hWLIXsvbtpU.png">
 
-<link rel="canonical" href="http://example.com/2022/05/01/51-N%E7%9A%87%E5%90%8E/">
+<link rel="canonical" href="http://example.com/2022/06/20/CMU15-445-lec14-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%962/">
 
 
 <script id="page-configurations">
@@ -48,7 +55,7 @@
   };
 </script>
 
-  <title>LeetCode 笔记-51.N皇后 | 黄沙百战穿金甲</title>
+  <title>CMU15-445-lec14 查询优化2 | 黄沙百战穿金甲</title>
   
 
 
@@ -197,7 +204,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/05/01/51-N%E7%9A%87%E5%90%8E/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/20/CMU15-445-lec14-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%962/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -210,7 +217,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          LeetCode 笔记-51.N皇后
+          CMU15-445-lec14 查询优化2
         </h1>
 
         <div class="post-meta">
@@ -219,23 +226,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2022-05-01 11:12:05" itemprop="dateCreated datePublished" datetime="2022-05-01T11:12:05+08:00">2022-05-01</time>
+              <time title="创建时间：2022-06-20 18:44:11 / 修改时间：18:56:06" itemprop="dateCreated datePublished" datetime="2022-06-20T18:44:11+08:00">2022-06-20</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-24 19:50:09" itemprop="dateModified" datetime="2022-05-24T19:50:09+08:00">2022-05-24</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LeetCode/" itemprop="url" rel="index"><span itemprop="name">LeetCode</span></a>
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
                 </span>
             </span>
 
@@ -252,7 +253,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.3k</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -271,23 +272,65 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="51-N-皇后"><a href="#51-N-皇后" class="headerlink" title="51. N 皇后"></a>51. N 皇后</h1><p><a target="_blank" rel="noopener" href="https://programmercarl.com/0051.N%E7%9A%87%E5%90%8E.html#%E6%80%9D%E8%B7%AF">代码随想录</a>中讲的巨明白，我自己的总结如下：</p>
-<span id="more"></span>
+        <h1 id="查询计划-amp-优化-II"><a href="#查询计划-amp-优化-II" class="headerlink" title="查询计划&amp;优化 II"></a>查询计划&amp;优化 II</h1><blockquote>
+<p>本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法</p>
+</blockquote>
+<h2 id="Cost-Estimations"><a href="#Cost-Estimations" class="headerlink" title="Cost Estimations"></a>Cost Estimations</h2><blockquote>
+<p>DBMS会用代价评估模型去估算执行一个计划的代价，这些计划是等价的（能够输出相同的结果），然后去选择代价最小的计划作为最终的执行路径</p>
+</blockquote>
+<p>代价评估主要依托于：</p>
 <ul>
-<li>首先，弄清楚N皇后解决的问题，参数和返回值<ul>
-<li>要求我们要返回一系列n维的矩阵，其中每个矩阵满足一定的条件</li>
-<li>什么条件？这个矩阵中的每个Q在其行，其列，其正负对角线上均无Q</li>
+<li>CPU：代价很小，但是很难去评估</li>
+<li>Disk IO：共需要传输多少磁盘块</li>
+<li>Memory：使用了多少DRAM</li>
+<li>Network：有多少讯息需要传递</li>
 </ul>
-</li>
-<li>使用回溯法<ul>
-<li>函数出口：走到了叶子节点，搜集叶子节点</li>
-<li>纵向：我们先看一条线，我们先假设第一次递归都是符合条件的，那么递归的深度是row</li>
-<li>横向：用于不符合条件时横向搜索和新的矩阵开始</li>
-<li>条件：强调是这个节点的行，列，正负对角线，但是行上不用搜索，因为每一行就取一个元素，当走到这个节点时，那么其上一轮for循环的回溯部分已经将其前面的置为了‘.’</li>
+<p>代价评估不可能详尽的列举所有查询计划的方案，因为这样太慢了，比如说Join算法，其具有结合律和交换律，加入说有4个表需要join，就有$4^n$个连接方案，优化器不可能将所有的组合走一遍的。</p>
+<p>为了估计查询的代价，DBMS维护了一些内部的信息，这些内部信息是关于表，属性和索引的。为什么要维护这些内部信息呢？为了避免重复的计算，不同的系统内部存储的信息是不同的，我们不能拿不同DBMS的维护的信息去做比较，这些信息会在后台进行更新。</p>
+<p>对于每一个表R，我们有以下统计信息</p>
+<ul>
+<li>$N_R$ : R中tuple的数量</li>
+<li>$V (A,R)$ : 在表中R中，属性为A的值得数量</li>
 </ul>
-</li>
+<p>由上面的信息，我们可以得到 <code>选择基数</code> SC(selection cardinality) 统计量，这个选择基数是属性为A的记录的平均数量，记作 $N_R/V(A,R)$，我们这个公式是基于数据的一致性的， 但是事实情况并不是如此的。</p>
+<h3 id="Selection-Statistics"><a href="#Selection-Statistics" class="headerlink" title="Selection Statistics"></a>Selection Statistics</h3><blockquote>
+<p>选择基数可以用于确定特性输入的数量</p>
+</blockquote>
+<p>如果谓词是相等的谓词估计，这将很简单，但是如果是范围选择， 这样会复杂一些</p>
+<p>谓词P的选择是符号谓词条件的元组所在的分数，对于复杂谓词的选择很难去评估其准确性，并且其也有可能会产生某些问题，</p>
+<p><img src="https://s2.loli.net/2022/06/20/Zl41hWLIXsvbtpU.png" alt="image.png"></p>
+<p>我们发现，谓词的选择与符合该谓词的元组的概率是相当的。因此很多概率得的公式会被用于谓词的计算上，这在处理复杂谓词的的选择率上是很有用的。假如说我们假设进行并的谓词是独立的，那么概率的公式可以被用于谓词的计算，我们计算总的选择性可以用单个的选择性去相乘。</p>
+<h3 id="Selectivity-Computation-Assumptions"><a href="#Selectivity-Computation-Assumptions" class="headerlink" title="Selectivity Computation Assumptions"></a>Selectivity Computation Assumptions</h3><p>在计算谓词的选择概率上是，我们需要遵守以下的规则</p>
+<ul>
+<li>Uniform data：均匀分布，我们假设值得分布式均匀的。</li>
+<li>Independent Prediactes：谓词的属性都是独立的</li>
+<li>Inclusion Principle：连接键是重叠的，内部表的属性在外部表也都能找到。</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    vector&lt;vector&lt;string&gt;&gt; res;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">backtracing</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span> row,vector&lt;string&gt;&amp; chessborad)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(row == n)&#123;</span><br><span class="line">            res.<span class="built_in">push_back</span>(chessborad);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> col = <span class="number">0</span>; col &lt; n; col++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">IsVaild</span>(n,row,col,chessborad))&#123;</span><br><span class="line">                chessborad[row][col] = <span class="string">&#x27;Q&#x27;</span>;</span><br><span class="line">                <span class="built_in">backtracing</span>(n,row + <span class="number">1</span>,chessborad); <span class="comment">//列元素都要检查，所以列元素不传入</span></span><br><span class="line">                chessborad[row][col] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">IsVaild</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span> row,<span class="type">int</span> col, vector&lt;string&gt;&amp; chessborad)</span></span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; row; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(chessborad[i][col] == <span class="string">&#x27;Q&#x27;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = row - <span class="number">1</span>, j = col - <span class="number">1</span>; i &gt;= <span class="number">0</span> &amp;&amp; j &gt;= <span class="number">0</span>; i--, j--)&#123;</span><br><span class="line">            <span class="keyword">if</span>(chessborad[i][j] == <span class="string">&#x27;Q&#x27;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = row - <span class="number">1</span>, j = col + <span class="number">1</span>; i &gt;= <span class="number">0</span> &amp;&amp; j &lt; n; i--, j++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(chessborad[i][j] == <span class="string">&#x27;Q&#x27;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    vector&lt;vector&lt;string&gt;&gt; <span class="built_in">solveNQueens</span>(<span class="type">int</span> n) &#123;</span><br><span class="line">        <span class="comment">//初始化一个矩阵</span></span><br><span class="line">        <span class="function">vector&lt;string&gt; <span class="title">chessborad</span><span class="params">(n,string(n,<span class="string">&#x27;.&#x27;</span>))</span></span>;</span><br><span class="line">        <span class="built_in">backtracing</span>(n,<span class="number">0</span>,chessborad);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="Histograms"><a href="#Histograms" class="headerlink" title="Histograms"></a>Histograms</h2><blockquote>
+<p>真实的数据通常是有偏差的，很难做出假设，但是数据集是重要的，我们不能舍弃，我们为了节省内存，我们可以采用直方图的方式去把数据分组</p>
+</blockquote>
+<p>我们可以设置等宽的直方图去存储数据</p>
+<p><img src="https://s2.loli.net/2022/06/20/M5dj79kSBbs3Y6t.png" alt="image.png"></p>
+<p>我们可以用等深的直方图去存储数据，可以改变桶的宽度，使得每个桶中出现的次数大致相同的。</p>
+<p><img src="https://s2.loli.net/2022/06/20/3ChcTKWtpGuydmN.png" alt="image.png"></p>
+<h2 id="Sampling"><a href="#Sampling" class="headerlink" title="Sampling"></a>Sampling</h2><blockquote>
+<p>DBMS可以使用采样将用来估计谓词的选择性，这样会使得样本量变小，如果基础表的更改量超过了某个阈值，那么DBMS就会自动更新样本</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2022/06/20/uGem2lH951RcCBg.png" alt="image.png"></p>
+<h2 id="Plan-Enumeration"><a href="#Plan-Enumeration" class="headerlink" title="Plan Enumeration"></a>Plan Enumeration</h2><blockquote>
+<p>基于代价式的查询计划的分类</p>
+</blockquote>
+<h3 id="Single-Relation-Query-Plans"><a href="#Single-Relation-Query-Plans" class="headerlink" title="Single-Relation Query Plans"></a>Single-Relation Query Plans</h3><p>对于单表查询，最大的障碍是如何设置存取方法， 比如是是顺序扫描，索引扫描，或者二分查找等等。大多数数据库都是使用的启发式的，而不是基于代价式的模型</p>
+<p>对于OLTP事务型的查询，这是非常简单的，因为他们是基于索引搜索的，其必定存在最佳的索引搜索，这可以是简单的启发式的。</p>
+<h3 id="Multi-Relation-Query-Plans"><a href="#Multi-Relation-Query-Plans" class="headerlink" title="Multi-Relation Query Plans"></a>Multi-Relation Query Plans</h3><p>对于多表查询，随着表的数量增加，可以选择的Join组合增长的很快的，所以我们需要设定固定的搜索空间，IBM System R涉及处了左深度搜索，这是因为左深度收搜更适合管道模型， 因为DBMS不需要具体的连接运算符输出，如果DBMS的优化器仅仅考虑左深度搜索，这样会减少很多的查询时间。</p>
+<p><img src="https://s2.loli.net/2022/06/20/Ykc7yefgoN9MJjF.png" alt="dd.png"></p>
+<ol>
+<li>枚举所有的关系表排序，</li>
+<li>枚举连接算法的选择，比如HJ或者NLJ</li>
+<li>枚举访问方法找到代价最小的路径。</li>
+</ol>
+<p><img src="https://s2.loli.net/2022/06/20/WbP8t4EFKZUBqi9.png" alt="image.png"></p>
+
     </div>
 
     
@@ -296,7 +339,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag"># 回溯</a>
+              <a href="/tags/DBMS/" rel="tag"># DBMS</a>
           </div>
 
         
@@ -304,10 +347,13 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2022/05/02/Project-1-Buffer-Pool-Manager/" rel="next" title="CMU15-445-Bustub 笔记-Project 1:Buffer Pool Manager">
-      CMU15-445-Bustub 笔记-Project 1:Buffer Pool Manager <i class="fa fa-chevron-right"></i>
+    <a href="/2022/06/20/CMU15-445-lec12-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C2/" rel="prev" title="CMU15-445lec12-查询执行2">
+      <i class="fa fa-chevron-left"></i> CMU15-445lec12-查询执行2
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/20/CMU15-445-lec13-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%961/" rel="next" title="CMU15-445lec13 查询优化1">
+      CMU15-445lec13 查询优化1 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -367,7 +413,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#51-N-%E7%9A%87%E5%90%8E"><span class="nav-number">1.</span> <span class="nav-text">51. N 皇后</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E8%AE%A1%E5%88%92-amp-%E4%BC%98%E5%8C%96-II"><span class="nav-number">1.</span> <span class="nav-text">查询计划&amp;优化 II</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cost-Estimations"><span class="nav-number">1.1.</span> <span class="nav-text">Cost Estimations</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Selection-Statistics"><span class="nav-number">1.1.1.</span> <span class="nav-text">Selection Statistics</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Selectivity-Computation-Assumptions"><span class="nav-number">1.1.2.</span> <span class="nav-text">Selectivity Computation Assumptions</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Histograms"><span class="nav-number">1.2.</span> <span class="nav-text">Histograms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sampling"><span class="nav-number">1.3.</span> <span class="nav-text">Sampling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Plan-Enumeration"><span class="nav-number">1.4.</span> <span class="nav-text">Plan Enumeration</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Single-Relation-Query-Plans"><span class="nav-number">1.4.1.</span> <span class="nav-text">Single-Relation Query Plans</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multi-Relation-Query-Plans"><span class="nav-number">1.4.2.</span> <span class="nav-text">Multi-Relation Query Plans</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
