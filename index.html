@@ -193,6 +193,187 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/20/CMU15-445-lec12-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/20/CMU15-445-lec12-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C2/" class="post-title-link" itemprop="url">CMU15-445lec12-查询执行2</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-06-20 18:39:22 / 修改时间：18:40:13" itemprop="dateCreated datePublished" datetime="2022-06-20T18:39:22+08:00">2022-06-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="查询执行-Part-2"><a href="#查询执行-Part-2" class="headerlink" title="查询执行 Part 2"></a>查询执行 Part 2</h1><blockquote>
+<p>本篇文章服务于CMU15-445 lec12，主要讲述查询执行的过程中如何处理并发机制</p>
+</blockquote>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><blockquote>
+<p>我们假定之前讨论的查询都是基于单线程的，但是在实际的应用过程中，查询执行都是并发执行的</p>
+</blockquote>
+<p>并发执行的优点：</p>
+<ul>
+<li>吞吐量增加（单位时间内处理的SQL数量）</li>
+<li>latency（处理每条SQL语句需要更少的时间）</li>
+<li>从客户端来看，响应速度变快，可用性提高</li>
+<li>TCO降低（total cost of ownership）总成本降低了</li>
+</ul>
+<p>并发执行分为另种，查询间并发执行（inter-query parallelism）和 查询内并发执行（intra-parallelism）</p>
+<h2 id="Parallel-vs-Distributed-Databases"><a href="#Parallel-vs-Distributed-Databases" class="headerlink" title="Parallel vs Distributed Databases"></a>Parallel vs Distributed Databases</h2><blockquote>
+<p>我们区别一下并发和分布式的概念</p>
+</blockquote>
+<p>相同点：并发和分布式都是将数据库分布在多个资源中以提高其并发性，比如CPU core，CPU socket , CPUs，disks，memory，无论是并发还是分布式，其结果与在当个的DBMS上执行的结果相同。</p>
+<p>不同点：</p>
+<ul>
+<li>并发的DBMS中，资源在物理上是非常是非常紧密的，资源之间的通讯速度很快，交互的成本也非常低并且可靠</li>
+<li>分布式DBMS中，资源之间物理上离的非常远，资源之间的通讯是要通过网络的，较慢，资源之间的交互成本是需要着重考虑的。</li>
+</ul>
+<h2 id="Process-Model"><a href="#Process-Model" class="headerlink" title="Process Model"></a>Process Model</h2><blockquote>
+<p>处理模型：系统如何支撑来着多用户应用程序、环境的并发请求<br>works：DBMS就是由一个个work组成的，这些work处理来着客户端的请求，并且返回结果<br>当应用程序发来请求时，这些请求就会被分配给不同的工人</p>
+</blockquote>
+<h3 id="Process-Per-Worker"><a href="#Process-Per-Worker" class="headerlink" title="Process Per Worker"></a>Process Per Worker</h3><p>这里的process都是操作系统的进程，每一个worker都会被分配一个OS的进程</p>
+<ul>
+<li>依赖于OS的调度</li>
+<li>共享内存会用到全局的数据结构中，进程之间通过贡献内存来进行通信</li>
+<li>其中一个进程的crash不会似的整个系统崩溃，但是同时也是非常吃资源的。</li>
+<li>IBM DB2， pg, Oracle</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/06/20/uRw6liSBmLdC4DN.png" alt="Untitled.png"></p>
+<p>当请求来的时候，经过分配器分给每个work，每个work是一个进程，然后处理数据，处理完数据后再返回请求</p>
+<h3 id="Process-Pool"><a href="#Process-Pool" class="headerlink" title="Process Pool"></a>Process Pool</h3><p>worker可以使用进程池中任意空闲的进程</p>
+<ul>
+<li>依赖OS的调度，并且进程之间共享内存</li>
+<li>对于CPU的局部缓冲不利，</li>
+<li>IBM DB2 Pg(2015)</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/06/20/DGO6TbYsxZdmue8.png" alt="Untitled 1.png"></p>
+<p>进程之间共享内存，任务来的时候，由分配器去 进程池中选择空闲的进程进程分配，因此在查询的时候相同的查询可能不是同样的进程，因此对CPU的局部性利用率不高</p>
+<h3 id="Thread-Per-Worker"><a href="#Thread-Per-Worker" class="headerlink" title="Thread Per Worker"></a>Thread Per Worker</h3><p>每个数据库仅仅有一个进程，这个进程有很多线程，此时DBMS可以自己管理线程，而不用操作系统的介入了，一个线程一个worker的可以使用也可以不适用分配器</p>
+<ul>
+<li>DBMS可以自己调度线程</li>
+<li>线程的crash可能会使得整个系统崩溃</li>
+<li>上下文切换的时候开销更小，没有必要维护共享模型，因此资源本来就是用进程进行调度的，并不一定支持查询内的并行执行</li>
+<li>IBM DB2 MSSQL MySQL Orac</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/06/20/DjOZPnGkwIAMgSr.png" alt="Untitled 2.png"></p>
+<h3 id="Scheduling"><a href="#Scheduling" class="headerlink" title="Scheduling"></a>Scheduling</h3><p>对于每一个查询计划，DBMS都必须去决when，where，and how 去执行</p>
+<ul>
+<li>有多少task？</li>
+<li>多少CPU cores 可以用</li>
+<li>任务在哪个CPU核上可以使用</li>
+<li>输出应该输出在哪里</li>
+</ul>
+<p>DBMS知道的比OS多很多</p>
+<h2 id="Execution-Parallelism"><a href="#Execution-Parallelism" class="headerlink" title="Execution Parallelism"></a>Execution Parallelism</h2><h3 id="Inter-Query-Parallelism（查询间并发执行）"><a href="#Inter-Query-Parallelism（查询间并发执行）" class="headerlink" title="Inter-Query Parallelism（查询间并发执行）"></a>Inter-Query Parallelism（查询间并发执行）</h3><p>DBMS并发的执行不同的查询，因为多个worker同时运行，执行不同的任务，因此整体的性能提高了，增大了吞吐量，减少了延迟</p>
+<p>如何查询是只读的，那将会有很好的并发性，但是如果涉及到修改，则会有更加复杂的冲突</p>
+<h3 id="Intra-Query-Parallelism（查询内并发执行）"><a href="#Intra-Query-Parallelism（查询内并发执行）" class="headerlink" title="Intra-Query Parallelism（查询内并发执行）"></a>Intra-Query Parallelism（查询内并发执行）</h3><blockquote>
+<p>单个的查询并发的执行，这样会减少一条语句的执行时间，减少延迟性</p>
+</blockquote>
+<ol>
+<li><p>Inter-Operator（Horizontal）</p>
+<p>将算子分成相互独立的片段，然后分别在不同且不想交的数据集上执行相同的操作，最后使用exchange算子将其合并或者分解。</p>
+<p>通常来说exchange算子包括一下几个</p>
+<ul>
+<li>gather：将多个worker的结果合并成同一个输出流，在DBMS最常用的类型</li>
+<li>repartition：由多个输入，也有多个输出，以一种方式输入，然后以另外一种方式输出去重新分配他们</li>
+<li>distribute：讲一个简单的输入流分成多个输出流</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/06/20/WVk9cjxr61Ku3iO.png" alt="Untitled 3.png"></p>
+<p><img src="https://s2.loli.net/2022/06/20/lWCtgcUyRfHBGnA.png" alt="Untitled 4.png"></p>
+<p>查询计划被分成不相交的阶段，给定的计划由不同的worker操作，在操作片段上同时调用next，然后从他们各自的页面上检索数据</p>
+</li>
+<li><p>Inter-Operator(Vertical)</p>
+<p>流水线执行，操作符之间重叠，以便无需物化就可以将操作数从一个阶段传递到下个阶段</p>
+<p><img src="https://s2.loli.net/2022/06/20/2BbcO6f5EM34IwX.png" alt="Untitled 5.png"></p>
+</li>
+<li><p>Bushy</p>
+<p>第三种方法是将上面两种方法合并，即有水平方向的，又有垂直方向的，</p>
+<p><img src="https://s2.loli.net/2022/06/20/lUapi7TLGfw8Vo6.png" alt="Untitled 6.png"></p>
+</li>
+</ol>
+<h2 id="I-O-Parallelism"><a href="#I-O-Parallelism" class="headerlink" title="I/O Parallelism"></a>I/O Parallelism</h2><p>在数据库的执行过程中，磁盘才是瓶颈，如何保证磁盘的并发性呢？</p>
+<h3 id="Multi-Disk-Parallelism"><a href="#Multi-Disk-Parallelism" class="headerlink" title="Multi-Disk Parallelism"></a>Multi-Disk Parallelism</h3><p>RAID0：将数据分在不同的磁盘上，如下图所示，可以并发的取页面1,2,3,；此时是有OS决定的，对DBMS来说是透明的，其并不知道底层发生了什么</p>
+<p><img src="https://s2.loli.net/2022/06/20/ymQij8SwYgds1ZV.png" alt="Untitled 7.png"></p>
+<p>这种一旦其中一个页面损害，则会导致真个文件无用，还有一种方法是RAIO1：是将文件复制到不同的磁盘上，即存副本，存副本会导致资源的利用率过低</p>
+<h3 id="Database-Partitioning"><a href="#Database-Partitioning" class="headerlink" title="Database Partitioning"></a>Database Partitioning</h3><p>讲数据库分解成不同的物理段，物理段存在不同的位置，在逻辑上是完成的，应用程序可以在逻辑上访问这些数据，但是并不知道其在内部的结构。</p>
+<p>如何分区呢？</p>
+<ol>
+<li><p>垂直分区</p>
+<p>将表的属性存储在单独的位置，为了重建原始记录，我们还需要记录一些元组信息</p>
+</li>
+<li><p>水平分区</p>
+<p>将标的元组根据分区键被分成不同的相交的段，如根据散列，范围和位置分区。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/18/LeetCode-%E7%AC%94%E8%AE%B0-714-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA%E5%90%AB%E6%89%8B%E7%BB%AD%E8%B4%B9/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1012,97 +1193,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/05/24/LeetCode-%E7%AC%94%E8%AE%B0-435-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%8C%BA%E9%97%B4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Ning">
-      <meta itemprop="description" content="业精于勤荒于嬉">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="黄沙百战穿金甲">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/24/LeetCode-%E7%AC%94%E8%AE%B0-435-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%8C%BA%E9%97%B4/" class="post-title-link" itemprop="url">LeetCode 笔记-435.无重叠区间</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-05-24 19:01:59 / 修改时间：20:00:11" itemprop="dateCreated datePublished" datetime="2022-05-24T19:01:59+08:00">2022-05-24</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LeetCode/" itemprop="url" rel="index"><span itemprop="name">LeetCode</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>781</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="435-无重叠区间"><a href="#435-无重叠区间" class="headerlink" title="435. 无重叠区间"></a>435. 无重叠区间</h1><p>我们目标：从一组数序对中选择互不重合的最大数量</p>
-<p>首先，排序是跑不掉的了，那么应该怎么样排呢？</p>
-<p>我们可以类比会议安排问题，一个数序对是一个会议的次序时间，我们怎样安排才能使一天中开会的次数最多？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/05/24/LeetCode-%E7%AC%94%E8%AE%B0-435-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%8C%BA%E9%97%B4/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1172,7 +1262,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1226,12 +1316,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">29k</span>
+    <span title="站点总字数">31k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">26 分钟</span>
+    <span title="站点阅读时长">29 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
