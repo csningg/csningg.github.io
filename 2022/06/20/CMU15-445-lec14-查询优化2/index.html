@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="查询计划&amp;优化 II 本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法  Cost Estimations DBMS会用代价评估模型去估算执行一个计划的代价，这些计划是等价的（能够输出相同的结果），然后去选择代价最小的计划作为最终的执行路径  代价评估主要依托于：  CPU：代价很小，但是很难去评估 Disk IO：共需要传输多少磁盘块 Memo">
+  <meta name="description" content="查询计划&amp;优化 II 本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CMU15-445-lec14 查询优化2">
+<meta property="og:title" content="CMU15-445 lec14 查询优化2">
 <meta property="og:url" content="http://example.com/2022/06/20/CMU15-445-lec14-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%962/index.html">
 <meta property="og:site_name" content="黄沙百战穿金甲">
-<meta property="og:description" content="查询计划&amp;优化 II 本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法  Cost Estimations DBMS会用代价评估模型去估算执行一个计划的代价，这些计划是等价的（能够输出相同的结果），然后去选择代价最小的计划作为最终的执行路径  代价评估主要依托于：  CPU：代价很小，但是很难去评估 Disk IO：共需要传输多少磁盘块 Memo">
+<meta property="og:description" content="查询计划&amp;优化 II 本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/06/20/Zl41hWLIXsvbtpU.png">
 <meta property="og:image" content="https://s2.loli.net/2022/06/20/M5dj79kSBbs3Y6t.png">
@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://s2.loli.net/2022/06/20/Ykc7yefgoN9MJjF.png">
 <meta property="og:image" content="https://s2.loli.net/2022/06/20/WbP8t4EFKZUBqi9.png">
 <meta property="article:published_time" content="2022-06-20T10:44:11.000Z">
-<meta property="article:modified_time" content="2022-06-20T10:56:06.047Z">
+<meta property="article:modified_time" content="2022-06-21T15:14:40.877Z">
 <meta property="article:author" content="Ning">
 <meta property="article:tag" content="DBMS">
 <meta name="twitter:card" content="summary">
@@ -55,7 +55,7 @@
   };
 </script>
 
-  <title>CMU15-445-lec14 查询优化2 | 黄沙百战穿金甲</title>
+  <title>CMU15-445 lec14 查询优化2 | 黄沙百战穿金甲</title>
   
 
 
@@ -217,7 +217,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CMU15-445-lec14 查询优化2
+          CMU15-445 lec14 查询优化2
         </h1>
 
         <div class="post-meta">
@@ -226,10 +226,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-06-20 18:44:11 / 修改时间：18:56:06" itemprop="dateCreated datePublished" datetime="2022-06-20T18:44:11+08:00">2022-06-20</time>
+              <time title="创建时间：2022-06-20 18:44:11" itemprop="dateCreated datePublished" datetime="2022-06-20T18:44:11+08:00">2022-06-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-06-21 23:14:40" itemprop="dateModified" datetime="2022-06-21T23:14:40+08:00">2022-06-21</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -275,6 +281,7 @@
         <h1 id="查询计划-amp-优化-II"><a href="#查询计划-amp-优化-II" class="headerlink" title="查询计划&amp;优化 II"></a>查询计划&amp;优化 II</h1><blockquote>
 <p>本篇文章服务于CMU15-445 lec 14查询优化的第二节，主要讲述基于代价式的优化方法</p>
 </blockquote>
+<span id="more"></span>
 <h2 id="Cost-Estimations"><a href="#Cost-Estimations" class="headerlink" title="Cost Estimations"></a>Cost Estimations</h2><blockquote>
 <p>DBMS会用代价评估模型去估算执行一个计划的代价，这些计划是等价的（能够输出相同的结果），然后去选择代价最小的计划作为最终的执行路径</p>
 </blockquote>
@@ -348,12 +355,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/06/20/CMU15-445-lec12-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C2/" rel="prev" title="CMU15-445lec12-查询执行2">
-      <i class="fa fa-chevron-left"></i> CMU15-445lec12-查询执行2
+    <a href="/2022/06/20/CMU15-445-lec12-%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C2/" rel="prev" title="CMU15-445 lec12 查询执行2">
+      <i class="fa fa-chevron-left"></i> CMU15-445 lec12 查询执行2
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/06/20/CMU15-445-lec13-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%961/" rel="next" title="CMU15-445lec13 查询优化1">
-      CMU15-445lec13 查询优化1 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/06/20/CMU15-445-lec13-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%961/" rel="next" title="CMU15-445 lec13 查询优化1">
+      CMU15-445 lec13 查询优化1 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
