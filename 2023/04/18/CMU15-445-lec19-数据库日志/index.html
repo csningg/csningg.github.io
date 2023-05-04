@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="数据库日志 本节课服务于CMU15 445 lec 19 主要讲述数据库的恢复的手段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMU15-445-lec19 数据库日志">
+<meta property="og:url" content="http://example.com/2023/04/18/CMU15-445-lec19-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%A5%E5%BF%97/index.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="数据库日志 本节课服务于CMU15 445 lec 19 主要讲述数据库的恢复的手段">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%201.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%202.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%203.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%204.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%205.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%206.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%207.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%208.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%209.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%2010.png">
+<meta property="og:image" content="http://example.com/pic/19数据库日志/Untitled%2011.png">
+<meta property="article:published_time" content="2023-04-18T08:37:43.000Z">
+<meta property="article:modified_time" content="2023-04-18T08:53:47.288Z">
+<meta property="article:author" content="Ning">
+<meta property="article:tag" content="DBMS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pic/19数据库日志/Untitled.png">
+
+<link rel="canonical" href="http://example.com/2023/04/18/CMU15-445-lec19-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%A5%E5%BF%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CMU15-445-lec19 数据库日志 | 黄沙百战穿金甲</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/18/CMU15-445-lec19-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%A5%E5%BF%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CMU15-445-lec19 数据库日志
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-04-18 16:37:43 / 修改时间：16:53:47" itemprop="dateCreated datePublished" datetime="2023-04-18T16:37:43+08:00">2023-04-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="数据库日志"><a href="#数据库日志" class="headerlink" title="数据库日志"></a>数据库日志</h1><blockquote>
+<p>本节课服务于CMU15 445 lec 19 主要讲述数据库的恢复的手段</p>
+</blockquote>
+<span id="more"></span>
+<p>为什么要有数据库恢复的手段呢？我们知道，事务在执行的时候，会首先向缓冲池要数据，如果缓冲池中没有，则会向磁盘中要数据；事务是不会和磁盘直接进行交互的，那么当事务修改了一个数据，也会首先在缓冲池中修改，而缓冲池并不会立刻的将数据写会磁盘，那么事务commit了，此时突然停电了，缓冲池的数据就会丢失，所以我们要涉及一定的恢复手段来解决这种问题。</p>
+<h2 id="Crash-Recovery-故障恢复"><a href="#Crash-Recovery-故障恢复" class="headerlink" title="Crash Recovery 故障恢复"></a>Crash Recovery 故障恢复</h2><blockquote>
+<p>故障恢复是指无论发生什么，我们要采取一定的手段来保证数据库的一致性，事务的原子性和持久性，此时需要我们在正常执行事务的过程中<strong>多做一些事情</strong>，等问题真的出现的时候，来确保原子性，一致性和持久性的实现。</p>
+</blockquote>
+<h2 id="Storage-Types"><a href="#Storage-Types" class="headerlink" title="Storage Types"></a>Storage Types</h2><ul>
+<li>易失性的存储器：当断电后，数据会消失，比如DRAM，SRAM等。</li>
+<li>非易失性的存储器：在断电和程序退出后，数据仍然存在，比如HDD，SDD</li>
+<li>Stable Storage：一种理想的存储器，在我们分析问题的时候用到，永远不会</li>
+</ul>
+<h2 id="Failure-Classification"><a href="#Failure-Classification" class="headerlink" title="Failure Classification"></a>Failure Classification</h2><ul>
+<li><p>Transaction Failures：事务级别的故障</p>
+<p>事务级别的错误是正常运行所不能避免的，一直会出现，且出现的频率很高</p>
+<ul>
+<li>逻辑错误：事务在执行到最后时，发现内部逻辑错误，有冲突，不能达成serializable，回滚了，</li>
+<li>Internal State Errors内部状态错误：如果两个事务之间有死锁，必须进行回滚</li>
+</ul>
+</li>
+<li><p>System Failure：系统级别的故障</p>
+<p>系统故障在设计数据库时，也要考虑</p>
+<ul>
+<li>软件故障：比如OS或者DBMS出现了bug</li>
+<li>硬件故障：断电，CPU损害</li>
+</ul>
+</li>
+<li><p>Storage Media Failure：存储媒介级别的故障</p>
+<p>硬盘坏掉了，这种故障数据库设计人员无法解决</p>
+</li>
+</ul>
+<p>正如开头所讲，为了保证数据库执行的效率，我们的操作首先是在缓冲池上执行，但是无论发生何种故障，我们必须保证</p>
+<ol>
+<li>只要用户commit了之后，我们都要保证数据能刷都磁盘上，对应<strong>redo</strong>操作。</li>
+<li>只要txn在执行的过程中回滚了，我们必须保证，这个事务就像从来没有发生过一样。其在中间产生的数据必须清理掉。对应<strong>undo</strong>操作。</li>
+</ol>
+<h2 id="Buffer-Pool-Managemet-Policies"><a href="#Buffer-Pool-Managemet-Policies" class="headerlink" title="Buffer Pool Managemet Policies"></a>Buffer Pool Managemet Policies</h2><p>举个例子：有两个事务，事务1和事务2，事务1只和A数据关联，事务2只和B数据关联，A数据和B数据在磁盘上存在同一个页里，事务1和事务2分别修改了A和B，那么当事务2 commit的时候要不要及时的刷盘？刷盘的时候是只刷已经commit的还是都刷？都刷的话如果没有commit的事务后面abort了，那么势必需要再更改磁盘中的数据。</p>
+<p><img src="/pic/19数据库日志/Untitled.png" alt="Untitled"></p>
+<h3 id="Steal-Policy"><a href="#Steal-Policy" class="headerlink" title="Steal Policy"></a>Steal Policy</h3><p>刷页的时候刷数据的选择</p>
+<ul>
+<li>steal：偷偷的把别人没有commit的数据一块刷到磁盘</li>
+<li>no-steal：哪个事务commit了，只刷哪个数据。</li>
+</ul>
+<h3 id="Force-Policy"><a href="#Force-Policy" class="headerlink" title="Force Policy"></a>Force Policy</h3><p>刷页的时间的选择</p>
+<ul>
+<li>force：只要commit，立刻进行刷页</li>
+<li>no-force：commit之后，不立刻刷盘</li>
+</ul>
+<h3 id="No-Steal-Force"><a href="#No-Steal-Force" class="headerlink" title="No-Steal + Force"></a>No-Steal + Force</h3><p>举个例子：我们采用每次都刷自己的数据，且commit之后立刻刷盘，因为刷盘时我们最小的操作都是页，因此我们必须在copy一个页，刷哪个数据该哪个数据，然后将其刷回磁盘。</p>
+<ul>
+<li>非常易于实现，简单</li>
+<li>刷盘操作过于频繁，影响数据库的性能，且没有undo和redo的操作，那么为了事务的回滚和commit，所有的数据必须都得存在缓冲池中，所以事务在执行的时候会受到缓冲池大小的限制。</li>
+</ul>
+<p><img src="/pic/19数据库日志/Untitled 1.png" alt="Untitled"></p>
+<h2 id="Shadow-Paging"><a href="#Shadow-Paging" class="headerlink" title="Shadow Paging"></a>Shadow Paging</h2><blockquote>
+<p>类似于no-steal + force的策略，我们修改数据的时候，copy一份副本，在副本上进行修改，如果commit了，丢弃原来的页，如果abort了，丢弃副本页。</p>
+</blockquote>
+<p>举个例子：影子页会首先给内存中的建一个备份然后读写都在副本上进行，当事务没有commit的时候，内存汇总有个DB root 指向原来的页，然后事务在影子页上进行修改，修改完之后将其刷到磁盘上，然后当事务commit的时候，将原来的页进行垃圾清理。</p>
+<p><img src="/pic/19数据库日志/Untitled 2.png" alt="Untitled"></p>
+<p><img src="/pic/19数据库日志/Untitled 3.png" alt="Untitled" style="zoom:100%;" /></p>
+<p>Undo：当事务执行到一半，abort的时候，将副本页和磁盘中页都干掉就好了，就好像什么也没发生一样。</p>
+<p>Redo：Commit之后，万一断电怎么办，没有这个需求，commit的同时也将页面刷回磁盘了。</p>
+<p>比no-steal + force 的区别是哪里呢？</p>
+<p>在没有commit的时候都将数据刷到磁盘，并且自己会维护一个指针，别的事务看不到，当真正commit之后，才可见。</p>
+<p>刷盘太过频繁，并且如果数据量过大， 那会做很多无用功。</p>
+<p>commit的时候要做的事情太多，还要改变指针的指向，做垃圾清理。因为要清理磁盘上的数据，很容易造成数据的碎片化。</p>
+<h2 id="Journal-File"><a href="#Journal-File" class="headerlink" title="Journal File"></a>Journal File</h2><blockquote>
+<p>类似于shadowing page，但是不完全相同；在2010年以前存在于sqlite微型OS中。</p>
+</blockquote>
+<p>从内存中复制一套原始的页到磁盘中，磁盘中原始的页称为Journal File，称为日志文件，日志文件中存放的不是日志，而是待修改数据的原始页。等commit的时候，把内存中的文件刷到磁盘中，按道理将 可以把 journal file 删除掉了，如果在刷的过程中，突然停电了，等来电时需要恢复时需要redo,如何redo呢，我们怎么知道哪些页面有没有刷到磁盘中呢？我们用journal file 和磁盘中已经有的页进行对比，如果不同说明已经刷了，如果相同，说明没有刷盘。此时为了保证DBMS的一致性，持久性，原子性，可以把journal file的文件load到内存中，然后将其刷到磁盘中去。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </p>
+<p><img src="/pic/19数据库日志/Untitled 4.png" alt="Untitled"></p>
+<p><img src="/pic/19数据库日志/Untitled 5.png" alt="Untitled"></p>
+<p><img src="/pic/19数据库日志/Untitled 6.png" alt="Untitled"></p>
+<p><img src="/pic/19数据库日志/Untitled 7.png" alt="Untitled"></p>
+<p>此方案有对磁盘大量的随机的读写，我们需要将随机的读写转化为连续的读写。</p>
+<h2 id="Write-Ahead-Logging"><a href="#Write-Ahead-Logging" class="headerlink" title="Write-Ahead Logging"></a>Write-Ahead Logging</h2><blockquote>
+<p>预写日志，先写日志，再写数据。</p>
+</blockquote>
+<p>我们维护一个data file，或者称为日志文件，记录我们对事务的修改，并且我们假设data file是存放在stable storge中的，其不会消失和损坏，并且日志文件中有足够的信息去记录redo和undo的操作去恢复我们的DBMS，脏页刷到磁盘中后前，我们就将日志文件先行的刷到磁盘中去。对应的缓冲池策略是 steal + no -force</p>
+<p>内存中有日志文件和实际操作的文件页，日志文件中存放的对文件页的各种操作，当用户commit的时候，我们确保日志文件刷到磁盘中，而对于内存中的页面，可以先不刷脏。用户写入 <code>begin</code> 时，日志开始记录文件的变化，当输入 <code>commit</code> 时，将日志记录刷到磁盘中去。</p>
+<p>日志包含什么东西呢？</p>
+<ul>
+<li>Transaction ID</li>
+<li>Object ID</li>
+<li>Before Value（Undo）</li>
+<li>After Value（Redo）</li>
+</ul>
+<p>举个例子：</p>
+<p><img src="/pic/19数据库日志/Untitled 8.png" alt="Untitled"></p>
+<p>如果此时断电了，缓冲池中的日志文件和页面都不见了，那么等来电恢复的时候会根据日志文件来进行redo操作</p>
+<p>什么时候进行日志的commit呢？</p>
+<p>group commit：</p>
+<ol>
+<li>当用户commit的时候，卡在哪里，等待下一个用户commit的时候，还卡在那里，此时并不告诉用户commit成功了，直到第k个用户commit了，我们一次性将1-k个用户的的commit一次性提交。问题就是用户相互相对等待。</li>
+<li>WAL分页，装载了两个事务的日志，当日志页满的时候进行刷磁盘，日志页满的时候一并进行刷盘，但是也不能无脑的等，当超过一定的时间后，强制进行刷盘</li>
+</ol>
+<p>数据什么时候刷盘吗？</p>
+<p>我们通常选择 no-forcre + steal 的方法，因为我们主要考虑运行时的性能，至于恢复时的性能，可能长久时间也不用一次</p>
+<p><img src="/pic/19数据库日志/Untitled 9.png" alt="Untitled"></p>
+<h2 id="Logging-Schemes"><a href="#Logging-Schemes" class="headerlink" title="Logging Schemes"></a>Logging Schemes</h2><blockquote>
+<p>研究WAL的内容</p>
+</blockquote>
+<ul>
+<li>Physical Logging：记录每个页的二进制的偏移量，从什么改成了什么，Git diff；缺点，如果操作的数据量过大，那么物理日志很大</li>
+<li>Logical Logging：逻辑日志，记录用户发来的SQL语句；比如输出现在的时间，那么在redo的时候，不知道怎么做；如果备库上没有主库的索引，可能得到不是原来的数据</li>
+<li>Physiological logging：混合记录，记录哪个页的那个槽的变化，不记录偏移量；记录槽中指向的数据的变化。更优的，在记录的的时候会分析一下，如果重放的时候不出现问题，则可以记录日志，如果有问题，那么只能记录实际的物理便宜量。</li>
+</ul>
+<p><img src="/pic/19数据库日志/Untitled 10.png" alt="Untitled"></p>
+<p> ps : undo log 可以与MVCC 结合进行操作</p>
+<h2 id="CheckPoints"><a href="#CheckPoints" class="headerlink" title="CheckPoints"></a>CheckPoints</h2><ul>
+<li>日志如果不及时清理的话，其会变得越来越大</li>
+<li>在奔溃恢复的时候，我们需要加一些检查点，要不然不知道从哪开始恢复</li>
+</ul>
+<p>针对以上两种情况，我们采取checkpoints</p>
+<p>当我们写入 <code>checkpoint</code> 时，我们讲所有日志文件全都刷到磁盘中去，checkpoint 告诉DBMS什么时候 <code>redo</code> 什么时候 <code>undo</code></p>
+<p><img src="/pic/19数据库日志/Untitled 11.png" alt="Untitled"></p>
+<ul>
+<li>checkpoint 有性能损耗</li>
+<li>根据checkpoint进行恢复的时候，需要扫描一些文件</li>
+<li>数据库多久存档一次没有特别的要求，如果存档时间过于频繁，但是老是卡，如果存档时间过于久，但是每次写的时候比较久，恢复的时候要做的东西比较多。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DBMS/" rel="tag"># DBMS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/25/CMU15-445-lec18-%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/" rel="prev" title="CMU15-445-lec18-多版本并发控制理论">
+      <i class="fa fa-chevron-left"></i> CMU15-445-lec18-多版本并发控制理论
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/18/CMU15-445-lec20-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/" rel="next" title="CMU15-445-lec20 数据库故障恢复">
+      CMU15-445-lec20 数据库故障恢复 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%A5%E5%BF%97"><span class="nav-number">1.</span> <span class="nav-text">数据库日志</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Crash-Recovery-%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D"><span class="nav-number">1.1.</span> <span class="nav-text">Crash Recovery 故障恢复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Storage-Types"><span class="nav-number">1.2.</span> <span class="nav-text">Storage Types</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Failure-Classification"><span class="nav-number">1.3.</span> <span class="nav-text">Failure Classification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Buffer-Pool-Managemet-Policies"><span class="nav-number">1.4.</span> <span class="nav-text">Buffer Pool Managemet Policies</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Steal-Policy"><span class="nav-number">1.4.1.</span> <span class="nav-text">Steal Policy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Force-Policy"><span class="nav-number">1.4.2.</span> <span class="nav-text">Force Policy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#No-Steal-Force"><span class="nav-number">1.4.3.</span> <span class="nav-text">No-Steal + Force</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shadow-Paging"><span class="nav-number">1.5.</span> <span class="nav-text">Shadow Paging</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Journal-File"><span class="nav-number">1.6.</span> <span class="nav-text">Journal File</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-Ahead-Logging"><span class="nav-number">1.7.</span> <span class="nav-text">Write-Ahead Logging</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Logging-Schemes"><span class="nav-number">1.8.</span> <span class="nav-text">Logging Schemes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CheckPoints"><span class="nav-number">1.9.</span> <span class="nav-text">CheckPoints</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">72k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:05</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

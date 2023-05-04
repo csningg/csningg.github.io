@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="浅析C++中引用和指针的区别">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅析C++中的指针和引用">
+<meta property="og:url" content="http://example.com/2023/04/20/%E6%B5%85%E6%9E%90C-%E4%B8%AD%E7%9A%84%E6%8C%87%E9%92%88%E5%92%8C%E5%BC%95%E7%94%A8/index.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="浅析C++中引用和指针的区别">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-20T10:37:48.000Z">
+<meta property="article:modified_time" content="2023-04-27T13:34:46.216Z">
+<meta property="article:author" content="Ning">
+<meta property="article:tag" content="指针">
+<meta property="article:tag" content="引用">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/04/20/%E6%B5%85%E6%9E%90C-%E4%B8%AD%E7%9A%84%E6%8C%87%E9%92%88%E5%92%8C%E5%BC%95%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>浅析C++中的指针和引用 | 黄沙百战穿金甲</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/20/%E6%B5%85%E6%9E%90C-%E4%B8%AD%E7%9A%84%E6%8C%87%E9%92%88%E5%92%8C%E5%BC%95%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          浅析C++中的指针和引用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-04-20 18:37:48" itemprop="dateCreated datePublished" datetime="2023-04-20T18:37:48+08:00">2023-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-04-27 21:34:46" itemprop="dateModified" datetime="2023-04-27T21:34:46+08:00">2023-04-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="浅析C-中引用和指针的区别"><a href="#浅析C-中引用和指针的区别" class="headerlink" title="浅析C++中引用和指针的区别"></a>浅析C++中引用和指针的区别</h2><span id="more"></span>
+<h3 id="1-指针是个变量，引用是别名"><a href="#1-指针是个变量，引用是别名" class="headerlink" title="1.指针是个变量，引用是别名"></a>1.指针是个变量，引用是别名</h3><ol>
+<li><p>指针是个存放地址的变量，可以将其类比与存放整型的变量一样，即<code>int* p</code>定义了一个指针变量<code>p</code>，这个变量只能存放地址，类似的<code>int a</code>定义了一个整型变量<code>a</code>，这个变量只能存放整型值。</p>
+</li>
+<li><p>指针变变量和其他变量一样，有自己的地址，可以使用<code>&amp;</code>操作符得到指针变量的地址，可以使用<code>sizeof</code> 的得到指针变量的大小，但是对引用进行<code>&amp;</code> 和<code>sizeof</code> 我们将得到与其绑定的变量的地址和大小。因为引用就是其绑定对象的别名</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> &amp;r =  x; <span class="comment">// r就是x，x就是r</span></span><br><span class="line"><span class="type">int</span> *p = &amp;x; <span class="comment">// p是个指针变量，变量的内容是x的地址，</span></span><br><span class="line"><span class="type">int</span> *p2= &amp;r; <span class="comment">// p2指针变量是r的地址，r是x的别名，所以p2是x的地址</span></span><br><span class="line">cout &lt;&lt; <span class="string">&quot;p &quot;</span> &lt;&lt; p &lt;&lt; <span class="string">&quot; p2 &quot;</span> &lt;&lt; p2  &lt;&lt; endl; <span class="comment">// p 0x7ffe1e15e42c p2 0x7ffe1e15e42c</span></span><br><span class="line">cout &lt;&lt; <span class="string">&quot;&amp;p &quot;</span> &lt;&lt;  &amp;p &lt;&lt; <span class="string">&quot; &amp;p2 &quot;</span> &lt;&lt; &amp;p2 &lt;&lt; endl; <span class="comment">//输出的是变量的地址，p和&amp;p2是不同的变量，所以结果不同</span></span><br><span class="line">                                                <span class="comment">// &amp;p 0x7ffe4ad56860 &amp;p2 0x7ffe4ad56868</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="2-指针可以被改变，声明时可以不初始化；引用不能被改变，必须被初始化"><a href="#2-指针可以被改变，声明时可以不初始化；引用不能被改变，必须被初始化" class="headerlink" title="2. 指针可以被改变，声明时可以不初始化；引用不能被改变，必须被初始化"></a>2. 指针可以被改变，声明时可以不初始化；引用不能被改变，必须被初始化</h3><blockquote>
+<p>引用一旦被初始化后，就与其绑定的变量动作一致。但是指针不同，指针的值可以被改变</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">5</span>;</span><br><span class="line"><span class="type">int</span> y = <span class="number">6</span>;</span><br><span class="line"><span class="type">int</span> *p; <span class="comment">// 定义指针变量，未初始化</span></span><br><span class="line">p = &amp;x; <span class="comment">// 指针变量p的值是整型变量x的地址</span></span><br><span class="line">p = &amp;y; <span class="comment">// 指针变量p的值是整型变量y的地址，原来的地址被覆盖</span></span><br><span class="line">*p = <span class="number">10</span>; <span class="comment">// *p的意思是找到p存放的地址是哪个变量，即x，然后将10赋给x</span></span><br><span class="line">cout &lt;&lt; <span class="string">&quot;x &quot;</span> &lt;&lt; x &lt;&lt; endl; <span class="comment">// x 5</span></span><br><span class="line">cout &lt;&lt; <span class="string">&quot;y &quot;</span> &lt;&lt; y &lt;&lt; endl; <span class="comment">// y 10</span></span><br><span class="line"><span class="type">int</span> x = <span class="number">5</span>;</span><br><span class="line"><span class="type">int</span> y = <span class="number">6</span>;</span><br><span class="line"><span class="type">int</span> &amp;q; <span class="comment">// 引用是变量的别名，此时没有被初始化，既不是谁的别名，错误</span></span><br><span class="line"><span class="type">int</span> &amp;r = x;</span><br></pre></td></tr></table></figure>
+<h3 id="3-指针可以嵌套，但是引用就是别名"><a href="#3-指针可以嵌套，但是引用就是别名" class="headerlink" title="3.指针可以嵌套，但是引用就是别名"></a>3.指针可以嵌套，但是引用就是别名</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> y = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> *p = &amp;x;</span><br><span class="line"><span class="type">int</span> *q = &amp;y;</span><br><span class="line"><span class="type">int</span> **pp = &amp;p; </span><br><span class="line">**pp = <span class="number">2</span>; <span class="comment">// *pp找到pp存放地址的变量即p,而**pp就是*(*pp)即*p就是x变量，即将x改成了2</span></span><br><span class="line">pp = &amp;q;</span><br><span class="line">**pp = <span class="number">4</span>; <span class="comment">// 同理将pp变量重新指向了q,**pp变成了*q,既将y改成了4</span></span><br><span class="line">cout &lt;&lt; <span class="string">&quot;x &quot;</span> &lt;&lt; x &lt;&lt; endl; <span class="comment">// x 2</span></span><br><span class="line">cout &lt;&lt; <span class="string">&quot;y &quot;</span> &lt;&lt; y &lt;&lt; endl; <span class="comment">// y 4</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8C%87%E9%92%88/" rel="tag"># 指针</a>
+              <a href="/tags/%E5%BC%95%E7%94%A8/" rel="tag"># 引用</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/19/LeetCode-%E7%AC%94%E8%AE%B0-238-%E9%99%A4%E8%87%AA%E8%BA%AB%E4%BB%A5%E5%A4%96%E6%95%B0%E7%BB%84%E7%9A%84%E4%B9%98%E7%A7%AF/" rel="prev" title="LeetCode 笔记-238.除自身以外数组的乘积">
+      <i class="fa fa-chevron-left"></i> LeetCode 笔记-238.除自身以外数组的乘积
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/21/LeetCode%E7%AC%94%E8%AE%B0-11-%E7%9B%9B%E6%B0%B4%E6%9C%80%E5%A4%9A%E7%9A%84%E5%AE%B9%E5%99%A8/" rel="next" title="LeetCode笔记-11-盛水最多的容器">
+      LeetCode笔记-11-盛水最多的容器 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%85%E6%9E%90C-%E4%B8%AD%E5%BC%95%E7%94%A8%E5%92%8C%E6%8C%87%E9%92%88%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">浅析C++中引用和指针的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%8C%87%E9%92%88%E6%98%AF%E4%B8%AA%E5%8F%98%E9%87%8F%EF%BC%8C%E5%BC%95%E7%94%A8%E6%98%AF%E5%88%AB%E5%90%8D"><span class="nav-number">1.1.</span> <span class="nav-text">1.指针是个变量，引用是别名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8C%87%E9%92%88%E5%8F%AF%E4%BB%A5%E8%A2%AB%E6%94%B9%E5%8F%98%EF%BC%8C%E5%A3%B0%E6%98%8E%E6%97%B6%E5%8F%AF%E4%BB%A5%E4%B8%8D%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%9B%E5%BC%95%E7%94%A8%E4%B8%8D%E8%83%BD%E8%A2%AB%E6%94%B9%E5%8F%98%EF%BC%8C%E5%BF%85%E9%A1%BB%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">2. 指针可以被改变，声明时可以不初始化；引用不能被改变，必须被初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%8C%87%E9%92%88%E5%8F%AF%E4%BB%A5%E5%B5%8C%E5%A5%97%EF%BC%8C%E4%BD%86%E6%98%AF%E5%BC%95%E7%94%A8%E5%B0%B1%E6%98%AF%E5%88%AB%E5%90%8D"><span class="nav-number">1.3.</span> <span class="nav-text">3.指针可以嵌套，但是引用就是别名</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">72k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:05</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

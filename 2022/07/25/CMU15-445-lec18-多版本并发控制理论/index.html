@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="多版本并发控制理论 本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T&#x2F;O 或者是OCC结合起来一起使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMU15-445-lec18-多版本并发控制理论">
+<meta property="og:url" content="http://example.com/2022/07/25/CMU15-445-lec18-%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/index.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="多版本并发控制理论 本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T&#x2F;O 或者是OCC结合起来一起使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/DBi2A8pXYIwkePn.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/XJm5z9cfryunhak.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/NBQ5ODWoKkFLhyn.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/BoRePMJTNHGImZQ.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/FrDTQ8xdps2BCuH.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/enAXRUTWhmqboJL.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/A5lJrSkbUE6I421.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/yIYe3mlWSU1VDCv.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/oVOGyvUTXEQpSJr.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/oKYRQND4MVIlS3b.png">
+<meta property="article:published_time" content="2022-07-24T16:46:27.000Z">
+<meta property="article:modified_time" content="2022-07-24T17:13:34.802Z">
+<meta property="article:author" content="Ning">
+<meta property="article:tag" content="DBMS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/07/25/DBi2A8pXYIwkePn.png">
+
+<link rel="canonical" href="http://example.com/2022/07/25/CMU15-445-lec18-%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CMU15-445-lec18-多版本并发控制理论 | 黄沙百战穿金甲</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/25/CMU15-445-lec18-%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CMU15-445-lec18-多版本并发控制理论
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-25 00:46:27 / 修改时间：01:13:34" itemprop="dateCreated datePublished" datetime="2022-07-25T00:46:27+08:00">2022-07-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="多版本并发控制理论"><a href="#多版本并发控制理论" class="headerlink" title="多版本并发控制理论"></a>多版本并发控制理论</h1><blockquote>
+<p>本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T/O 或者是OCC结合起来一起使用</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="Multi-Version-Concurrency-Control"><a href="#Multi-Version-Concurrency-Control" class="headerlink" title="Multi-Version Concurrency Control"></a>Multi-Version Concurrency Control</h2><blockquote>
+<p>什么叫着MVCC呢？对于每一个数据，我们记录其各个版本，类似于代码厂库一样，我们可以看到其历史数据；</p>
+</blockquote>
+<p>MVCC的机制：</p>
+<ul>
+<li>Writers do not block readers. 留下的数据的历史版本，改这个数据并不影响其他事务读其历史版本；</li>
+<li>Reads do not block writers. 写只是给这个数据插入一个新的版本，并不影响其他事务读其原来的版本；</li>
+</ul>
+<p>读事务即使在无锁的状态下也是读的一致性快照，我们使用时间戳来去读需要的数据的版本，就像是在读一个静态的数据库一样</p>
+<ul>
+<li>case1：无锁只用MVCC，且可以serializable的情况；</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/DBi2A8pXYIwkePn.png" alt="Untitleds.png"></p>
+<p>case2：只用MVCC，不可以serializable的情况；如果说是serializable，那么T2第一次应该读的事456，显然此时读的是123；因此MVCC必须结合其他的并发控制手段才能形成serializable；</p>
+<p><img src="https://s2.loli.net/2022/07/25/XJm5z9cfryunhak.png" alt="Untitled 1.png"></p>
+<p>总结：</p>
+<p>MVCC不止是并发控制手段，而是彻底改变了数据库管理事务的手段，不管是乐观的还是悲观的并发控制都会使用</p>
+<p>并发控制协议如何使用呢？其必须和其他的并发控制手段一起使用，有以下三种方案：</p>
+<p>Approach #1：Timestamp Ordering</p>
+<p>Approach #2：Optimistic Concurrency Control</p>
+<p>Approach #3：Two-Phase Locking</p>
+<h2 id="Version-Storage"><a href="#Version-Storage" class="headerlink" title="Version Storage"></a>Version Storage</h2><blockquote>
+<p>MVCC中存放了各种版本的数据，那么各个版本之间是如何存储的呢？</p>
+</blockquote>
+<p>对于每一个tuple，都有一个指针，指向这个tuple的历史版本，称为 version chain。数据库可以在 version chain上寻找各个版本； </p>
+<p>索引一直指向链表的头部</p>
+<h3 id="Append-Only-Storage"><a href="#Append-Only-Storage" class="headerlink" title="Append-Only Storage"></a>Append-Only Storage</h3><blockquote>
+<p>简单追加，如果说我们增加一个版本，我们直接在表后面添加，如果说这个表有10条数据，但是真正存储的不止十条数据，还有某些数据的历史版本。历史版本通过指针来进行维护</p>
+</blockquote>
+<p>比如DBMS想要增加一个A2的版本，直接加在表的后面，并且维护好指针</p>
+<p><img src="https://s2.loli.net/2022/07/25/NBQ5ODWoKkFLhyn.png" alt="Untitled 2.png"></p>
+<p>对于链表的维护方式，有两种方案</p>
+<ul>
+<li>oldest-to-newest：直接把所需的数据添加到链表的尾部，此时追加时开销比较小，但是查询时开销比较大；</li>
+<li>newest-to-oldest：追加的版本作为链表的头部，搜索的时候开销比较小，一下子就能找到，但是插入的时候，要维护链表的顺序，因此开销比较大</li>
+</ul>
+<h3 id="Time-Travel-Storage"><a href="#Time-Travel-Storage" class="headerlink" title="Time-Travel Storage"></a>Time-Travel Storage</h3><blockquote>
+<p>另外开一个副表，主表用来存储最新的数据，历史数据存储在Time-Treavel Table中</p>
+</blockquote>
+<p>当追加新的版本时，先将主表的内容copy到副表中，同时维护好指针的顺序，最后再将要追加的内容更改到主表中去。</p>
+<p>这种方式的特点，比如说有10行记录，那么主表一直是10行，其历史版本的记录再Time-Travel Table 中</p>
+<p><img src="https://s2.loli.net/2022/07/25/BoRePMJTNHGImZQ.png" alt="Untitled 3.png"></p>
+<h3 id="Delta-Stroage"><a href="#Delta-Stroage" class="headerlink" title="Delta Stroage"></a>Delta Stroage</h3><blockquote>
+<p>每个数据不止一个属性，我们修改的时候，可能只修改一个属性，而此时如果我们还存储整行记录的话，难免浪费空间，所以我们记录其增量</p>
+</blockquote>
+<p>DBMS把行记录的变化写到Delta Storage Segment中，如果说想要恢复的话，我们根据增量反向去推；</p>
+<p>优点是记录的内容较少，确定就是恢复的时候的时间开销较大；</p>
+<p>用时间去换空间的做法</p>
+<h2 id="Garbage-Collection"><a href="#Garbage-Collection" class="headerlink" title="Garbage Collection"></a>Garbage Collection</h2><blockquote>
+<p>数据库不能无限的存储历史版本，如果数据已经没有意义，那就即使将其丢弃</p>
+</blockquote>
+<ul>
+<li>如果任何txn都看不到这个version</li>
+<li>这个版本被已经回滚的事务写的。</li>
+</ul>
+<h3 id="Tuple-Level"><a href="#Tuple-Level" class="headerlink" title="Tuple-Level"></a>Tuple-Level</h3><blockquote>
+<p>直接发现旧的版本去清理</p>
+</blockquote>
+<p>Background Vacuuming:</p>
+<p>后台有线程去扫描整个表，如果发现这个tuple的开始进程和结束进程都已经没了，那就将其干掉。</p>
+<p><img src="https://s2.loli.net/2022/07/25/FrDTQ8xdps2BCuH.png" alt="Untitled 4.png"></p>
+<p>后台优化的手段：不去扫描整个表，因为只有更改过的tuple才有可能产生历史版本，因为我们记录哪些tuple被更改过；</p>
+<p>Cooperative Cleaning:</p>
+<p>不是后台的线程，是正在干活的进程在找自己所需要的历史版本时，一并将其清理掉</p>
+<p><img src="https://s2.loli.net/2022/07/25/enAXRUTWhmqboJL.png" alt="Untitled 5.png"></p>
+<h3 id="Transaction-Level"><a href="#Transaction-Level" class="headerlink" title="Transaction-Level"></a>Transaction-Level</h3><blockquote>
+<p>每个事务记录下来读写了哪些set，后期DBMS去根据事务的状态去决定清理哪些set</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2022/07/25/A5lJrSkbUE6I421.png" alt="Untitled 6.png"></p>
+<h2 id="Index-Management"><a href="#Index-Management" class="headerlink" title="Index Management"></a>Index Management</h2><blockquote>
+<p>在多版本情况下，索引怎么管理</p>
+</blockquote>
+<p>主键索引一般指向链表的头部，并且是实际的物理地址，指向哪个页的哪个槽；如果DBMS产生了新的版本，主键指向的地址也是有可能改变的。</p>
+<p>如果说我们修改主键，我们必须经过两步，第一是删除，第二是插入，这等同于更新</p>
+<h3 id="辅助索引："><a href="#辅助索引：" class="headerlink" title="辅助索引："></a>辅助索引：</h3><ul>
+<li><p>Logical Pointers：记录逻辑值，比如说记录主键的值或者行ID的值，坏处是还需要回表</p>
+</li>
+<li><p>Physical Pointers：也是记录实际的物理值，在哪个页的那个槽；</p>
+<p>问题在在于 辅助索引有很多，如果新增加了一条数据，不止主键索引要更改，所有的辅助收银也要改</p>
+<p><img src="https://s2.loli.net/2022/07/25/yIYe3mlWSU1VDCv.png" alt="Untitled 7.png"></p>
+</li>
+</ul>
+<p>改进方法：</p>
+<p>可以维护一个中间表，TupleID→Address 用空间换时间</p>
+<p><img src="https://s2.loli.net/2022/07/25/oVOGyvUTXEQpSJr.png" alt="Untitled 8.png"></p>
+<p>MVCC index:</p>
+<p>一般来讲，索引不保存版本信息的，但是在MVCC的情况下，版本信息还是需要的</p>
+<p>MVCC存在的问题：</p>
+<p><img src="https://s2.loli.net/2022/07/25/oKYRQND4MVIlS3b.png" alt="Untitled 9.png"></p>
+<p>数据库中有原始数据A1，线程1在10的时刻读了A1，然后再20的时候，线程2插入了一个A2，此时应该标记A1已经结束了，然后线程2又将A2删除了，且在30的时候，线程3又插入了一个数据，此时线程3并不知道系统中有A1，其也按照A1来进行插入，那么在索引表中就有两个A1，当事务1再去读A1的时候，会发现系统中有两个A1；</p>
+<p>多版本控制需要处理唯一约束的问题；</p>
+<p>如何处理删除呢？</p>
+<ul>
+<li>Delete flag : 当我们删除了某个版本的时候，我们在行记录后面记录上其已经被删除了，这样的话，再次插入的时候，可以直接插入</li>
+<li>墓碑：加一行空数据，记录这个数据之前的都已经被删除了</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DBMS/" rel="tag"># DBMS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/25/CMU15-445-lec17-%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E6%88%B3%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/" rel="prev" title="CMU15-445-lec17-基于时间戳的并发控制理论">
+      <i class="fa fa-chevron-left"></i> CMU15-445-lec17-基于时间戳的并发控制理论
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/18/CMU15-445-lec19-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%A5%E5%BF%97/" rel="next" title="CMU15-445-lec19 数据库日志">
+      CMU15-445-lec19 数据库日志 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">多版本并发控制理论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-Version-Concurrency-Control"><span class="nav-number">1.1.</span> <span class="nav-text">Multi-Version Concurrency Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Version-Storage"><span class="nav-number">1.2.</span> <span class="nav-text">Version Storage</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Append-Only-Storage"><span class="nav-number">1.2.1.</span> <span class="nav-text">Append-Only Storage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Travel-Storage"><span class="nav-number">1.2.2.</span> <span class="nav-text">Time-Travel Storage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delta-Stroage"><span class="nav-number">1.2.3.</span> <span class="nav-text">Delta Stroage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Garbage-Collection"><span class="nav-number">1.3.</span> <span class="nav-text">Garbage Collection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tuple-Level"><span class="nav-number">1.3.1.</span> <span class="nav-text">Tuple-Level</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-Level"><span class="nav-number">1.3.2.</span> <span class="nav-text">Transaction-Level</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Index-Management"><span class="nav-number">1.4.</span> <span class="nav-text">Index Management</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95%EF%BC%9A"><span class="nav-number">1.4.1.</span> <span class="nav-text">辅助索引：</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">72k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:05</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

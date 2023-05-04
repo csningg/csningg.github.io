@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="数据库恢复 本文服务于cmu15445 lec 20，结合lec 19 讲述数据库恢复的手段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMU15-445-lec20 数据库故障恢复">
+<meta property="og:url" content="http://example.com/2023/04/18/CMU15-445-lec20-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/index.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="数据库恢复 本文服务于cmu15445 lec 20，结合lec 19 讲述数据库恢复的手段">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%201.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%202.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%203.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%204.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%205.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%206.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%207.png">
+<meta property="og:image" content="http://example.com/pic/20数据库恢复/Untitled%208.png">
+<meta property="article:published_time" content="2023-04-18T08:38:05.000Z">
+<meta property="article:modified_time" content="2023-04-18T08:49:50.252Z">
+<meta property="article:author" content="Ning">
+<meta property="article:tag" content="DBMS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pic/20数据库恢复/Untitled.png">
+
+<link rel="canonical" href="http://example.com/2023/04/18/CMU15-445-lec20-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CMU15-445-lec20 数据库故障恢复 | 黄沙百战穿金甲</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/18/CMU15-445-lec20-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CMU15-445-lec20 数据库故障恢复
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-04-18 16:38:05 / 修改时间：16:49:50" itemprop="dateCreated datePublished" datetime="2023-04-18T16:38:05+08:00">2023-04-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="数据库恢复"><a href="#数据库恢复" class="headerlink" title="数据库恢复"></a>数据库恢复</h1><blockquote>
+<p>本文服务于cmu15445 lec 20，结合lec 19 讲述数据库恢复的手段</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="Crash-Recovery"><a href="#Crash-Recovery" class="headerlink" title="Crash Recovery"></a>Crash Recovery</h2><blockquote>
+<p>故障恢复是指无论发生什么，恢复算法必须保证数据库的一致性，事务的原子性与持久性；在lec 19中我们讲述了故障恢复需要做些什么，主要就是WAL，这节课讲述故障发生了，怎么恢复</p>
+</blockquote>
+<p>checkpoint存在的问题：</p>
+<ol>
+<li>旧的事务全部结束，新的事务不能开始，数据库是个静态的数据库，事务停止也不行，必须是没有事务在进行。</li>
+<li>在数据库恢复的过程中，我们需要扫描checkpoint前后，去查哪些事务开始了，commit了，或者abort了。</li>
+<li>对于checkpoint的位置，没有合适的地方。刷盘频率过高，数据库可能会一卡一卡的，刷盘频率过低，可能每次需要操作的日志太多了。</li>
+</ol>
+<h2 id="WAL-Records"><a href="#WAL-Records" class="headerlink" title="WAL Records"></a>WAL Records</h2><blockquote>
+<p>预写日志中的日志我们需要给其进行编号，称之为Log Sequence number(LSN)，记录日志的编号，以便更方便表示系统运行的状态。</p>
+</blockquote>
+<p><img src="/pic/20数据库恢复/Untitled.png" alt="Untitled"></p>
+<p>在刷某个页的时候，我们必须保证 pageLSN ≤ flushedLSN，也就是说DBMS在刷这个页之前，必须保证最后修改这个页之前的所有记录全都刷入磁盘中，无论其是否与修改的这个页有关</p>
+<p>所有的日志都有LSN，其实一个全局的，所有的事务公用同一个序列号</p>
+<p><img src="/pic/20数据库恢复/Untitled 1.png" alt="Untitled"></p>
+<h2 id="Normal-Execution"><a href="#Normal-Execution" class="headerlink" title="Normal Execution"></a>Normal Execution</h2><blockquote>
+<p>假设有一条SQL语句发过来，里面会涉及一系列的读写，有commit和abort两种情况，我们假设说有的日志记录都在一个页里面，刷页的时候是原子性的，以严格二阶段锁研究事务的恢复，steal + no-force</p>
+</blockquote>
+<h3 id="Transaction-Commit"><a href="#Transaction-Commit" class="headerlink" title="Transaction Commit"></a>Transaction Commit</h3><ul>
+<li>在日志上写上commit record</li>
+<li>WAL，在刷盘的时候，应该确保日志先行，刷日志页的时候应该是连续的，同步的刷到磁盘，并且刷日志页的时候，数据库会停止等待，直到所有数据全都刷到磁盘上去。</li>
+<li>日志文件的页也是有多条日志记录的。</li>
+<li>当事务完全完全成功的时候需要加上一条txn-end的日志记录，但是这个记录不着急刷到磁盘上去。什么意识呢？就是当把日志刷到磁盘后，真正的数据页并没有刷到磁盘中，当把脏页刷到磁盘中后，会记录一个txn-end，此时用户并不知道这个日志记录，用户只要commit之后，用户都已经认为此时已经完成了。</li>
+</ul>
+<h3 id="Transcaction-Abort"><a href="#Transcaction-Abort" class="headerlink" title="Transcaction Abort"></a>Transcaction Abort</h3><ul>
+<li>我们在每条日志后面记录上一条日志的后面加一条preLSN，因为日志序列号是全局的，比如日志15的前面一条不一定是14，有可能是10,9之类的；类似于链表一样，按序排列。</li>
+<li>回滚的时候，我们需要按照‘链条’去找到与某个事务有关的日志。</li>
+<li>CLR：清空日志，DBMS在回滚时，记录一条相反的日志，表明回滚过这条日志，在清空日志的条目上，记录一条undonext 指针，表明下一次CLR需要从哪里开始</li>
+<li>CLR日志没必要强制刷盘，如果丢失在下次从新启动时，从新刷盘即可</li>
+</ul>
+<p><img src="/pic/20数据库恢复/Untitled 2.png" alt="Untitled"></p>
+<p>abort algorithm：</p>
+<ol>
+<li>写一个abort日志</li>
+<li>从反向顺序开始去撤销更改日志，并且追加一条清理日志（CLR），然后恢复旧的数据</li>
+<li>最后写上TXN-END 日志，记录对这个事务对数据库的影响结束了。</li>
+</ol>
+<p>ps：清理日志永远不会被回滚，CLR日志不可能再被别人回滚了</p>
+<h2 id="Checkpointing"><a href="#Checkpointing" class="headerlink" title="Checkpointing"></a>Checkpointing</h2><blockquote>
+<p>为什么之前的检查点不行呢？1.在刷检查点之前的日志的时候，需要暂停掉所有新的事务，等待正在进行的时候做完，比如说有正在进行的事务需要10分钟，需要10分钟之内不能接受新的事务，这是任何的数据库系统都不能接受的，所以我们需要开发出新的checkpoint机制。</p>
+</blockquote>
+<h3 id="Blocking-Checkpoints"><a href="#Blocking-Checkpoints" class="headerlink" title="Blocking Checkpoints"></a>Blocking Checkpoints</h3><h3 id="Slightly-Better-Blocking-Checkpoints"><a href="#Slightly-Better-Blocking-Checkpoints" class="headerlink" title="Slightly Better Blocking Checkpoints"></a>Slightly Better Blocking Checkpoints</h3><p>不去等待正在进行的事务结束，而是让正在进行的事务停止，或者是给要去刷盘的事务去加锁，从而使得其不能被改变</p>
+<p>因为只加了某些页的锁，所以还是有其他事务正在运行，因此我们需要多记录一些东西；</p>
+<ul>
+<li>Active Transaction Table（ATT）活动事务表<ul>
+<li>txnID：记录事务的ID</li>
+<li>status：目前事务的状态，有3种，R：running，C：committing U :Candidate for undo</li>
+<li>LastLSN：最近修改事务的LSN</li>
+</ul>
+</li>
+<li>Dirty Page Tabel（DPT）：在做checkpoint的时候，还有哪些脏页没有被保存<ul>
+<li>recLSN：记录第一个让页面脏的记录，谁先修改的这个页面</li>
+</ul>
+</li>
+</ul>
+<p><img src="/pic/20数据库恢复/Untitled 3.png" alt="Untitled"></p>
+<h3 id="Fuzzy-Checkpoints"><a href="#Fuzzy-Checkpoints" class="headerlink" title="Fuzzy Checkpoints"></a>Fuzzy Checkpoints</h3><blockquote>
+<p>在做checkpoint的时候能让数据库中的所有事务正常的工作，没有固定的一定要刷的数据</p>
+</blockquote>
+<p>checkpoint变成了checkpoint-begin 和 checkpoint-end，在这两条日志之间刷数据，并且在checkpoint-end之后，记录一个 ATT 和DPT，其中ATT记录的是在checkpoint之前开始的记录，我们可以理解为在checkpoint-begin之前的所有事务，除了ATT中记录的均已刷盘</p>
+<p><img src="/pic/20数据库恢复/Untitled 4.png" alt="Untitled"></p>
+<h2 id="Aries-Recovery-数据库恢复原型算法"><a href="#Aries-Recovery-数据库恢复原型算法" class="headerlink" title="Aries Recovery | 数据库恢复原型算法"></a>Aries Recovery | 数据库恢复原型算法</h2><p><img src="/pic/20数据库恢复/Untitled 5.png" alt="Untitled"></p>
+<h3 id="Analysis-Phase"><a href="#Analysis-Phase" class="headerlink" title="Analysis Phase"></a>Analysis Phase</h3><blockquote>
+<p>数据库宕机后，宕机后把WAL文件找出来，找出来之后去找 <code>MasterRecord</code> 点，这个是距离宕机点最近的那个checkpoint，如果是fuzzy checkpoint，就是上一次checkpoint-begin的那个点，然后分析上下文日志</p>
+</blockquote>
+<ul>
+<li>先找到最近成功的checkpoint，如果发现了TXN-END record，那么我们讲这个txn从ATT中移除</li>
+<li>对于其他的记录，发现了事务，就将其添加到ATT中，然后记录其状态是undo状态。</li>
+<li>继续往下扫描，如果找到了commit，将这个状态记录成commit</li>
+<li>对于发现的updata记录，如果对应的页面P不在DPT中，那么将P添加到DPT中，并且设置RECLSN = LSN</li>
+</ul>
+<p>当分析阶段结束的时候：</p>
+<ul>
+<li>ATT中记录的当数据库奔溃的那一瞬间，哪些事务还是active</li>
+<li>DPT中记录的是数据库宕机的时候还有哪些脏页没有刷到磁盘中。</li>
+</ul>
+<p><img src="/pic/20数据库恢复/Untitled 6.png" alt="Untitled"></p>
+<p>所以最后得到ATT中有事务97，其状态是未提交，DPT中有脏页33和20，最先更改这个脏页的记录是20号记录和8号记录</p>
+<h3 id="Redo-Phase"><a href="#Redo-Phase" class="headerlink" title="Redo Phase"></a>Redo Phase</h3><blockquote>
+<p>把应该落到磁盘上，但是没有落到磁盘上的数据进行回放。</p>
+</blockquote>
+<p>目前是重建在crash时的状态，重新执行所有需要执行的updata，和redo CLRs，甚至需要回滚的事务还需要重做回滚日志。</p>
+<ul>
+<li>扫描DPT中所有的页，然后找最小的recLSN，这是最早动这些脏页的日志</li>
+<li>对于正常更新的日志或者CLR，我们都需要去从做，除非 1. 最后的DPT表中没有这个页（已经被刷到磁盘中去了)。2.虽然这个页在脏页中，但是其LSN比recLSN还小，说明对这个页有影响的日志已经被刷到磁盘中去了。</li>
+</ul>
+<p>重做的时候做什么</p>
+<ol>
+<li>重做日志记录的内容，相当于跑SQL语句</li>
+<li>让pageLSN = LSN 表明这条LSN修改了这个页面。</li>
+<li>重做的时候不需要再记录重做，也不需要强制刷盘。</li>
+<li>当Redo结束的时候，需要给所有状态为C的日志写一个TXN-END，然后将其从ATT中移除掉。</li>
+</ol>
+<h3 id="Undo-Phase"><a href="#Undo-Phase" class="headerlink" title="Undo Phase"></a>Undo Phase</h3><blockquote>
+<p>应该回滚，但是由于数据库宕机，没有回滚掉的数据回滚。</p>
+</blockquote>
+<p>把该回放的日志回放完之后，其中也包括一些undo的日志也别回放了</p>
+<ul>
+<li><p>需要找ATT中状态为U的事务，代表着其需要被回滚</p>
+</li>
+<li><p>我们需开始从log从大到小的方式，一条条的反向的将事务回滚。</p>
+</li>
+<li><p>在做undo的时候需要写清理日志。</p>
+</li>
+</ul>
+<p>接下来，分析一个完整的过程</p>
+<ol>
+<li>LSN 30 事务自己abort，LSN 45 正常CLR，执行Undo操作，事务TXN-END</li>
+<li>在LSN60-70之间 数据库突然crash了</li>
+<li>crash 之后，分析得到ATT和DPT，发现事务T2和T3的状态是U，需要回滚，记录CLR，undo T2 LSN 60 UndoNext 20；回滚60号事务，回滚60号之后再回滚20号</li>
+<li>然后80,85回滚T3，回滚50号事务，然后T3 TXN-END 结束</li>
+<li>此时T2刚刚回滚了一条，还有一条没回滚完，20号日志还没回回滚，假如此时crash了怎么办呢？</li>
+<li>二次重启之后，内存全部挂掉，我们从新分析得到ATT和DPT</li>
+<li>得到ATT后，T3已经TXN-END，所以ATT只剩下T2，T2的lastLSN变成70</li>
+<li>然后再次CLR，undo T2 LSN 20 记录TXN-END</li>
+</ol>
+<p><img src="/pic/20数据库恢复/Untitled 7.png" alt="Untitled"></p>
+<p><img src="/pic/20数据库恢复/Untitled 8.png" alt="Untitled"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DBMS/" rel="tag"># DBMS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/18/CMU15-445-lec19-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%A5%E5%BF%97/" rel="prev" title="CMU15-445-lec19 数据库日志">
+      <i class="fa fa-chevron-left"></i> CMU15-445-lec19 数据库日志
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/18/%E6%B5%85%E6%9E%90C-%E4%B8%AD%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0/" rel="next" title="浅析C++中的虚函数">
+      浅析C++中的虚函数 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D"><span class="nav-number">1.</span> <span class="nav-text">数据库恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Crash-Recovery"><span class="nav-number">1.1.</span> <span class="nav-text">Crash Recovery</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WAL-Records"><span class="nav-number">1.2.</span> <span class="nav-text">WAL Records</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normal-Execution"><span class="nav-number">1.3.</span> <span class="nav-text">Normal Execution</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-Commit"><span class="nav-number">1.3.1.</span> <span class="nav-text">Transaction Commit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transcaction-Abort"><span class="nav-number">1.3.2.</span> <span class="nav-text">Transcaction Abort</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Checkpointing"><span class="nav-number">1.4.</span> <span class="nav-text">Checkpointing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Blocking-Checkpoints"><span class="nav-number">1.4.1.</span> <span class="nav-text">Blocking Checkpoints</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Slightly-Better-Blocking-Checkpoints"><span class="nav-number">1.4.2.</span> <span class="nav-text">Slightly Better Blocking Checkpoints</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fuzzy-Checkpoints"><span class="nav-number">1.4.3.</span> <span class="nav-text">Fuzzy Checkpoints</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Aries-Recovery-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%81%A2%E5%A4%8D%E5%8E%9F%E5%9E%8B%E7%AE%97%E6%B3%95"><span class="nav-number">1.5.</span> <span class="nav-text">Aries Recovery | 数据库恢复原型算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Analysis-Phase"><span class="nav-number">1.5.1.</span> <span class="nav-text">Analysis Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redo-Phase"><span class="nav-number">1.5.2.</span> <span class="nav-text">Redo Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Undo-Phase"><span class="nav-number">1.5.3.</span> <span class="nav-text">Undo Phase</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">72k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:05</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

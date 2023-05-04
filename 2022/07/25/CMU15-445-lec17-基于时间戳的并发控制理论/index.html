@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="基于时间戳的并发控制 本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMU15-445-lec17-基于时间戳的并发控制理论">
+<meta property="og:url" content="http://example.com/2022/07/25/CMU15-445-lec17-%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E6%88%B3%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/index.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="基于时间戳的并发控制 本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/YTizBfZpXeAVF9r.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/gpEMDe3F5dtlKxv.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/1GeKiR2ZdzS7yos.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/XPwcBZNxGVMWvHK.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/byn3CzSQmZwciKG.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/8QNRzYZ1mtTkrKy.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/WyA5iYklXmMwPvN.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/D2N4Gxe9s67KF1z.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/uyR61jzoTxnZiDC.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/5byYKkmJqPs91tg.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/7yZMzE3R5NkXFoD.png">
+<meta property="og:image" content="https://s2.loli.net/2022/07/25/5p2V618sM3ZlrfD.png">
+<meta property="article:published_time" content="2022-07-24T16:45:45.000Z">
+<meta property="article:modified_time" content="2022-07-24T17:02:54.790Z">
+<meta property="article:author" content="Ning">
+<meta property="article:tag" content="DBMS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/07/25/YTizBfZpXeAVF9r.png">
+
+<link rel="canonical" href="http://example.com/2022/07/25/CMU15-445-lec17-%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E6%88%B3%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CMU15-445-lec17-基于时间戳的并发控制理论 | 黄沙百战穿金甲</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/25/CMU15-445-lec17-%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E6%88%B3%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CMU15-445-lec17-基于时间戳的并发控制理论
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-25 00:45:45 / 修改时间：01:02:54" itemprop="dateCreated datePublished" datetime="2022-07-25T00:45:45+08:00">2022-07-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CMU15-445/" itemprop="url" rel="index"><span itemprop="name">CMU15-445</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基于时间戳的并发控制"><a href="#基于时间戳的并发控制" class="headerlink" title="基于时间戳的并发控制"></a>基于时间戳的并发控制</h1><blockquote>
+<p>本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="TimeStamp-Ordering-Concurrency-Control"><a href="#TimeStamp-Ordering-Concurrency-Control" class="headerlink" title="TimeStamp Ordering Concurrency Control"></a>TimeStamp Ordering Concurrency Control</h2><blockquote>
+<p>基于时间戳的并发控制是乐观的并发控制方法，假如说有$TS(T_i) &lt; TS(T_j)$；我们必须保证当commit之后相当于$T_i$先发生，$T_j$后发生；这是我们的原则</p>
+</blockquote>
+<p>时间戳：</p>
+<ul>
+<li>时间戳是单调递增的，后面来的txn的时间戳大于先来的txn的时间戳</li>
+<li>时间戳可以用 System Clock 或者是Logical Counter，又或者是Hybird来赋予</li>
+<li>但是System Clock有时钟跳跃，其并不是一直准确的；Logical Counter 按照1,2,3……来简单计数，但是其在分布式系统中存在问题；另外一种方法就是用以上两个的综合</li>
+</ul>
+<h2 id="Basic-Timestamp-Ordering-Basic-T-O"><a href="#Basic-Timestamp-Ordering-Basic-T-O" class="headerlink" title="Basic Timestamp Ordering(Basic T/O)"></a>Basic Timestamp Ordering(Basic T/O)</h2><blockquote>
+<p>Txns 在读和写对象时均不加锁，我们用时间戳的先后关系来决定其是否读和写</p>
+</blockquote>
+<p>数据库中的每一个X，通常是tuple，都会记录两个时间戳，写时间戳和读时间戳；我们在操作X的时候都要比较本事务的时间戳和操作X（X记录的）的时间戳，原则是不能操作来自未来的数据；</p>
+<ul>
+<li>$W-TS(X)$：最后写X的事务的时间戳</li>
+<li>$R-TS(X)$：最后读X的事务的时间戳</li>
+</ul>
+<h3 id="Reads"><a href="#Reads" class="headerlink" title="Reads"></a>Reads</h3><blockquote>
+<p>我们以读为例，来分析一下Basic I/O 的并发控制</p>
+</blockquote>
+<p>如果：</p>
+<ul>
+<li>$TS(T_i) &lt; W-TS(X)$ ：当 $T_i$ 想要读X的时候，发现自己的时间戳小于 X 的写时间戳；比如 5号事务想要读取X的时候，发现6号事务已经写过了X，因为5号先到，6号后到，所以这就叫操作来自未来的数据；不符合我们的元组，此时 $T_i$ 事务必须自杀</li>
+</ul>
+<p>否则</p>
+<ul>
+<li>允许 $T_i$ 去读 X</li>
+<li>更新 $R-TS(X) = max(R-TS(X),TS(T_i))$；将事务X的读时间戳更新为最大的</li>
+<li>然后copy一份X到本地，确保$T_i$ 再次读的时候可重复读。</li>
+</ul>
+<h3 id="Writes"><a href="#Writes" class="headerlink" title="Writes"></a>Writes</h3><blockquote>
+<p>写数据，意味着更新数据，如果X被未来的数据读了或者写了，我们均不能更新它</p>
+</blockquote>
+<p>如果：</p>
+<ul>
+<li>$TS(T_i) &lt; R-TS(X)$  or $TS(T_i) &lt; W-TS(X)$：来自未来的数据读了X或者是写了X，那么$T_i$ 只能自杀</li>
+</ul>
+<p>否则：</p>
+<ul>
+<li>要求 $T_i$  的时间戳即要大于 X 的读时间戳还得大于X的写时间戳</li>
+<li>允许$T_i$去写X，并且更新$W-TS(X)$</li>
+<li>然后将X复制一份到本地，确保可重复读</li>
+</ul>
+<p>举个例子</p>
+<ul>
+<li>无冲突，正常执行</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/YTizBfZpXeAVF9r.png" alt="Untitled.png"></p>
+<ul>
+<li>有冲突，需要自杀的</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/gpEMDe3F5dtlKxv.png" alt="Untitled 1.png"></p>
+<h3 id="Thomas-write-rule"><a href="#Thomas-write-rule" class="headerlink" title="Thomas write rule"></a>Thomas write rule</h3><blockquote>
+<p>对于上述有冲突，需要自杀的，真的是必须得自杀吗？我们重新审视一下</p>
+</blockquote>
+<p>我们要的结果：因为 T1的时间戳&lt; T2的时间戳，所以最后我们需要相当于T1先执行，T2后执行的；</p>
+<p>那么最后肯定是T2写完A后commit；那么T1写A，我们可以把其写到本地，不提交，假装写了，后面又被T2给覆盖了，T1后面读A读取本地的A，这样也是可串行化的。</p>
+<p>所以，如果$TS(T_i) &lt; R-TS(X)$：因为后面有事务要读X，我们必须真正的将其写到数据库，没办法，只能abort然后restart</p>
+<p>如果$TS(T_i) &lt; W-TS(X)$：如果后面有事务要写X，那么可以将其写到本地，假装写了，反正后面有未来的事务覆盖你写的记录；</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>没有加锁，所以无死锁的产生</li>
+<li>对于较长的事务，可能会引起饥饿，因为其可能需要的数据总是被未来的事务改变了</li>
+<li>因为对于某些数据要复制一份到本地，可能会浪费空间</li>
+<li>不可恢复</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/1GeKiR2ZdzS7yos.png" alt="Untitled 2.png"></p>
+<h2 id="Optimistic-Concurrency-Control-OCC"><a href="#Optimistic-Concurrency-Control-OCC" class="headerlink" title="Optimistic Concurrency Control(OCC)"></a>Optimistic Concurrency Control(OCC)</h2><blockquote>
+<p>如果我们确定事务之间的冲突比较少，并且都是短事务，那么无锁的方法会比较好；OCC也是基于时间戳的控制方法，在基础的时间戳控制上进行改进的；其主体思想是将说有数据都写在本地，在最后的阶段再进行commit</p>
+</blockquote>
+<h3 id="1-Read-Phase"><a href="#1-Read-Phase" class="headerlink" title="1. Read Phase"></a>1. Read Phase</h3><blockquote>
+<p>读步骤是相对于数据库而言的，我们只是读数据库，没有写入到数据库，所有的读写都是本地空间内</p>
+</blockquote>
+<p>读阶段比较简单，将数据库里的文件备份一份到自己本地的的空间内即可。</p>
+<h3 id="2-Validation-Phase"><a href="#2-Validation-Phase" class="headerlink" title="2. Validation Phase"></a>2. Validation Phase</h3><blockquote>
+<p>等准备要提交的时候，将自己本地空间的数据与其他数据进行比较看是否冲突</p>
+</blockquote>
+<ul>
+<li>谁先校验，谁先获得时间戳，我们根据时间戳的顺序执行结果是可串行化的</li>
+<li>检测RW和WW冲突，确保冲突是单向的，没有形成环。</li>
+</ul>
+<p>校验有两种方法：</p>
+<ul>
+<li>向后校验：假设事务2进入校验阶段，那么其余事务1进行校验，画出其冲突依赖图，观察是否有环形成，如果有，这将txn2 abort，没有则提交</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/XPwcBZNxGVMWvHK.png" alt="Untitled 3.png"></p>
+<ul>
+<li>向前校验：假如事务2进入校验阶段，因为它未来的事务（txn2）还没有执行完，故而其只检查与其重叠的部分，如果没有环，则提交，有环，则可以选择终止事务2或者是事务3</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/byn3CzSQmZwciKG.png" alt="Untitled 4.png"></p>
+<ul>
+<li><p>向前校验又分为三种情况</p>
+<ul>
+<li><p>case1：比较简单，就是serializable；T1 write 之后 T2才进行入 read</p>
+<p><img src="https://s2.loli.net/2022/07/25/8QNRzYZ1mtTkrKy.png" alt="Untitled 5.png"></p>
+</li>
+<li><p>case2：T1 校验的时候，T2还没有写</p>
+</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/WyA5iYklXmMwPvN.png" alt="Untitled 6.png"></p>
+<p>那么当T1到达校验阶段时，T2还没有到达校验阶段，T1的时间戳小于T2的时间戳，如果是serializable的，那么T2读的数据必须是T1提交的，此时显然不对，因为T1和T2在读的时候是从数据库中备份文件的，所以此时T1 abort</p>
+<p><img src="https://s2.loli.net/2022/07/25/D2N4Gxe9s67KF1z.png" alt="Untitled 7.png"></p>
+<p>如果说T2率先进入校验阶段，那么T2的时间戳小于T1时间戳，因为T2只读了一下A，读是数据库中的备份，T1尽管写了A，但是其时间戳是大于T1的，其没有修改来自未来的数据，因此此时是serializable的。</p>
+<ul>
+<li><img src="https://s2.loli.net/2022/07/25/uyR61jzoTxnZiDC.png" alt="Untitled 8.png"></li>
+</ul>
+<p>当T1在校验阶段的时候，T2还没有读A，故而T1可以进行提交，这样也是serializable的。</p>
+</li>
+</ul>
+<h3 id="3-Write-Phase"><a href="#3-Write-Phase" class="headerlink" title="3. Write Phase"></a>3. Write Phase</h3><blockquote>
+<p>如果校验成功，将其写入数据库</p>
+</blockquote>
+<p>对于OCC的数据库，因为写是统一写的，时间很短，所以是锁全表</p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>OCC对于只读的数据库比较友好，不会产生回滚，如果事务的数据之间没有交集，那也是非常好的，如果数据量很大，数据之间是均匀查询的，OCC比较好。</li>
+<li>但是copy到本地可能会浪费空间，并且校验环节比较复杂，写的阶段要锁全面，这是一个瓶颈</li>
+<li>OCC发现问题的时候，所有的活都干完了，这样会导致之前的活白干了。</li>
+</ul>
+<h2 id="Isolation-Levels"><a href="#Isolation-Levels" class="headerlink" title="Isolation Levels"></a>Isolation Levels</h2><blockquote>
+<p>OCC和二阶段锁可能存在的问题：我们讨论的都是只是对数据库进行读写的，而没有考虑插入删除；当考虑插入和删除时，可能会出现幻读</p>
+</blockquote>
+<p>所谓的幻读是读到之前没有的数据，假如说我们后面插入了数据，而插入的数据又刚好是我们要读的，那么两次读到的数据不同，导致幻读，比如下图的情况，</p>
+<p><img src="https://s2.loli.net/2022/07/25/5byYKkmJqPs91tg.png" alt="Untitled 9.png"></p>
+<p>为什么可以插入呢？因为二阶段锁只是锁当前的记录，并不能影响其他事务进入插入，如果想避免这种问题，必须锁整个表，锁整个表会导致并发的问题</p>
+<p>解决幻读的问题的三种方案</p>
+<h3 id="Re-Execute-Scan"><a href="#Re-Execute-Scan" class="headerlink" title="Re-Execute Scan"></a>Re-Execute Scan</h3><blockquote>
+<p>我们记录可能出现幻读的地方，重复扫描；显然性能太低</p>
+</blockquote>
+<h3 id="Rredicate-Locking"><a href="#Rredicate-Locking" class="headerlink" title="Rredicate Locking"></a>Rredicate Locking</h3><blockquote>
+<p>谓词锁：给select语句里的where子句加共享锁，给update，insert，delete里面的where子句加独占锁</p>
+</blockquote>
+<p>select语句里面加上共享锁后，insert再执行的时候想加入独占锁，加不了；</p>
+<p><img src="https://s2.loli.net/2022/07/25/7yZMzE3R5NkXFoD.png" alt="Untitled 10.png"></p>
+<h3 id="Index-Locking"><a href="#Index-Locking" class="headerlink" title="Index Locking"></a>Index Locking</h3><blockquote>
+<p>去锁索引页，涉及到谓词的索引时，我们给其加上锁，当再次涉及到这个索引时，由于已经加上了锁，没办法再执行；如果没有索引的话，就加全表锁；</p>
+</blockquote>
+<p>ps:mysql 是间隙锁，比如我们数据是1，3,5，那我们不知锁这些数据，我们将2,4也锁上。</p>
+<h3 id="Weaker-Levels-of-Isolation"><a href="#Weaker-Levels-of-Isolation" class="headerlink" title="Weaker Levels of Isolation"></a>Weaker Levels of Isolation</h3><blockquote>
+<p>降低事务的隔离级别</p>
+</blockquote>
+<p>可能导致的问题：</p>
+<ul>
+<li>脏读：读了事务没有提交的数据</li>
+<li>不可重复度：第一次读和第二次读的结果不一样</li>
+<li>幻读：数据比原来多了或者少了</li>
+</ul>
+<p>隔离级别：</p>
+<ul>
+<li>serializable：以上三种问题都不会出现，二阶段锁，索引锁，严格的2PL</li>
+<li>可重复读：允许幻读；严格的2PL，去掉索引锁</li>
+<li>读已提交：幻读和不可重复读都有可能：2阶段锁，不严格，S 锁可以立刻丢弃</li>
+<li>读未提交：以上三中问题都会出现：无 S锁</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/07/25/5p2V618sM3ZlrfD.png" alt="Untitled 11.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DBMS/" rel="tag"># DBMS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/25/CMU15-445-lec16-%E4%B8%A4%E6%AE%B5%E9%94%81%E5%8D%8F%E8%AE%AE/" rel="prev" title="CMU15-445-lec16-两段锁协议">
+      <i class="fa fa-chevron-left"></i> CMU15-445-lec16-两段锁协议
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/25/CMU15-445-lec18-%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/" rel="next" title="CMU15-445-lec18-多版本并发控制理论">
+      CMU15-445-lec18-多版本并发控制理论 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E6%88%B3%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">基于时间戳的并发控制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#TimeStamp-Ordering-Concurrency-Control"><span class="nav-number">1.1.</span> <span class="nav-text">TimeStamp Ordering Concurrency Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Basic-Timestamp-Ordering-Basic-T-O"><span class="nav-number">1.2.</span> <span class="nav-text">Basic Timestamp Ordering(Basic T&#x2F;O)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reads"><span class="nav-number">1.2.1.</span> <span class="nav-text">Reads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Writes"><span class="nav-number">1.2.2.</span> <span class="nav-text">Writes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thomas-write-rule"><span class="nav-number">1.2.3.</span> <span class="nav-text">Thomas write rule</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optimistic-Concurrency-Control-OCC"><span class="nav-number">1.3.</span> <span class="nav-text">Optimistic Concurrency Control(OCC)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Read-Phase"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. Read Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Validation-Phase"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. Validation Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Write-Phase"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. Write Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.3.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Isolation-Levels"><span class="nav-number">1.4.</span> <span class="nav-text">Isolation Levels</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Re-Execute-Scan"><span class="nav-number">1.4.1.</span> <span class="nav-text">Re-Execute Scan</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rredicate-Locking"><span class="nav-number">1.4.2.</span> <span class="nav-text">Rredicate Locking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-Locking"><span class="nav-number">1.4.3.</span> <span class="nav-text">Index Locking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Weaker-Levels-of-Isolation"><span class="nav-number">1.4.4.</span> <span class="nav-text">Weaker Levels of Isolation</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">72k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:05</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
