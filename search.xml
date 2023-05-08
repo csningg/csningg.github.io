@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>1.初识Linux系统</title>
+      <link href="/2023/05/09/1-%E5%88%9D%E8%AF%86Linux%E7%B3%BB%E7%BB%9F/"/>
+      <url>/2023/05/09/1-%E5%88%9D%E8%AF%86Linux%E7%B3%BB%E7%BB%9F/</url>
+      
+        <content type="html"><![CDATA[<span id="more"></span><h2 id="Linux内核的特征"><a href="#Linux内核的特征" class="headerlink" title="Linux内核的特征"></a>Linux内核的特征</h2><ul><li>Linux内核的组织形式为整体式结构。也就是说整个Linux内核由很多过程组成，每个过程可以独立编译，然后用连接程序将其连接在一起成为一个单独的目标程序。从信息隐藏的观点看，它没有任何程度的隐藏—每个过程都对其它过程可见。这种结构的最大特点是内部结构简单，子系统间易于访问，因此内核的工作效率较高。另外，基于过程的结构也有助于不同的人参与不同过程的开 发，从这个角度来说，Linux内核又是开放式的结构，它允许任何人对其进行修正、改进和完善。</li><li>Linux的进程调度方式简单而有效。对于用户进程，<em>Linux</em>采用简单的动态优先级调度方式；对于内核中的例程<em>(</em>如设备驱动程序、中断服务程序等<em>)</em>则采用了一种独特的机制—软中断机制，这种机制保证了内核线程的高效运行。</li><li>Linux支持内核线程<em>(</em>或称守护进程<em>)</em>。内核线程是在后台运行而又无终端或登录<em>shell</em>和它结合在一起的进程。内核线程可以说是用户进程，但和一般的用户进程又有不同，它象内核一样不被换出，因此运行效率较高。</li><li>Linux支持多种平台的虚拟内存管理。内存管理是和硬件平台密切相关的部分，为了支持不同的硬件平台而又保证虚拟存储管理技术的通用性，<em>Linux</em>的虚拟内存管理为不同的硬件平台提供了统一的接口，因此把<em>Linux</em>内核移植到一个新的硬件平台并不是一件很困难的事。</li><li>Linux内核另一个独具特色的部分是虚拟文件系统<em>(VFS)</em>。虚拟文件系统不仅为多种逻辑文件系统<em>(</em>如<em>ext2,fat</em>等<em>)</em>提供了统一的接口，而且为各种硬件设备<em>(</em>作为一种特殊文件<em>)</em>也提供了统一接口。</li><li><strong><em>Linux</em></strong>的模块机制使得内核保持独立而又易于扩充。模块机制可以使内核很容易地增加一个新的模块<em>(</em>如一个新的设备驱动程序<em>)</em>，而无需重新编译内核；同时，模块机制还可以把一个模块按需添加到内核或从内核中卸下，这使得我们可以按需要定制自己的内核。</li><li>增加系统调用以满足你特殊的需求。一般来说，系统调用是操作系统的设计者提供给用户使用内核功能的接口，但<em>Linux</em>开放的源代码也允许你设计自己的系统调用，然后把它加入到内核。</li><li><em>*网络部分面向对象的设计思想使得</em>Linux*内核支持多种协议、多种网卡驱动程序变得容易。</li></ul><h2 id="Linux系统体系结构简析"><a href="#Linux系统体系结构简析" class="headerlink" title="Linux系统体系结构简析"></a>Linux系统体系结构简析</h2><p><img src="/pic/1 初识Linux系统/Untitled.png" alt="Untitled"></p><p>最上面是用户（或应用程序）空间。这是用户应用程序执行的地方。用户空间之下是内核空间，Linux 内核正是位于这里。</p><p>系统调用接口：用于用户空间与内核空间的连接。还提供了在用户空间应用程序和内核之间进行转换的机制。这点非常重要，因为内核和用户空间的应用程序使用的是不同的保护地址空间。每个用户空间的进程都使用自己的虚拟地址空间，而内核则占用单独的地址空间。</p><p>Linux 内核可以进一步划分成 3 层。最上面是系统调用接口，它实现了一些基本的功能，例如 read 和 write。系统调用接口之下是内核代码，可以更精确地定义为独立于体系结构的内核代码。这些代码是 Linux 所支持的所有处理器体系结构所通用的。在这些代码之下是依赖于体系结构的代码，构成了通常称为 BSP（Board Support Package）的部分。这些代码用作给定体系结构的处理器和特定于平台的代码。</p><h2 id="Linux子系统之间的关系"><a href="#Linux子系统之间的关系" class="headerlink" title="Linux子系统之间的关系"></a>Linux子系统之间的关系</h2><p><img src="/pic/1 初识Linux系统/Untitled 1.png" alt="Untitled"></p><p>进程管理：进程管理的重点是进程的执行。在内核中，这些进程称为线程，代表了单独的处理器虚拟化（线程代码、数据、堆栈和 CPU 寄存器）。在用户空间，通常使用进程 这个术语，不过 Linux 实现并没有区分这两个概念（进程和线程）。进程管理还包括处理活动进程之间共享 CPU 的需求。</p><p>内存管理：内核所管理的另外一个重要资源是内存。Linux 包括了管理可用内存的方式，以及物理和虚拟映射所使用的硬件机制。</p><p>虚拟文件系统：虚拟文件系统（VFS）是 Linux 内核中非常有用的一个方面，因为它为文件系统提供了一个通用的接口抽象。</p><p>网络模块：网络堆栈在设计上遵循模拟协议本身的分层体系结构。</p><p>进程间通信：管道，共享内存等。</p><h2 id="系统的数据结构"><a href="#系统的数据结构" class="headerlink" title="系统的数据结构"></a>系统的数据结构</h2><p>在Linux内核中，有些使用频度较高的数据结构如下：</p><p>task_struct：代表一个进程数据结构指针形成一个task数组。</p><p>mm_struct：代表进程的虚拟内存。</p><p>inode：代表虚拟文件系统中的文件、目录等对应的索引节点(inode)。</p><h2 id="Linux内核源码组织结构"><a href="#Linux内核源码组织结构" class="headerlink" title="Linux内核源码组织结构"></a>Linux内核源码组织结构</h2><p>为了深入地了解Linux的实现机制，还必须阅读Linux的内核源代码，下面是对有关源代码的介绍。，对不同的内核版本，系统调用一般是相同的。新版本也许可以增加一个新的系统调用，在大多数情况下，设备文件将仍然相同，而另一方面，版本之间的内部接口有所变化。</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">include/ ---- 内核头文件，需要提供给外部模块（例如用户空间代码）使用。</span><br><span class="line">kernel/ ---- Linux内核的核心代码，进程调度子系统，以及和进程调度相关的模块。</span><br><span class="line">mm/ ---- 内存管理子系统。</span><br><span class="line">fs/ ---- VFS子系统。</span><br><span class="line">net/ ---- 不包括网络设备驱动的网络子系统。</span><br><span class="line">ipc/ ---- IPC（进程间通信）子系统。</span><br><span class="line">arch<span class="comment">// ---- 体系结构相关的代码，例如arm, x86等等。</span></span><br><span class="line">arch<span class="comment">//mach- ---- 具体的machine/board相关的代码。</span></span><br><span class="line">arch<span class="comment">//include/asm ---- 体系结构相关的头文件。</span></span><br><span class="line">arch<span class="comment">//boot/dts ---- 设备树（Device Tree）文件。</span></span><br><span class="line">init/ ---- Linux系统启动初始化相关的代码。</span><br><span class="line">block/ ---- 提供块设备的层次。</span><br><span class="line">sound/ ---- 音频相关的驱动及子系统，可以看作“音频子系统”。</span><br><span class="line">drivers/ ---- 设备驱动。</span><br><span class="line">lib/ ---- 实现需要在内核中使用的库函数，例如CRC、FIFO、list、MD5等。</span><br><span class="line">crypto/ ----- 加密、解密相关的库函数。</span><br><span class="line">security/ ---- 提供安全特性（SELinux）。</span><br><span class="line">virt/ ---- 提供虚拟机技术（KVM等）的支持。</span><br><span class="line">usr/ ---- 用于生成initramfs的代码。</span><br><span class="line">firmware/ ---- 保存用于驱动第三方设备的固件。</span><br><span class="line">samples/ ---- 一些示例代码。</span><br><span class="line">tools/ ---- 一些常用工具，如性能剖析、自测试等。</span><br><span class="line">Kconfig, Kbuild, Makefile, scripts/ ---- 用于内核编译的配置文件、脚本等。</span><br><span class="line">COPYING ---- 版权声明。</span><br><span class="line">MAINTAINERS ----维护者名单。</span><br><span class="line">CREDITS ---- Linux主要的贡献者名单。</span><br><span class="line">REPORTING-BUGS ---- Bug上报的指南。</span><br><span class="line">Documentation, README ---- 帮助、说明文档。</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> Linux内核源码分析 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> linux </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>分布式与集群的区别</title>
       <link href="/2023/05/05/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8E%E9%9B%86%E7%BE%A4%E7%9A%84%E5%8C%BA%E5%88%AB/"/>
       <url>/2023/05/05/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8E%E9%9B%86%E7%BE%A4%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
@@ -72,9 +97,9 @@
       
         <tags>
             
-            <tag> 指针 </tag>
-            
             <tag> C++特性 </tag>
+            
+            <tag> 指针 </tag>
             
         </tags>
       
