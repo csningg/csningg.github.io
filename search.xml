@@ -13,7 +13,7 @@
       
       <categories>
           
-          <category> linux内核源码分析 </category>
+          <category> Linux内核源码分析 </category>
           
       </categories>
       
@@ -122,9 +122,9 @@
       
         <tags>
             
-            <tag> 指针 </tag>
-            
             <tag> C++特性 </tag>
+            
+            <tag> 指针 </tag>
             
         </tags>
       
