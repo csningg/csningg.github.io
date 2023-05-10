@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本篇文章主要进程调度的相关内核代码及公平调度器CFS是怎么运行的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3.调度器分析及完全公平调度器CFS">
+<meta property="og:url" content="http://example.com/2023/05/10/3-%E8%B0%83%E5%BA%A6%E5%99%A8%E5%88%86%E6%9E%90%E5%8F%8A%E5%AE%8C%E5%85%A8%E5%85%AC%E5%B9%B3%E8%B0%83%E5%BA%A6%E5%99%A8CFS/index.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="本篇文章主要进程调度的相关内核代码及公平调度器CFS是怎么运行的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/pic/2调度器分析及CFS/3%20调度器分析及完全公平调度器CFS%20cdc39d3d48bd4c558cf69ca7c134d14e/Untitled.png">
+<meta property="article:published_time" content="2023-05-10T11:13:50.000Z">
+<meta property="article:modified_time" content="2023-05-10T11:16:36.326Z">
+<meta property="article:author" content="Ning">
+<meta property="article:tag" content="进程调度">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pic/2调度器分析及CFS/3%20调度器分析及完全公平调度器CFS%20cdc39d3d48bd4c558cf69ca7c134d14e/Untitled.png">
+
+<link rel="canonical" href="http://example.com/2023/05/10/3-%E8%B0%83%E5%BA%A6%E5%99%A8%E5%88%86%E6%9E%90%E5%8F%8A%E5%AE%8C%E5%85%A8%E5%85%AC%E5%B9%B3%E8%B0%83%E5%BA%A6%E5%99%A8CFS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>3.调度器分析及完全公平调度器CFS | 黄沙百战穿金甲</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/10/3-%E8%B0%83%E5%BA%A6%E5%99%A8%E5%88%86%E6%9E%90%E5%8F%8A%E5%AE%8C%E5%85%A8%E5%85%AC%E5%B9%B3%E8%B0%83%E5%BA%A6%E5%99%A8CFS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          3.调度器分析及完全公平调度器CFS
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-05-10 19:13:50 / 修改时间：19:16:36" itemprop="dateCreated datePublished" datetime="2023-05-10T19:13:50+08:00">2023-05-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">Linux内核源码分析</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>本篇文章主要进程调度的相关内核代码及公平调度器CFS是怎么运行的</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="调度器分析"><a href="#调度器分析" class="headerlink" title="调度器分析"></a>调度器分析</h2><h3 id="调度器及其功能"><a href="#调度器及其功能" class="headerlink" title="调度器及其功能"></a>调度器及其功能</h3><p>内核中用来安排进程执行的模块称为调度器（scheduler），它可以切换进程状态（process state）。例如执行、<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_44226094/article/details/105471239#:~:text=Linux%20%E4%B8%AD%E7%9A%84%20%E8%BF%9B%E7%A8%8B%E7%9D%A1%E7%9C%A0%E7%8A%B6%E6%80%81%20%E6%9C%89%E4%B8%A4%E7%A7%8D%EF%BC%9A%E4%B8%80%E7%A7%8D%E6%98%AF%E5%8F%AF%20%E4%B8%AD%E6%96%AD%20%E7%9A%84%20%E7%9D%A1%E7%9C%A0%E7%8A%B6%E6%80%81%20%EF%BC%8C%E5%85%B6,%E7%9D%A1%E7%9C%A0%20%E7%9B%B4%E5%88%B0%E6%9F%90%E4%B8%AA%E6%9D%A1%E4%BB%B6%E5%8F%98%E4%B8%BA%E7%9C%9F%EF%BC%8C%E5%A6%82%E4%BA%A7%E7%94%9F%E4%B8%80%E4%B8%AA%E7%A1%AC%E4%BB%B6%20%E4%B8%AD%E6%96%AD%20%E3%80%81%E9%87%8A%E6%94%BE%20%E8%BF%9B%E7%A8%8B%20%E6%AD%A3%E5%9C%A8%E7%AD%89%E5%BE%85%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B5%84%E6%BA%90%E6%88%96%E6%98%AF%E4%BC%A0%E9%80%92%E4%B8%80%E4%B8%AA%E4%BF%A1%E5%8F%B7%E9%83%BD%E5%8F%AF%E4%BB%A5%E6%98%AF%E5%94%A4%E9%86%92%20%E8%BF%9B%E7%A8%8B%20%E7%9A%84%E6%9D%A1%E4%BB%B6%E3%80%82">可中断睡眠、不可中断睡眠</a>、退出、暂停等。</p>
+<h3 id="调度类sched-class结构体与调度类"><a href="#调度类sched-class结构体与调度类" class="headerlink" title="调度类sched_class结构体与调度类"></a>调度类sched_class结构体与调度类</h3><p>Linux中有5中调度类，每中调度类有不同的调度策略。比如我们经常听说的时间片轮转算法，先进先出调度算法等。这些都是调度策略。每个进程都会对应一个调度策略，一个调度策略对应一个调度类（而每个调度类有多重调度策略）</p>
+<p>那么这五种调度类的结构体是一样的，定义在 <code>kernel/sched/sched.h</code>的<code>sched_class</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">sched_class</span> &#123;</span><br><span class="line">	<span class="comment">// 系统中有多个调度类，按照优先级排成一个链表</span></span><br><span class="line">	<span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">sched_class</span> *next;</span><br><span class="line">	<span class="comment">// 将进程假如到执行队列中，既将调度实体（进程）假如红黑树中，并对nr_running变量加1</span></span><br><span class="line">	<span class="built_in">void</span> (*enqueue_task) (<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *p, <span class="type">int</span> flags);</span><br><span class="line">	<span class="comment">// 从执行队列中删除进程，并对nr_running变量减1</span></span><br><span class="line">	<span class="built_in">void</span> (*dequeue_task) (<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *p, <span class="type">int</span> flags);</span><br><span class="line">	<span class="comment">// 放弃CPU的执行权，实际是执行先出后入，将其假如到红黑树的最右端</span></span><br><span class="line">	<span class="built_in">void</span> (*yield_task) (<span class="keyword">struct</span> rq *rq);</span><br><span class="line">	<span class="built_in">bool</span> (*yield_to_task) (<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *p, <span class="type">bool</span> preempt);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 用于检查当前进程是否可以被新进程抢占</span></span><br><span class="line">	<span class="built_in">void</span> (*check_preempt_curr) (<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *p, <span class="type">int</span> flags);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * It is the responsibility of the pick_next_task() method that will</span></span><br><span class="line"><span class="comment">	 * return the next task to call put_prev_task() on the @prev task or</span></span><br><span class="line"><span class="comment">	 * something equivalent.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * May return RETRY_TASK when it finds a higher prio class has runnable</span></span><br><span class="line"><span class="comment">	 * tasks.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="comment">// 选择下一个执行进程</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">task_struct</span> * (*pick_next_task) (<span class="keyword">struct</span> rq *rq,</span><br><span class="line">						<span class="keyword">struct</span> task_struct *prev);</span><br><span class="line">	<span class="comment">// 	将进程放入到运行队列</span></span><br><span class="line">	<span class="built_in">void</span> (*put_prev_task) (<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *p);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SMP</span></span><br><span class="line">	<span class="comment">// 以下用于负载均衡的，有个体均衡，选择合适的CPU（进程来做）另外一个是总体均衡，迁移任务到其他的CPU</span></span><br><span class="line">	<span class="comment">// 为进程选择一个合适的CPU </span></span><br><span class="line">	<span class="built_in">int</span>  (*select_task_rq)(<span class="keyword">struct</span> task_struct *p, <span class="type">int</span> task_cpu, <span class="type">int</span> sd_flag, <span class="type">int</span> flags);</span><br><span class="line">	<span class="comment">// 迁移任务到另一个CPU</span></span><br><span class="line">	<span class="built_in">void</span> (*migrate_task_rq)(<span class="keyword">struct</span> task_struct *p);</span><br><span class="line">	<span class="comment">// 唤醒进程</span></span><br><span class="line">	<span class="built_in">void</span> (*task_waking) (<span class="keyword">struct</span> task_struct *task);</span><br><span class="line">	<span class="built_in">void</span> (*task_woken) (<span class="keyword">struct</span> rq *this_rq, <span class="keyword">struct</span> task_struct *task);</span><br><span class="line">	<span class="comment">// 修改CPU的亲和性，让进程在CPU上运行更长的时间。</span></span><br><span class="line">	<span class="built_in">void</span> (*set_cpus_allowed)(<span class="keyword">struct</span> task_struct *p,</span><br><span class="line">				 <span class="type">const</span> <span class="keyword">struct</span> cpumask *newmask);</span><br><span class="line">	<span class="comment">// 启动运行队列</span></span><br><span class="line">	<span class="built_in">void</span> (*rq_online)(<span class="keyword">struct</span> rq *rq);</span><br><span class="line">	<span class="comment">// 禁止运行队列</span></span><br><span class="line">	<span class="built_in">void</span> (*rq_offline)(<span class="keyword">struct</span> rq *rq);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="comment">// 当进程改变其调度类</span></span><br><span class="line">	<span class="built_in">void</span> (*set_curr_task) (<span class="keyword">struct</span> rq *rq);</span><br><span class="line">	<span class="comment">// 调用自time_tick函数，塔可能引起进程切换，将驱动运行时（running）抢占</span></span><br><span class="line">	<span class="built_in">void</span> (*task_tick) (<span class="keyword">struct</span> rq *rq, <span class="keyword">struct</span> task_struct *p, <span class="type">int</span> queued);</span><br><span class="line">	<span class="comment">// 当线程别创建时调用，不同的调度策略的进程初始化时不一样</span></span><br><span class="line">	<span class="built_in">void</span> (*task_fork) (<span class="keyword">struct</span> task_struct *p);</span><br><span class="line">	<span class="comment">// 进程退出时使用</span></span><br><span class="line">	<span class="built_in">void</span> (*task_dead) (<span class="keyword">struct</span> task_struct *p);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * The switched_from() call is allowed to drop rq-&gt;lock, therefore we</span></span><br><span class="line"><span class="comment">	 * cannot assume the switched_from/switched_to pair is serliazed by</span></span><br><span class="line"><span class="comment">	 * rq-&gt;lock. They are however serialized by p-&gt;pi_lock.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="comment">// 用于进程切换</span></span><br><span class="line">	<span class="built_in">void</span> (*switched_from) (<span class="keyword">struct</span> rq *this_rq, <span class="keyword">struct</span> task_struct *task);</span><br><span class="line">	<span class="built_in">void</span> (*switched_to) (<span class="keyword">struct</span> rq *this_rq, <span class="keyword">struct</span> task_struct *task);</span><br><span class="line">	<span class="comment">// 改变进程的优先级</span></span><br><span class="line">	<span class="built_in">void</span> (*prio_changed) (<span class="keyword">struct</span> rq *this_rq, <span class="keyword">struct</span> task_struct *task,</span><br><span class="line">			     <span class="type">int</span> oldprio);</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="type">unsigned</span> <span class="title">int</span> <span class="params">(*get_rr_interval)</span> <span class="params">(<span class="keyword">struct</span> rq *rq,</span></span></span><br><span class="line"><span class="params"><span class="function">					 <span class="keyword">struct</span> task_struct *task)</span></span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">void</span> (*update_curr) (<span class="keyword">struct</span> rq *rq);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_FAIR_GROUP_SCHED</span></span><br><span class="line">	<span class="built_in">void</span> (*task_move_group) (<span class="keyword">struct</span> task_struct *p);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>比较重要的成员函数有：</p>
+<p><code>enqueue_task</code>,<code>dequeue_task</code>,<code>yeild_task</code>,<code>check_preempt_curr</code>,<code>pick_next_task</code>,<code>put_prev_task</code>,<code>set_curr_task</code>,<code>task_tick</code></p>
+<p>以上函数是功能在代码中都有解析</p>
+<h3 id="调度类"><a href="#调度类" class="headerlink" title="调度类"></a>调度类</h3><p>Linux的调度类有5中</p>
+<p><code>stop_sched_class：</code>最高优先级的调度类型，属于实时调度类型的一种，会抢占其他所有的进程。</p>
+<p><code>dl_sched_class</code>：deadline调度类，实时调度中较高级别的调度类型，一般之后在系统紧急情况下会调用。使用红黑树，有三个参数（运行周期，运行时间，截止时间）作为调度依据，用不到优先级，所以优先级设置为-1,</p>
+<p><code>rt_sched_class：</code>实时调度类型，软实时调度器，希望立刻运行，优先级为0-99,</p>
+<p><code>fair_sched_class：</code>现在较高版本的Linux上也就是CFS(Completely Fair Scheduler)，Linux上面主要的调度方式，引入虚拟时间的方式，优先级为100-139。</p>
+<p><code>idle_sched_class：</code>优先级最低，在系统空闲时才会进入该调度类型调度，属于最低优先级的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">sched_class</span> stop_sched_class;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">sched_class</span> dl_sched_class;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">sched_class</span> rt_sched_class; </span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">sched_class</span> fair_sched_class;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">sched_class</span> idle_sched_class;</span><br></pre></td></tr></table></figure>
+<h3 id="调度策略"><a href="#调度策略" class="headerlink" title="调度策略"></a>调度策略</h3><p>并不是每一种调度类都有调度策略，总共有6中调度策略，如下所示</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_NORMAL		0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_FIFO		1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_RR		2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_BATCH		3</span></span><br><span class="line"><span class="comment">/* SCHED_ISO: reserved but not implemented yet */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_IDLE		5</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SCHED_DEADLINE		6</span></span><br></pre></td></tr></table></figure>
+<p>其中 <code>SCHED_NORMAL</code>,<code>SCHED_BATCH</code>,<code>SCHED_IDLE</code>直接别映射到<code>fair_sched_class</code>;</p>
+<p><code>SCHED_RR</code>,<code>SCHED_FIFO</code>与<code>rt_sched_class</code>进行关联。</p>
+<p><code>SCHED_DEADLINE</code>与<code>dl_sched_class</code>进行关联</p>
+<p><code>SCHED_NORMAL</code>:用于普通进程，通过CFS实现</p>
+<p><code>SCHED_BATCH</code>:相当于<code>SCHED_NORMAL</code>的分化版本，采用分时侧策略，根据动态优先级，分配CPU运行所需要的资源。用于非交互处理器消耗类型</p>
+<p><code>SCHED_IDLE</code> ： 最低优先级，只有空闲的时候才会执行，在系统负载很低的时候使用CFS</p>
+<p><code>SCHED_FIFO</code>:先进先出调度算法，实时调度策略，根据优先级任务先到先服务，高优先级任务可以抢占低优先级任务</p>
+<p><code>SCHED_RR</code>:轮转调度算法（实时调度策略）</p>
+<p><code>SCHED_DEADLINE</code>:新支持的实时进程调度策略，针对突发性机刷。</p>
+<h3 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h3><p><code>task_struct</code>结构体中采用三个成员表示进程的优先级：<code>prio</code>和<code>normal_prio</code>表示动态优先级,<code>static_prio</code>表示进程的静态优先级。</p>
+<p>内核将任务优先级划分，实时优先级范围是0到<code>MAX_RT_PRIO-1</code>（即99），而普通进程的静态优先级范围是从<code>MAX_RT_PRIO</code>到<code>MAX_PRIO-1</code>（即100到139）。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_NICE	19</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MIN_NICE	-20</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NICE_WIDTH	(MAX_NICE - MIN_NICE + 1)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_USER_RT_PRIO	100</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_RT_PRIO		MAX_USER_RT_PRIO</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAX_PRIO		(MAX_RT_PRIO + NICE_WIDTH)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEFAULT_PRIO		(MAX_RT_PRIO + NICE_WIDTH / 2)</span></span><br></pre></td></tr></table></figure>
+<p>进程分类：</p>
+<p>实时进程（Real_Time Process）:优先级更高，需要立刻被执行的进程。</p>
+<p>普通进程（Normal Process）：低优先级，更长执行的进程，</p>
+<p>进程的优先级是用0-139表示，数字越小，优先级越高，其中0-99留给实时进程，100-129留给普通进程。</p>
+<p><img src="/pic/2调度器分析及CFS/3 调度器分析及完全公平调度器CFS cdc39d3d48bd4c558cf69ca7c134d14e/Untitled.png" alt="Untitled"></p>
+<h2 id="完全公平调度器"><a href="#完全公平调度器" class="headerlink" title="完全公平调度器"></a>完全公平调度器</h2><h3 id="CFS原理"><a href="#CFS原理" class="headerlink" title="CFS原理"></a>CFS原理</h3><p>CFS是一种新的模型，其给cfs_rq（csf的run queue）的每个进程安排一个虚拟时钟，vruntime，如果一个进程得以执行，随着时间的增长，其vruntime将不断增大，没有得到执行的vruntime不变。</p>
+<p>而调度器总是选择vruntime跑得最慢的那个进程来执行。这就是所谓的“完全公平”。为了区别不同优先级的进程，优先级高的进程vruntime增长得慢，以至于它可能得到更多的运行机会。</p>
+<h3 id="CFS的基本涉及思路"><a href="#CFS的基本涉及思路" class="headerlink" title="CFS的基本涉及思路"></a>CFS的基本涉及思路</h3><p>为了维护完全公平调度算法，定义另个时间。</p>
+<ol>
+<li>实际运行时间 ：<strong>分配给进程的运行时间 = 调度周期 * 进程权重 / 所有进程权重之和</strong><ol>
+<li>调度周期，是指所有进程运行一遍所需要的时间</li>
+<li>进程权重，根据进程的重要性，给每个进程分配不同的权重</li>
+</ol>
+</li>
+<li>虚拟运行时间：<strong>vruntime = 实际运行时间 <em> 1024 / 进程权重  = (调度周期 </em> 进程权重 / 所有进程总权重) <em> 1024 / 进程权重 = 调度周期 </em> 1024 / 所有进程总权重</strong></li>
+</ol>
+<p>所以，虽然每个进程的权重不同，但是他们的虚拟运行时间都是一样的，与权重无关，既然所有进程的vruntime增长速度一样的，与权重无关，那么vruntime增长速度宏观上看应该是同时推进的。那么就可以用这个vruntime来选择运行的进程，谁的vruntime值较小就说明它以前占用cpu的时间较短，受到了“不公平”对待，因此下一个运行进程就是它。这样既能公平选择进程，又能保证高优先级进程获得较多的运行时间。这就是CFS的主要思想了。</p>
+<p>CFS的思想就是让每个调度实体（没有组调度的情形下就是进程，以后就说进程了）的vruntime互相追赶，而每个调度实体的vruntime增加速度不同，权重越大的增加的越慢，这样就能获得更多的cpu执行时间。</p>
+<p>可以看到进程在一个调度周期内的vruntime值大小与进程权重无关，所有进程的vruntime值在一个周期内增长是一致的。vruntime值较小的进程，说明它以前占用cpu的时间较短，受到了不公平对待，因此选择作为下一次运行的进程。<br>这样既能公平选择进程，又能保证高优先级进程获得较多运行时间，就是cfs的主要思想了。其可以简单概括为：机会平等、时间差异。</p>
+<p>以下是完全公平调度CFS数据结构 在kernel/sched/fair.c</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">sched_class</span> fair_sched_class = &#123;</span><br><span class="line">	.next			= &amp;idle_sched_class,</span><br><span class="line">	.enqueue_task		= enqueue_task_fair,</span><br><span class="line">	.dequeue_task		= dequeue_task_fair,</span><br><span class="line">	.yield_task		= yield_task_fair,</span><br><span class="line">	.yield_to_task		= yield_to_task_fair,</span><br><span class="line"></span><br><span class="line">	.check_preempt_curr	= check_preempt_wakeup,</span><br><span class="line"></span><br><span class="line">	.pick_next_task		= pick_next_task_fair,</span><br><span class="line">	.put_prev_task		= put_prev_task_fair,</span><br><span class="line">……</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CFS就绪队列，CFS的顶级调度就是<code>struct cfs_rq</code>，内核源码在kennel/sched/sched.h</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">cfs_rq</span> &#123;</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">load_weight</span> load;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> nr_running, h_nr_running;</span><br><span class="line"></span><br><span class="line">	u64 exec_clock;</span><br><span class="line">	u64 min_vruntime;</span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> CONFIG_64BIT</span></span><br><span class="line">	u64 min_vruntime_copy;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">rb_root</span> tasks_timeline;</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">rb_node</span> *rb_leftmost;</span><br><span class="line">……</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<p>【参考】</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/554149581">一文搞懂linux进程调度框架 - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Vince_/article/details/89055101">https://blog.csdn.net/Vince_/article/details/89055101</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/tianguiyu/articles/6091378.html">linux内核分析——CFS（完全公平调度算法） - 一路向北你好 - 博客园 (cnblogs.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/XD_hebuters/article/details/79623130">https://blog.csdn.net/XD_hebuters/article/details/79623130</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" rel="tag"># 进程调度</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/05/09/2-%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" rel="prev" title="2.进程管理及系统调用">
+      <i class="fa fa-chevron-left"></i> 2.进程管理及系统调用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E5%99%A8%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">调度器分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E5%99%A8%E5%8F%8A%E5%85%B6%E5%8A%9F%E8%83%BD"><span class="nav-number">1.1.</span> <span class="nav-text">调度器及其功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E7%B1%BBsched-class%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%8E%E8%B0%83%E5%BA%A6%E7%B1%BB"><span class="nav-number">1.2.</span> <span class="nav-text">调度类sched_class结构体与调度类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E7%B1%BB"><span class="nav-number">1.3.</span> <span class="nav-text">调度类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5"><span class="nav-number">1.4.</span> <span class="nav-text">调度策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7"><span class="nav-number">1.5.</span> <span class="nav-text">优先级</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%8C%E5%85%A8%E5%85%AC%E5%B9%B3%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">完全公平调度器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CFS%E5%8E%9F%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">CFS原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CFS%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%B6%89%E5%8F%8A%E6%80%9D%E8%B7%AF"><span class="nav-number">2.2.</span> <span class="nav-text">CFS的基本涉及思路</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">86k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:18</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
