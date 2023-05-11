@@ -29,9 +29,9 @@
 <meta property="og:site_name" content="黄沙百战穿金甲">
 <meta property="og:description" content="本篇文章讲解在Ubuntu中源码安装执行版本的Linux源码，用于后续的代码调试">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled.png">
-<meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20230511_100940.png">
-<meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20230511_101318.png">
+<meta property="og:image" content="http://example.com/pic0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled.png">
+<meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/2.png">
+<meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/1.png">
 <meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled%201.png">
 <meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled%202.png">
 <meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled%203.png">
@@ -42,10 +42,11 @@
 <meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled%208.png">
 <meta property="og:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled%209.png">
 <meta property="article:published_time" content="2023-05-08T06:08:23.000Z">
-<meta property="article:modified_time" content="2023-05-11T06:42:47.295Z">
+<meta property="article:modified_time" content="2023-05-11T07:06:39.431Z">
 <meta property="article:author" content="Ning">
+<meta property="article:tag" content="环境">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pic/0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled.png">
+<meta name="twitter:image" content="http://example.com/pic0linux源码编译安装/0%20Linux内核源码编译安装%204e4bfa2806804db19d835e714146fe19/Untitled.png">
 
 <link rel="canonical" href="http://example.com/2023/05/08/0-Linux%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E4%B8%8E%E5%AE%89%E8%A3%85/">
 
@@ -239,8 +240,17 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-05-11 14:42:47" itemprop="dateModified" datetime="2023-05-11T14:42:47+08:00">2023-05-11</time>
+                <time title="修改时间：2023-05-11 15:06:39" itemprop="dateModified" datetime="2023-05-11T15:06:39+08:00">2023-05-11</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">Linux内核源码分析</span></a>
+                </span>
+            </span>
 
           
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
@@ -278,31 +288,34 @@
 <p>本篇文章讲解在Ubuntu中源码安装执行版本的Linux源码，用于后续的代码调试</p>
 </blockquote>
 <span id="more"></span>
-<p>需要在Ubuntu中安装，可以通过虚拟机进行，网上很多教程，这里不在讲述（需要注意的是安装Linux内核源码需要的时间比较久（我的电脑1h左右），空间比较大（建议提前磁盘分配大于80G））</p>
-<ol>
+<p>可以在Ubuntu中安装，通过虚拟机进行，因此需要先安装虚拟机，网上很多教程，这里不在讲述（需要注意的是安装Linux内核源码需要的时间比较久（我的电脑1h左右），空间比较大（我的磁盘分配大于80G））</p>
+<h3 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h3><ol>
 <li>查看自己的Ubuntu系统内核版本</li>
 </ol>
-<p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled.png" alt="Untitled"></p>
+<p><img src="/pic0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled.png" alt="Untitled"></p>
 <ol>
 <li>安装各种依赖的包</li>
 </ol>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo  apt-get install build-essential kernel-package libncurses5-dev libncurses-dev libssl-dev </span><br><span class="line">sudo apt-get install dwarves</span><br></pre></td></tr></table></figure>
 <ol>
-<li>现在<a target="_blank" rel="noopener" href="https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/">官网内核源码</a>，源码有3组数组，第一组是大版本号，第二组是小版本号，第三组是修改的次数，建议选择第二组是偶数的，因为偶数是稳定的版本。我这里下载是5.10.9 版本（后面又换成了5.12.10）见文末温馨提示</li>
-<li>将下载的版本的移动到你的文件夹中，然后解压</li>
+<li><p>下载<a target="_blank" rel="noopener" href="https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/">官网内核源码</a>，源码有3组数组，第一组是大版本号，第二组是小版本号，第三组是修改的次数，建议选择第二组是偶数的，因为偶数是稳定的版本。我这里下载是5.10.9 版本（后面又换成了5.12.10）见文末温馨提示</p>
+</li>
+<li><p>将下载的版本的移动到你的文件夹中，然后解压</p>
+</li>
 </ol>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar vxf linux-<span class="number">5.10</span><span class="number">.9</span>.<span class="property">tar</span>.<span class="property">xz</span></span><br></pre></td></tr></table></figure>
-<ol>
+<h3 id="配置步骤"><a href="#配置步骤" class="headerlink" title="配置步骤"></a>配置步骤</h3><ol>
 <li>开始配置</li>
 </ol>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd linux-<span class="number">5.10</span><span class="number">.9</span>/</span><br><span class="line"><span class="comment">//用与清理一些中间文件</span></span><br><span class="line">sudo make mrproper</span><br><span class="line">sudo make clean</span><br><span class="line"><span class="comment">// 基于ncurse库编制图形工具界面</span></span><br><span class="line">sudo make menuconfig</span><br></pre></td></tr></table></figure>
 <ol>
 <li>根据错误安装各种包，缺什么安装什么即可</li>
 </ol>
-<p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20230511_100940.png" alt="Untitled"></p>
+<p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/2.png" alt="屏幕截图_20230511_100940.png"></p>
+<p>·</p>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install flex</span><br></pre></td></tr></table></figure>
 <p>直到出现图形化界面</p>
-<p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_20230511_101318.png" alt="Untitled"></p>
+<p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/1.png" alt="屏幕截图_20230511_101318.png"></p>
 <p>右方向键到exit,按enter，yes，如下图所示</p>
 <p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 1.png" alt="Untitled"></p>
 <ol>
@@ -315,7 +328,9 @@
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make modules_install</span><br></pre></td></tr></table></figure>
 <p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 3.png" alt="Untitled"></p>
-<p>4.安装内核</p>
+<ol>
+<li>安装内核</li>
+</ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
 <p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 4.png" alt="Untitled"></p>
 <ol>
@@ -324,10 +339,7 @@
 <p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 5.png" alt="Untitled"></p>
 <p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 6.png" alt="Untitled"></p>
 <hr>
-<ol>
-<li>遇到的问题</li>
-</ol>
-<p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 7.png" alt="Untitled"></p>
+<h3 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h3><p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 7.png" alt="Untitled"></p>
 <p>需要修改配置文件</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod a+w .config</span><br><span class="line">gedit .config</span><br><span class="line">CONFIG_SYSTEM_TRUSTED_KEYS=<span class="string">&quot;debian/canonical-certs.pem&quot;</span></span><br><span class="line"><span class="comment">// 将上面一行改成下面这个</span></span><br><span class="line">CONFIG_SYSTEM_TRUSTED_KEYS=<span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
 <p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 8.png" alt="Untitled"></p>
@@ -340,11 +352,11 @@
 <p><img src="/pic/0linux源码编译安装/0 Linux内核源码编译安装 4e4bfa2806804db19d835e714146fe19/Untitled 9.png" alt="Untitled"></p>
 <p>以下blog也是遇到各种错误的解决方法</p>
 <ol>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36393978/article/details/124274364">内核错误：UntitledBTF: .tmp_vmlinux.btf: pahole (pahole) is not available_linux os 内核make 。tmp_vmlinux .btf_Imagine Miracle的博客-CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36393978/article/details/124274364">内核错误：BTF: .tmp_vmlinux.btf: pahole (pahole) is not available_linux os 内核make 。tmp_vmlinux .btf_Imagine Miracle的博客-CSDN博客</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/608493042">修复 Ubuntu 中的 “Key is stored in legacy trusted.gpg keyring” 问题 | Linux 中国 - 知乎 (zhihu.com)</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43307006/article/details/88555478">操作系统作业——Ubuntu编译linux内核_yu_weier的博客-CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43307006/article/details/88555478"> 操作系统作业——Ubuntu编译linux内核_yu_weier的博客-CSDN博客</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/ayunnuo/article/details/119138489">解决apt-get install E: 无法定位软件包</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43307006/article/details/88555478">操作系统作业——Ubuntu编译linux内核_yu_weier的博客-CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43307006/article/details/88555478">(57条消息) 操作系统作业——Ubuntu编译linux内核_yu_weier的博客-CSDN博客</a></li>
 </ol>
 <p>【温馨提示】</p>
 <p>出现各种报错问题，去网上找答案，如果实在解决不了，就换个版本继续安装，我两次安装经历中都是换了第二个版本才安装好的。</p>
@@ -356,6 +368,9 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%8E%AF%E5%A2%83/" rel="tag"># 环境</a>
+          </div>
 
         
 
@@ -428,6 +443,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">前期准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.</span> <span class="nav-text">配置步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">遇到的问题</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -454,7 +470,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
