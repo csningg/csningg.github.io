@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="6.内核内存布局和堆管理内核内存布局64位Linux一般使用48位来表示虚拟地址空间，43位表示物理地址。 通过命令：cat &#x2F;proc&#x2F;cpuinfo  ARM64架构处理器采用48位物理寻址机制，最大可以寻找到256TB的物理地址空间。对于目前的应用来说已经足够了，不需要扩展到64位的物理地址寻址。虚拟地址也同样最大支持48位支持，所以在处理器的架构设计上，把虚拟地址空间划分为两个空间，每个空">
+<meta property="og:type" content="website">
+<meta property="og:title" content="黄沙百战穿金甲">
+<meta property="og:url" content="http://example.com/pic/6.%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86/6%20%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86%20ad1d293f94044ecfad3666d660e7f65a.html">
+<meta property="og:site_name" content="黄沙百战穿金甲">
+<meta property="og:description" content="6.内核内存布局和堆管理内核内存布局64位Linux一般使用48位来表示虚拟地址空间，43位表示物理地址。 通过命令：cat &#x2F;proc&#x2F;cpuinfo  ARM64架构处理器采用48位物理寻址机制，最大可以寻找到256TB的物理地址空间。对于目前的应用来说已经足够了，不需要扩展到64位的物理地址寻址。虚拟地址也同样最大支持48位支持，所以在处理器的架构设计上，把虚拟地址空间划分为两个空间，每个空">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/pic/6.%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86/6%20%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86%20ad1d293f94044ecfad3666d660e7f65a/Untitled.png">
+<meta property="og:image" content="http://example.com/pic/6.%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86/6%20%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86%20ad1d293f94044ecfad3666d660e7f65a/Untitled%201.png">
+<meta property="article:published_time" content="2023-05-13T03:39:25.809Z">
+<meta property="article:modified_time" content="2023-05-12T19:35:56.000Z">
+<meta property="article:author" content="Ning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pic/6.%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86/6%20%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86%20ad1d293f94044ecfad3666d660e7f65a/Untitled.png">
+
+<link rel="canonical" href="http://example.com/pic/6.%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86/6%20%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86%20ad1d293f94044ecfad3666d660e7f65a">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | 黄沙百战穿金甲
+</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">黄沙百战穿金甲</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">张宁的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+  
+  
+
+          <div class="content page posts-expand">
+            
+
+    
+    
+    
+    <div class="post-block" lang="zh-CN">
+      <header class="post-header">
+
+<h1 class="post-title" itemprop="name headline">
+</h1>
+
+<div class="post-meta">
+  
+  <ul class="breadcrumb">
+          
+            <li><a href="/pic/">PIC</a></li>
+            <li><a href="/pic/6.%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86/">6.内核内存布局和堆管理</a></li>
+            <li>6 内核内存布局和堆管理 AD1D293F94044ECFAD3666D660E7F65A</li>
+          
+  </ul>
+
+</div>
+
+</header>
+
+      
+      
+      
+      <div class="post-body">
+          <h1 id="6-内核内存布局和堆管理"><a href="#6-内核内存布局和堆管理" class="headerlink" title="6.内核内存布局和堆管理"></a>6.内核内存布局和堆管理</h1><h2 id="内核内存布局"><a href="#内核内存布局" class="headerlink" title="内核内存布局"></a>内核内存布局</h2><p>64位Linux一般使用48位来表示虚拟地址空间，43位表示物理地址。</p>
+<p>通过命令：<code>cat /proc/cpuinfo</code></p>
+<p><img src="6%20%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86%20ad1d293f94044ecfad3666d660e7f65a/Untitled.png" alt="Untitled"></p>
+<p>ARM64架构处理器采用48位物理寻址机制，最大可以寻找到256TB的物理地址空间。对于目前的应用来说已经足够了，不需要扩展到64位的物理地址寻址。虚拟地址也同样最大支持48位支持，所以在处理器的架构设计上，把虚拟地址空间划分为两个空间，每个空间最大支持256TB。Linux内核在大多数体系结构中都把两个地址空间划分为用户空间和内核空间。</p>
+<ul>
+<li>用户空间：0x0000_0000_0000_0000到0x0000_ffff_ffff_ffff</li>
+<li>内核空间：0xffff_0000_0000_0000到0xffff_ffff_ffff_ffff</li>
+</ul>
+<p>结构如下：</p>
+<p><img src="6%20%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86%20ad1d293f94044ecfad3666d660e7f65a/Untitled%201.png" alt="Untitled"></p>
+<p>（1）用户空间：0x0000_0000_0000_0000到0x0000_ffff_ffff_ffff，一共有256TB。</p>
+<p>（2）非规范区域</p>
+<p>（3）内核空间：0xffff_0000_0000_0000到0xffff_ffff_ffff_ffff。一共有256TB。</p>
+<p>内核空间又做了如下细分：</p>
+<ul>
+<li>vmalloc区域：0xffff_0000_0000_0000到0xffff_7bff_bfff_0000，大小为126974GB。</li>
+<li>vmemmap区域：0xffff_7bff_c000_0000到0xffff_7fff_c000_0000，大小为4096GB。</li>
+<li>PCI I/O区域：0xffff_7fff_ae00_0000到0xffff_7fff_be00_0000，大小为16MB。</li>
+<li>Modules区域：0xffff_7fff_c000_0000到0xffff_8000_0000_0000，大小为64MB。</li>
+<li>normal memory线性映射区：0xffff_8000_0000_0000到0xffff_ffff_ffff_ffff，大小为128TB。</li>
+</ul>
+<p>各区域存放的数据：</p>
+<ul>
+<li>.data：数据段（内存初始化全局变量）</li>
+<li>.init：对应大部分模块初始化数据，初始化结束后就会释放这部分内存</li>
+<li>.text：代码段（_text是代码段的起始地址，_etext是结束地址）</li>
+<li>.modules：128M内核模块屈戌，是内核模块使用的虚拟地址空间</li>
+<li>PCI I/O : pci设备的I/O 地址空间</li>
+<li>vmemmap：内存的物理地址（如果不连续，则会有内存空洞）vmemmap就是用来存放内存的page结构体的数据虚拟地址空间</li>
+<li>vmalloc：vmalloc函数使用的虚拟地址空间</li>
+</ul>
+<h2 id="堆管理"><a href="#堆管理" class="headerlink" title="堆管理"></a>堆管理</h2><p>堆是进程中主要用于动态分配变量和数据的内存区域，堆的管理对应程序员不是直接可见的。因为它依赖标准库提供的各个辅助函数（其中最重要的是malloc）来分配任意长度的内存区。malloc和内存之间的经典接口是brk系统调用，负责扩展/收缩堆。</p>
+<p>堆是一个连续的内存区域，在扩展时自下至上增长。其中<strong><code>mm_struct</code></strong>结构，包含堆在虚拟地址空间中的起始和当前结束地址(<code>start_brk</code>和<code>brk</code>)。</p>
+<p>brk系统调用用于指定堆在虚拟地址空间中新的结束地址（如果堆将要收缩，当然可以小于当前值）。<code>brk</code>系统调用通过<code>do_brk</code>增长动态分配区</p>
+<h3 id="do-brk-流程"><a href="#do-brk-流程" class="headerlink" title="do_brk()流程"></a><code>do_brk()</code>流程</h3><p><code>brk</code>机制不是一个独立的内核概念，而是基于匿名映射实现的，以减少内部的开销，在检查过程中用作brk的值的新地址未超过堆的限制之后，<code>sys_brk</code>第一个重要的操作是将请求的地址按页长对齐</p>
+<p><code>brk()</code>用于向用户进程向内核申请空间，用于扩展用户的堆栈空间，或者是回收用户堆栈的额空间</p>
+<p><code>malloc()</code>为小空间申请，<code>brk()</code>为大块空间的申请，<code>do_brk()</code>用于动态分配去，<code>do_munmap()</code>用于释放动态分配区。</p>
+<ol>
+<li>检查资源限制</li>
+<li>将brk对齐到页</li>
+<li>是否想要增加brk的值<ol>
+<li>是→<code>do_brk()</code>，返回新的brk的值</li>
+<li>否→<code>do_munmap()</code>,返回新的brk的值</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mm\mmap.c</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> *  this is really a simplified &quot;do_mmap&quot;.  it only handles</span></span><br><span class="line"><span class="comment"> *  anonymous maps.  eventually we may be able to do some</span></span><br><span class="line"><span class="comment"> *  brk-specific accounting here.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// 该函数用于将addr位置向后继续申请len字节长度，用于扩展堆内存长度</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">unsigned</span> <span class="type">long</span> <span class="title">do_brk</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">unsigned</span> <span class="type">long</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// ……</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 首先对len这个长度的页面进行对齐，去判断对齐之后的页面是否超出了边界</span></span><br><span class="line">	len = <span class="built_in">PAGE_ALIGN</span>(len);</span><br><span class="line">	<span class="keyword">if</span> (!len)</span><br><span class="line">		<span class="keyword">return</span> addr;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ……</span></span><br><span class="line">    <span class="comment">// 检查是否有足够大的内存空间来分配len大小的内存，判断虚拟内存空间是否有足够的额空间</span></span><br><span class="line">	error = <span class="built_in">get_unmapped_area</span>(<span class="literal">NULL</span>, addr, len, <span class="number">0</span>, MAP_FIXED);</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">offset_in_page</span>(error))</span><br><span class="line">		<span class="keyword">return</span> error;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ……</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Clear old maps.  this also does some error checking for us</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">    <span class="comment">// 循环遍历用户进程红黑树中的VMA，然后根基addr来查找合适的插入点</span></span><br><span class="line">	<span class="keyword">while</span> (<span class="built_in">find_vma_links</span>(mm, addr, addr + len, &amp;prev, &amp;rb_link,</span><br><span class="line">			      &amp;rb_parent)) &#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">do_munmap</span>(mm, addr, len))</span><br><span class="line">			<span class="keyword">return</span> -ENOMEM;</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 检查是否要对虚拟空间进行扩充</span></span><br><span class="line">	<span class="comment">/* Check against address space limits *after* clearing old maps... */</span></span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">may_expand_vm</span>(mm, len &gt;&gt; PAGE_SHIFT))</span><br><span class="line">		<span class="keyword">return</span> -ENOMEM;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (mm-&gt;map_count &gt; sysctl_max_map_count)</span><br><span class="line">		<span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    <span class="comment">// 判断系统是否有足够的内存</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">security_vm_enough_memory_mm</span>(mm, len &gt;&gt; PAGE_SHIFT))</span><br><span class="line">		<span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    <span class="comment">// 判断是否可以合并，如果可以合并将其合并为一个vam区</span></span><br><span class="line">	<span class="comment">/* Can we just expand an old private anonymous mapping? */</span></span><br><span class="line">	vma = <span class="built_in">vma_merge</span>(mm, prev, addr, addr + len, flags,</span><br><span class="line">			<span class="literal">NULL</span>, <span class="literal">NULL</span>, pgoff, <span class="literal">NULL</span>, NULL_VM_UFFD_CTX);</span><br><span class="line">	<span class="keyword">if</span> (vma)</span><br><span class="line">		<span class="keyword">goto</span> out;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 如果没有办法合并，只有创建一个VMA，VAM的地址空间是[addr,addr + len]</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * create a vma struct for an anonymous mapping</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	vma = <span class="built_in">kmem_cache_zalloc</span>(vm_area_cachep, GFP_KERNEL);</span><br><span class="line">	<span class="keyword">if</span> (!vma) &#123;</span><br><span class="line">		<span class="built_in">vm_unacct_memory</span>(len &gt;&gt; PAGE_SHIFT);</span><br><span class="line">		<span class="keyword">return</span> -ENOMEM;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">INIT_LIST_HEAD</span>(&amp;vma-&gt;anon_vma_chain); <span class="comment">// 指向匿名域的只恨</span></span><br><span class="line">	vma-&gt;vm_mm = mm; <span class="comment">// 指向VAM所属的进程struct_mm_struct结构</span></span><br><span class="line">	vma-&gt;vm_start = addr;</span><br><span class="line">	vma-&gt;vm_end = addr + len;</span><br><span class="line">	vma-&gt;vm_pgoff = pgoff;</span><br><span class="line">	vma-&gt;vm_flags = flags; <span class="comment">// 主要保存VMA标志位</span></span><br><span class="line">	vma-&gt;vm_page_prot = <span class="built_in">vm_get_page_prot</span>(flags); <span class="comment">// VMA访问权限，用于创建区域中各页目录，页表项和存取控制指针，R/W U/S D G 位等。</span></span><br><span class="line">	<span class="built_in">vma_link</span>(mm, vma, prev, rb_link, rb_parent); <span class="comment">// VMA结构体，并将新的VMA加入到红黑树上面响应的链表中</span></span><br><span class="line">out: <span class="comment">// 增加地址进程的空间个长度</span></span><br><span class="line">	<span class="built_in">perf_event_mmap</span>(vma);</span><br><span class="line">	mm-&gt;total_vm += len &gt;&gt; PAGE_SHIFT;</span><br><span class="line">	<span class="keyword">if</span> (flags &amp; VM_LOCKED)</span><br><span class="line">		mm-&gt;locked_vm += (len &gt;&gt; PAGE_SHIFT);</span><br><span class="line">	vma-&gt;vm_flags |= VM_SOFTDIRTY;</span><br><span class="line">	<span class="keyword">return</span> addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="per-CPU计数器"><a href="#per-CPU计数器" class="headerlink" title="per_CPU计数器"></a>per_CPU计数器</h2><p>内存借助以下数据结构实现per_CPU，per_cpu机制就是让每个CPU都有自己的私有数据段，便于保护与访问。</p>
+<p>引入所谓的per_cpu计数器，来加速SMP系统上计数器操作，基本原理是计数器的准确地址存储在内存中的某一个地址，准确值所在的内存位置之后是一个数组，每个数组项对应于系统中的一个CPU</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include\linux\percpu_counter.h</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">percpu_counter</span> &#123;</span><br><span class="line">	<span class="type">raw_spinlock_t</span> lock; <span class="comment">// 自旋锁用于在需要准确值的时候保护计数器</span></span><br><span class="line">	s64 count; <span class="comment">// 计数器的准确值</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_HOTPLUG_CPU</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">list_head</span> list;	<span class="comment">/* All percpu_counters are on a list */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	s32 __percpu *counters; <span class="comment">// counters数组中各数组项特定于CPU，改数组用于缓冲对计数器的操作</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">percpu_counter_destroy</span><span class="params">(<span class="keyword">struct</span> percpu_counter *fbc)</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">percpu_counter_set</span><span class="params">(<span class="keyword">struct</span> percpu_counter *fbc, s64 amount)</span></span>;</span><br><span class="line"><span class="type">void</span> __percpu_counter_add(<span class="keyword">struct</span> percpu_counter *fbc, s64 amount, s32 batch);</span><br><span class="line">s64 __percpu_counter_sum(<span class="keyword">struct</span> percpu_counter *fbc);</span><br></pre></td></tr></table></figure>
+<h2 id="三种CPU模式"><a href="#三种CPU模式" class="headerlink" title="三种CPU模式"></a>三种CPU模式</h2><p>x86,x645,ai64</p>
+<p>x86表示基于x86指令集安装模式</p>
+<p>x64表示基64位的系统程序</p>
+<p>ia64用于企业级的服务器，是英特尔安腾架构，基于a64处理器架构的服务器具有64位运输昂的能力，64位寻址空间，64位数据通过在数据处理能力，系统稳定性，安全性，可用性等突破性的提高</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/linhaostudy/p/12867005.html">ARM64内核内存布局图 - yooooooo - 博客园 (cnblogs.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/367323352">存储基础 —— 磁盘 IO 为什么总叫你对齐？ - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012489236/article/details/112158568">linux内存管理笔记(三十四）——匿名映射</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000014390068">内存管理 - 关于do_brk()分析</a> </li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/340985476">一张图看懂linux内核中percpu变量的实现</a></li>
+</ol>
+
+      </div>
+      
+      
+      
+    </div>
+    
+  <ul class="breadcrumb">
+          
+            <li><a href="/pic/">PIC</a></li>
+            <li><a href="/pic/6.%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86/">6.内核内存布局和堆管理</a></li>
+            <li>6 内核内存布局和堆管理 AD1D293F94044ECFAD3666D660E7F65A</li>
+          
+  </ul>
+
+    
+    
+    
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#6-%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%A0%86%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">6.内核内存布局和堆管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80"><span class="nav-number">1.1.</span> <span class="nav-text">内核内存布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86%E7%AE%A1%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">堆管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#do-brk-%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">do_brk()流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#per-CPU%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">1.3.</span> <span class="nav-text">per_CPU计数器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E7%A7%8DCPU%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.4.</span> <span class="nav-text">三种CPU模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">1.5.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ning</p>
+  <div class="site-description" itemprop="description">业精于勤荒于嬉</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:1461771683@qq.com" title="E-Mail → mailto:1461771683@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ning</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">103k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+<span id="busuanzi_container_site_uv">
+  本站访问次数：<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+</span>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
