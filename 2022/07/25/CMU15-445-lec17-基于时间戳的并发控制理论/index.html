@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="基于时间戳的并发控制 本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类">
+  <meta name="description" content="本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CMU15-445-lec17-基于时间戳的并发控制理论">
 <meta property="og:url" content="http://example.com/2022/07/25/CMU15-445-lec17-%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E6%88%B3%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/index.html">
 <meta property="og:site_name" content="黄沙百战穿金甲">
-<meta property="og:description" content="基于时间戳的并发控制 本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类">
+<meta property="og:description" content="本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/YTizBfZpXeAVF9r.png">
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/gpEMDe3F5dtlKxv.png">
@@ -42,7 +42,7 @@
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/7yZMzE3R5NkXFoD.png">
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/5p2V618sM3ZlrfD.png">
 <meta property="article:published_time" content="2022-07-24T16:45:45.000Z">
-<meta property="article:modified_time" content="2022-07-24T17:02:54.790Z">
+<meta property="article:modified_time" content="2023-05-24T07:36:45.451Z">
 <meta property="article:author" content="Ning">
 <meta property="article:tag" content="DBMS">
 <meta name="twitter:card" content="summary">
@@ -232,10 +232,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-07-25 00:45:45 / 修改时间：01:02:54" itemprop="dateCreated datePublished" datetime="2022-07-25T00:45:45+08:00">2022-07-25</time>
+              <time title="创建时间：2022-07-25 00:45:45" itemprop="dateCreated datePublished" datetime="2022-07-25T00:45:45+08:00">2022-07-25</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-05-24 15:36:45" itemprop="dateModified" datetime="2023-05-24T15:36:45+08:00">2023-05-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -278,7 +284,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="基于时间戳的并发控制"><a href="#基于时间戳的并发控制" class="headerlink" title="基于时间戳的并发控制"></a>基于时间戳的并发控制</h1><blockquote>
+        <blockquote>
 <p>本文基于cmu15-445 lec17，主要讲述基于时间戳的并发的两种方法，以及隔离级别的分类</p>
 </blockquote>
 <span id="more"></span>
@@ -518,7 +524,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E6%88%B3%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">基于时间戳的并发控制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#TimeStamp-Ordering-Concurrency-Control"><span class="nav-number">1.1.</span> <span class="nav-text">TimeStamp Ordering Concurrency Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Basic-Timestamp-Ordering-Basic-T-O"><span class="nav-number">1.2.</span> <span class="nav-text">Basic Timestamp Ordering(Basic T&#x2F;O)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reads"><span class="nav-number">1.2.1.</span> <span class="nav-text">Reads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Writes"><span class="nav-number">1.2.2.</span> <span class="nav-text">Writes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thomas-write-rule"><span class="nav-number">1.2.3.</span> <span class="nav-text">Thomas write rule</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optimistic-Concurrency-Control-OCC"><span class="nav-number">1.3.</span> <span class="nav-text">Optimistic Concurrency Control(OCC)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Read-Phase"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. Read Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Validation-Phase"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. Validation Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Write-Phase"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. Write Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.3.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Isolation-Levels"><span class="nav-number">1.4.</span> <span class="nav-text">Isolation Levels</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Re-Execute-Scan"><span class="nav-number">1.4.1.</span> <span class="nav-text">Re-Execute Scan</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rredicate-Locking"><span class="nav-number">1.4.2.</span> <span class="nav-text">Rredicate Locking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-Locking"><span class="nav-number">1.4.3.</span> <span class="nav-text">Index Locking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Weaker-Levels-of-Isolation"><span class="nav-number">1.4.4.</span> <span class="nav-text">Weaker Levels of Isolation</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TimeStamp-Ordering-Concurrency-Control"><span class="nav-number">1.</span> <span class="nav-text">TimeStamp Ordering Concurrency Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Basic-Timestamp-Ordering-Basic-T-O"><span class="nav-number">2.</span> <span class="nav-text">Basic Timestamp Ordering(Basic T&#x2F;O)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reads"><span class="nav-number">2.1.</span> <span class="nav-text">Reads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Writes"><span class="nav-number">2.2.</span> <span class="nav-text">Writes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thomas-write-rule"><span class="nav-number">2.3.</span> <span class="nav-text">Thomas write rule</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optimistic-Concurrency-Control-OCC"><span class="nav-number">3.</span> <span class="nav-text">Optimistic Concurrency Control(OCC)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Read-Phase"><span class="nav-number">3.1.</span> <span class="nav-text">1. Read Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Validation-Phase"><span class="nav-number">3.2.</span> <span class="nav-text">2. Validation Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Write-Phase"><span class="nav-number">3.3.</span> <span class="nav-text">3. Write Phase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Isolation-Levels"><span class="nav-number">4.</span> <span class="nav-text">Isolation Levels</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Re-Execute-Scan"><span class="nav-number">4.1.</span> <span class="nav-text">Re-Execute Scan</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rredicate-Locking"><span class="nav-number">4.2.</span> <span class="nav-text">Rredicate Locking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-Locking"><span class="nav-number">4.3.</span> <span class="nav-text">Index Locking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Weaker-Levels-of-Isolation"><span class="nav-number">4.4.</span> <span class="nav-text">Weaker Levels of Isolation</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -532,20 +538,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -586,12 +592,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">105k</span>
+    <span title="站点总字数">102k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:35</span>
+    <span title="站点阅读时长">1:33</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>

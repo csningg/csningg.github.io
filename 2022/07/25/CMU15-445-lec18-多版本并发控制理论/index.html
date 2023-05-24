@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="多版本并发控制理论 本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T&#x2F;O 或者是OCC结合起来一起使用">
+  <meta name="description" content="本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T&#x2F;O 或者是OCC结合起来一起使用">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CMU15-445-lec18-多版本并发控制理论">
 <meta property="og:url" content="http://example.com/2022/07/25/CMU15-445-lec18-%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA/index.html">
 <meta property="og:site_name" content="黄沙百战穿金甲">
-<meta property="og:description" content="多版本并发控制理论 本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T&#x2F;O 或者是OCC结合起来一起使用">
+<meta property="og:description" content="本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T&#x2F;O 或者是OCC结合起来一起使用">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/DBi2A8pXYIwkePn.png">
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/XJm5z9cfryunhak.png">
@@ -40,7 +40,7 @@
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/oVOGyvUTXEQpSJr.png">
 <meta property="og:image" content="https://s2.loli.net/2022/07/25/oKYRQND4MVIlS3b.png">
 <meta property="article:published_time" content="2022-07-24T16:46:27.000Z">
-<meta property="article:modified_time" content="2022-07-24T17:13:34.802Z">
+<meta property="article:modified_time" content="2023-05-24T07:36:50.154Z">
 <meta property="article:author" content="Ning">
 <meta property="article:tag" content="DBMS">
 <meta name="twitter:card" content="summary">
@@ -230,10 +230,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-07-25 00:46:27 / 修改时间：01:13:34" itemprop="dateCreated datePublished" datetime="2022-07-25T00:46:27+08:00">2022-07-25</time>
+              <time title="创建时间：2022-07-25 00:46:27" itemprop="dateCreated datePublished" datetime="2022-07-25T00:46:27+08:00">2022-07-25</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-05-24 15:36:50" itemprop="dateModified" datetime="2023-05-24T15:36:50+08:00">2023-05-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -276,7 +282,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="多版本并发控制理论"><a href="#多版本并发控制理论" class="headerlink" title="多版本并发控制理论"></a>多版本并发控制理论</h1><blockquote>
+        <blockquote>
 <p>本文章服务于 CMU15445 lec18；主要讲述多版本并发控制理论以及原理，MVCC并不是单独的并发控制方法，而是和2PL或者 Basic T/O 或者是OCC结合起来一起使用</p>
 </blockquote>
 <span id="more"></span>
@@ -459,7 +465,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%E7%90%86%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">多版本并发控制理论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-Version-Concurrency-Control"><span class="nav-number">1.1.</span> <span class="nav-text">Multi-Version Concurrency Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Version-Storage"><span class="nav-number">1.2.</span> <span class="nav-text">Version Storage</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Append-Only-Storage"><span class="nav-number">1.2.1.</span> <span class="nav-text">Append-Only Storage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Travel-Storage"><span class="nav-number">1.2.2.</span> <span class="nav-text">Time-Travel Storage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delta-Stroage"><span class="nav-number">1.2.3.</span> <span class="nav-text">Delta Stroage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Garbage-Collection"><span class="nav-number">1.3.</span> <span class="nav-text">Garbage Collection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tuple-Level"><span class="nav-number">1.3.1.</span> <span class="nav-text">Tuple-Level</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-Level"><span class="nav-number">1.3.2.</span> <span class="nav-text">Transaction-Level</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Index-Management"><span class="nav-number">1.4.</span> <span class="nav-text">Index Management</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95%EF%BC%9A"><span class="nav-number">1.4.1.</span> <span class="nav-text">辅助索引：</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-Version-Concurrency-Control"><span class="nav-number">1.</span> <span class="nav-text">Multi-Version Concurrency Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Version-Storage"><span class="nav-number">2.</span> <span class="nav-text">Version Storage</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Append-Only-Storage"><span class="nav-number">2.1.</span> <span class="nav-text">Append-Only Storage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Travel-Storage"><span class="nav-number">2.2.</span> <span class="nav-text">Time-Travel Storage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delta-Stroage"><span class="nav-number">2.3.</span> <span class="nav-text">Delta Stroage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Garbage-Collection"><span class="nav-number">3.</span> <span class="nav-text">Garbage Collection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tuple-Level"><span class="nav-number">3.1.</span> <span class="nav-text">Tuple-Level</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-Level"><span class="nav-number">3.2.</span> <span class="nav-text">Transaction-Level</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Index-Management"><span class="nav-number">4.</span> <span class="nav-text">Index Management</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95%EF%BC%9A"><span class="nav-number">4.1.</span> <span class="nav-text">辅助索引：</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -473,20 +479,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -527,12 +533,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">105k</span>
+    <span title="站点总字数">102k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:35</span>
+    <span title="站点阅读时长">1:33</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>

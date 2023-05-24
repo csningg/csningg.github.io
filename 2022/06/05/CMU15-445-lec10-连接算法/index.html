@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="连接算法 本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法">
+  <meta name="description" content="本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CMU15-445 lec10 连接算法">
 <meta property="og:url" content="http://example.com/2022/06/05/CMU15-445-lec10-%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95/index.html">
 <meta property="og:site_name" content="黄沙百战穿金甲">
-<meta property="og:description" content="连接算法 本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法">
+<meta property="og:description" content="本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/06/05/CuXxMdf8i3pnHKk.png">
 <meta property="og:image" content="https://s2.loli.net/2022/06/05/NxHyLz4pZvhe5BE.png">
@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://s2.loli.net/2022/06/05/mIAkWNarVUlyfQz.png">
 <meta property="og:image" content="https://s2.loli.net/2022/06/05/sAb2WhS3UQEKFDO.png">
 <meta property="article:published_time" content="2022-06-05T07:53:49.000Z">
-<meta property="article:modified_time" content="2022-06-05T08:09:51.924Z">
+<meta property="article:modified_time" content="2023-05-24T07:36:09.232Z">
 <meta property="article:author" content="Ning">
 <meta property="article:tag" content="DBMS">
 <meta name="twitter:card" content="summary">
@@ -225,10 +225,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-06-05 15:53:49 / 修改时间：16:09:51" itemprop="dateCreated datePublished" datetime="2022-06-05T15:53:49+08:00">2022-06-05</time>
+              <time title="创建时间：2022-06-05 15:53:49" itemprop="dateCreated datePublished" datetime="2022-06-05T15:53:49+08:00">2022-06-05</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-05-24 15:36:09" itemprop="dateModified" datetime="2023-05-24T15:36:09+08:00">2023-05-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -271,7 +277,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="连接算法"><a href="#连接算法" class="headerlink" title="连接算法"></a>连接算法</h1><blockquote>
+        <blockquote>
 <p>本文章服务于CMU15-445 lec10 连接算法，主要介绍表连接的3种算法</p>
 </blockquote>
 <span id="more"></span>
@@ -402,7 +408,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">连接算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95%E7%BB%BC%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">连接算法综述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E5%AD%90%E8%BE%93%E5%87%BA"><span class="nav-number">1.1.1.</span> <span class="nav-text">算子输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%90%E6%9C%AC%E5%88%86%E6%9E%90"><span class="nav-number">1.1.2.</span> <span class="nav-text">成本分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nested-Loop-Join"><span class="nav-number">1.2.</span> <span class="nav-text">Nested Loop Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Simple-Stupid-nested-loop-join"><span class="nav-number">1.2.1.</span> <span class="nav-text">Simple&#x2F;Stupid nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Block-nested-loop-join"><span class="nav-number">1.2.2.</span> <span class="nav-text">Block nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-nested-loop-join"><span class="nav-number">1.2.3.</span> <span class="nav-text">Index nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sort-Merge-Join"><span class="nav-number">1.3.</span> <span class="nav-text">Sort-Merge Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash-Join"><span class="nav-number">1.3.1.</span> <span class="nav-text">Hash Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grace-hash-Join"><span class="nav-number">1.3.2.</span> <span class="nav-text">Grace hash Join</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%97%E6%B3%95%E7%BB%BC%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">连接算法综述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E5%AD%90%E8%BE%93%E5%87%BA"><span class="nav-number">1.1.</span> <span class="nav-text">算子输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%90%E6%9C%AC%E5%88%86%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">成本分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nested-Loop-Join"><span class="nav-number">2.</span> <span class="nav-text">Nested Loop Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Simple-Stupid-nested-loop-join"><span class="nav-number">2.1.</span> <span class="nav-text">Simple&#x2F;Stupid nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Block-nested-loop-join"><span class="nav-number">2.2.</span> <span class="nav-text">Block nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Index-nested-loop-join"><span class="nav-number">2.3.</span> <span class="nav-text">Index nested loop join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sort-Merge-Join"><span class="nav-number">3.</span> <span class="nav-text">Sort-Merge Join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash-Join"><span class="nav-number">3.1.</span> <span class="nav-text">Hash Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grace-hash-Join"><span class="nav-number">3.2.</span> <span class="nav-text">Grace hash Join</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -416,20 +422,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -470,12 +476,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">105k</span>
+    <span title="站点总字数">102k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:35</span>
+    <span title="站点阅读时长">1:33</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
