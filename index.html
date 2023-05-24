@@ -193,6 +193,132 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/24/02-%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E9%82%A3%E4%B9%88%E5%A4%9A%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B%EF%BC%8C%E7%A9%B6%E7%AB%9F%E6%9C%89%E5%95%A5%E4%B8%8D%E4%B8%80%E6%A0%B7%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ning">
+      <meta itemprop="description" content="业精于勤荒于嬉">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄沙百战穿金甲">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/05/24/02-%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E9%82%A3%E4%B9%88%E5%A4%9A%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B%EF%BC%8C%E7%A9%B6%E7%AB%9F%E6%9C%89%E5%95%A5%E4%B8%8D%E4%B8%80%E6%A0%B7%EF%BC%9F/" class="post-title-link" itemprop="url">02 | 强一致性：那么多数据一致性模型，究竟有啥不一样？</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-05-24 15:18:37 / 修改时间：15:21:26" itemprop="dateCreated datePublished" datetime="2023-05-24T15:18:37+08:00">2023-05-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%9330%E8%AE%B2/" itemprop="url" rel="index"><span itemprop="name">分布式数据库30讲</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>本文是极客时间分布式数据库30讲02讲主要讲数据一致性</p>
+</blockquote>
+<p>强一致性是什么？</p>
+<p>分布式系统和数据库系统两个学科中，一致性（Consistency）都有，但是不同，具体来说</p>
+<p>分布式系统中，一致性讨论的在多个物理数据副本中，对其执行读写操作参数什么样的后果，符合CAP理论对一致性的讨论。</p>
+<p>数据库系统中，一致性与事务密切相关，细化到ACID四个方面，I代表隔离行（Isolation），是“一致性”的核心内容，研究的是如何协调事务的一致性。</p>
+<p>所以分布式系统的一致性包括<strong>数据一致性</strong>和<strong>事务一致性</strong>两个方面。</p>
+<h2 id="数据一致性"><a href="#数据一致性" class="headerlink" title="数据一致性"></a>数据一致性</h2><blockquote>
+<p>数据一致性由于存储多个数据副本，在多副本上的一组读写策略，称为一致性模型，数据一致性模型又包括以下两个</p>
+</blockquote>
+<ul>
+<li>状态一致性：数据所处的客观，实际状态所体现的一致性</li>
+<li>操作一致性：用户通过约定的操作，能够读到的数据一致性</li>
+</ul>
+<h2 id="状态视角"><a href="#状态视角" class="headerlink" title="状态视角"></a>状态视角</h2><blockquote>
+<p>首先需要明白，所有副本最后必然一致，否则是错的。在此前提下，时时刻刻一致的叫强一致性，暂时的不一致叫做弱一致性</p>
+</blockquote>
+<h3 id="强一致性：MySQL全同步复制："><a href="#强一致性：MySQL全同步复制：" class="headerlink" title="强一致性：MySQL全同步复制："></a>强一致性：MySQL全同步复制：</h3><p>背景：一主两备，全同步复制（Fully Synchronous Replication）。强一致性是待主备都相同后，才给用户返回成功</p>
+<p>问题：1）性能差，主库的响应时间取决于较慢的备库。2）可用性 集群的可用性为单个单机的可用性乘积，很差</p>
+<p>所以全同步复制很少用</p>
+<p><img src="../pic/2分布式系统30讲数据一致性/02 强一致性：那么多数据一致性模型，究竟有啥不一样？ 0e1daea0907f48bc89fccb6b2554d328/Untitled.png" alt="Untitled"></p>
+<h3 id="弱一致性：NoSQL最终一致性"><a href="#弱一致性：NoSQL最终一致性" class="headerlink" title="弱一致性：NoSQL最终一致性"></a>弱一致性：NoSQL最终一致性</h3><p>NoSQL是弱一致性，在BASE理论中E代表的最终一致性（Eventually Constitency）,最终一致性要求是经过一段时间后一致，经过一段时间是多久呢？接下来就是操作一致性</p>
+<h2 id="操作视角"><a href="#操作视角" class="headerlink" title="操作视角"></a>操作视角</h2><h3 id="写后读一致性-读写一致性-读自己写一致性"><a href="#写后读一致性-读写一致性-读自己写一致性" class="headerlink" title="写后读一致性 | 读写一致性 | 读自己写一致性"></a>写后读一致性 | 读写一致性 | 读自己写一致性</h3><p>以上三个说法表达的都是一个意思</p>
+<p>小明和小红是情侣，小明发完朋友圈后，更新在了主副本R1上，在经过一段时间后才更新到了R2上，也就是说在T2时刻才到达了强一致性，假如无论小明在此期间访问了R2，R2也能采用某种手段让其访问R1，也就是说：系统会采取手段，在小明发完朋友圈后，无论什么访问哪个节点，都能读到自己发的朋友圈，这就叫着读自己写一致性。</p>
+<p><img src="../pic/2分布式系统30讲数据一致性/02 强一致性：那么多数据一致性模型，究竟有啥不一样？ 0e1daea0907f48bc89fccb6b2554d328/Untitled 1.png" alt="Untitled"></p>
+<h3 id="单调读一致性"><a href="#单调读一致性" class="headerlink" title="单调读一致性"></a>单调读一致性</h3><p>单调读一致性，是指一旦用户读到某个值后，就不会再读到比这个值之前的值了，用刚刚的例子，小红看到照片后（R1副本上的），评论后。再次刷新，又读到了R2副本，注意此时R2副本并没有更新完成。出现了异常，要避免上述这个问题，就要用单调读一致性。</p>
+<p><img src="../pic/2分布式系统30讲数据一致性/02 强一致性：那么多数据一致性模型，究竟有啥不一样？ 0e1daea0907f48bc89fccb6b2554d328/Untitled 2.png" alt="Untitled"></p>
+<p>实现单调读一致性的方式，可以让用户与副本之间建立映射关系，避免用户读数据在不同的副本之间来回切换。</p>
+<h3 id="前缀一致性"><a href="#前缀一致性" class="headerlink" title="前缀一致性"></a>前缀一致性</h3><p>我们的数据更新在了不同的节点，但是数据有因果关系，但是当更新到另外的节点时，顺序出现了错误，导致错位；</p>
+<p>比如小明去看NBA比赛，小红没有去，小红群现在比分多少，写入了上海的N1节点，然后同步到N2节点，小明看到了消息，回复4：2 然后数据先更新到N2节点，然后更新到N1节点，最后小红看到了比分；但是N2节点的4:2先更新到了北美节点N3，N1节点的“现在比分多少”后更新到了N3，导致小刚先看到答案，再看到问题。这就是没有满足前缀一致性，解决这种问题，可以再原有评论数据的基础上加上因果关系，依次来控制其他进程的读取顺序。</p>
+<p><img src="../pic/2分布式系统30讲数据一致性/02 强一致性：那么多数据一致性模型，究竟有啥不一样？ 0e1daea0907f48bc89fccb6b2554d328/Untitled 3.png" alt="Untitled"></p>
+<h3 id="线性一致性"><a href="#线性一致性" class="headerlink" title="线性一致性"></a>线性一致性</h3><p>前缀一致性的因果关系过于复制，我们不能要求都能够做显式的声明。</p>
+<p>线性一致性就是简历在事件的先后顺序上的，在线性一致性的情况下，整个系统表现的好像只有一个副本，所有的操作都别记录再一条事件线上，并且被原子化。</p>
+<p>各个节点如何同步呢？引入全局时钟的概念。工程上通过单点授时来解决。但是全局时钟不够精确，所以出现了因果一致性</p>
+<h3 id="因果一致性"><a href="#因果一致性" class="headerlink" title="因果一致性"></a>因果一致性</h3><p>因果一致性的基础是偏序关系，部分事件顺序可以比较。至少一个节点内的事件是可以比较的，节点之间如果发生通讯，则接受放的事件一定晚于调用方的事件。这种称为逻辑时钟。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>分布式数据库主要应用了线性一致性或因果一致性，线性一致性必须要有全局时钟，因果一致性必须要有逻辑时钟</p>
+<p>线性一致性 &gt; 顺序一致性 &gt; 因果一致性 &gt; { 写后读一致性，单调一致性，前缀一致性 }</p>
+<p><img src="../pic/2分布式系统30讲数据一致性/02 强一致性：那么多数据一致性模型，究竟有啥不一样？ 0e1daea0907f48bc89fccb6b2554d328/Untitled 4.png" alt="Untitled"></p>
+<p>CAP是指多副本，单操作的数据一致性</p>
+<p>ACID是指单副本，多操作的事务一致性</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/472119560">分布式时钟同步：逻辑时钟、向量时钟、混合逻辑时钟 - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://time.geekbang.org/column/intro/100057401">分布式数据库 30 讲 (geekbang.org)</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/13/6-%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%E4%B8%8E%E5%A0%86%E7%AE%A1%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1026,107 +1152,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/01/C-%E4%B8%AD%E7%9A%84%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E4%B8%8E%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Ning">
-      <meta itemprop="description" content="业精于勤荒于嬉">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="黄沙百战穿金甲">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/01/C-%E4%B8%AD%E7%9A%84%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E4%B8%8E%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="post-title-link" itemprop="url">C++中的智能指针与内存管理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-01 12:26:35" itemprop="dateCreated datePublished" datetime="2023-05-01T12:26:35+08:00">2023-05-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-05-05 09:33:04" itemprop="dateModified" datetime="2023-05-05T09:33:04+08:00">2023-05-05</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="C-中的智能指针与内存管理"><a href="#C-中的智能指针与内存管理" class="headerlink" title="C++中的智能指针与内存管理"></a>C++中的智能指针与内存管理</h1><blockquote>
-<p>智能指针的出现是为了更好的管理内存，防止内存泄漏；其基本想法是对于动态分配的对象，进行引用计数。</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/05/01/C-%E4%B8%AD%E7%9A%84%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E4%B8%8E%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1192,20 +1221,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-count">41</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1246,12 +1275,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">103k</span>
+    <span title="站点总字数">105k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:34</span>
+    <span title="站点阅读时长">1:35</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
