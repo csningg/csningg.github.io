@@ -22,12 +22,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="c++三大特性封装 最开始接触代码是C语言，那么开始写一些逻辑代码的时候会很麻烦，因为你要在函数中定义变量，然后按顺序写对应的逻辑，接着可以将逻辑封装成函数。当时会感觉很麻烦，因为很散装，知道后面学了struct结构体，把对应逻辑需要的数据可以放到一个结构体里面，这样就会比较好看。接着出现的问题就是数据封装到了一起，但是处理数据对应的逻辑即函数却还是在外面。因此就有了将数据和对应逻辑进行封装的类">
+  <meta name="description" content="C++相关">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++基础面经">
 <meta property="og:url" content="http://example.com/2023/08/24/C-%E5%9F%BA%E7%A1%80%E9%9D%A2%E7%BB%8F/index.html">
 <meta property="og:site_name" content="黄沙百战穿金甲">
-<meta property="og:description" content="c++三大特性封装 最开始接触代码是C语言，那么开始写一些逻辑代码的时候会很麻烦，因为你要在函数中定义变量，然后按顺序写对应的逻辑，接着可以将逻辑封装成函数。当时会感觉很麻烦，因为很散装，知道后面学了struct结构体，把对应逻辑需要的数据可以放到一个结构体里面，这样就会比较好看。接着出现的问题就是数据封装到了一起，但是处理数据对应的逻辑即函数却还是在外面。因此就有了将数据和对应逻辑进行封装的类">
+<meta property="og:description" content="C++相关">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://images2015.cnblogs.com/blog/1048430/201611/1048430-20161107095657280-1519112029.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/luogou/cloudimg/data/20190424220313563.png">
@@ -54,7 +54,7 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190804120900612.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpa2VfdGhhdA==,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/luogou/cloudimg/data/202203101434582.gif">
 <meta property="article:published_time" content="2023-08-24T02:59:16.000Z">
-<meta property="article:modified_time" content="2023-08-24T03:11:43.087Z">
+<meta property="article:modified_time" content="2023-08-24T03:20:18.505Z">
 <meta property="article:author" content="Ning">
 <meta property="article:tag" content="c++">
 <meta name="twitter:card" content="summary">
@@ -246,7 +246,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-08-24 10:59:16 / 修改时间：11:11:43" itemprop="dateCreated datePublished" datetime="2023-08-24T10:59:16+08:00">2023-08-24</time>
+              <time title="创建时间：2023-08-24 10:59:16 / 修改时间：11:20:18" itemprop="dateCreated datePublished" datetime="2023-08-24T10:59:16+08:00">2023-08-24</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -290,7 +290,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
+        <blockquote>
+<p>C++相关</p>
+</blockquote>
+<span id="more"></span>
 <h2 id="c-三大特性"><a href="#c-三大特性" class="headerlink" title="c++三大特性"></a>c++三大特性</h2><p><strong>封装</strong></p>
 <p>最开始接触代码是C语言，那么开始写一些逻辑代码的时候会很麻烦，因为你要在函数中定义变量，然后按顺序写对应的逻辑，接着可以将逻辑封装成函数。当时会感觉很麻烦，因为很散装，知道后面学了struct结构体，把对应逻辑需要的数据可以放到一个结构体里面，这样就会比较好看。接着出现的问题就是数据封装到了一起，但是处理数据对应的逻辑即函数却还是在外面。因此就有了将数据和对应逻辑进行封装的类的出现。</p>
 <p>封装就是将抽象得到的数据和行为相结合，形成一个有机的整体，也就是将数据与操作数据的源代码进行有机的结合，形成类，其中数据和函数都是类的成员，目的在于将对象的使用者和设计者分开，可以隐藏实现细节包括包含私有成员，使得代码模块增加安全指数，同时提高软件的可维护性和可修改性。</p>
