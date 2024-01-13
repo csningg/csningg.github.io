@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Linux下redis源码编译安装调试方法</title>
+      <link href="/2024/01/13/Linux%E4%B8%8Bredis%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/"/>
+      <url>/2024/01/13/Linux%E4%B8%8Bredis%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/</url>
+      
+        <content type="html"><![CDATA[<h1 id="linux下源码编译安装调试Redis"><a href="#linux下源码编译安装调试Redis" class="headerlink" title="linux下源码编译安装调试Redis"></a>linux下源码编译安装调试Redis</h1><h3 id="1-需要gcc的编译工具，自行安装"><a href="#1-需要gcc的编译工具，自行安装" class="headerlink" title="1.需要gcc的编译工具，自行安装"></a>1.需要gcc的编译工具，自行安装</h3><h3 id="2-Redis下载与安装"><a href="#2-Redis下载与安装" class="headerlink" title="2.Redis下载与安装"></a>2.Redis下载与安装</h3><ol><li><p>下载地址： <code>wget [http://download.redis.io/releases/redis-4.0.2.tar.gz](http://download.redis.io/releases/redis-4.0.2.tar.gz)</code>  </p><p>下载后，解压，进入到解压后的目录，进行下一步编译安装</p><p><img src="/pic/linux下源码编译安装调试/Untitled.png" alt="Untitled"></p><p><img src="/pic/linux下源码编译安装调试/Untitled 1.png" alt="Untitled"></p></li><li><p>编译</p><p>编译命令是<code>make</code>；在make时会有一些warning信息，不用例会</p><p><img src="/pic/linux下源码编译安装调试/Untitled 2.png" alt="Untitled"></p><p><img src="/pic/linux下源码编译安装调试/Untitled 3.png" alt="Untitled"></p></li><li><p>安装</p><p>安装命令是 <code>make PREFIX=/usr/local/redis install</code> 如果出现了 <code>cannot create directory ‘/usr/local/redis’: Permission denied</code> 执行sudo权限即可。</p><p><img src="/pic/linux下源码编译安装调试/Untitled 4.png" alt="Untitled"></p><p>安装完成后，生成一些二进制文件，可以执行。<code>cd /usr/local/redis/bin</code> 可以看到</p><p><img src="/pic/linux下源码编译安装调试/Untitled 5.png" alt="Untitled"></p><p>然后返回到下载源码的目录下，将<code>redis.conf</code>移动到<code>/usr/local/redis/bin</code> 下</p><p><img src="/pic/linux下源码编译安装调试/Untitled 6.png" alt="Untitled"></p><p>进入<code>/usr/local/redis/bin</code> 查看可以得到</p><p><img src="/pic/linux下源码编译安装调试/Untitled 7.png" alt="Untitled"></p></li></ol><h3 id="3-Redis启动"><a href="#3-Redis启动" class="headerlink" title="3.Redis启动"></a>3.Redis启动</h3><ol><li><p>服务器启动：Redis启动需要进入到Redis的二进制源码安装的目录（<code>/usr/local/redis/bin</code> ），然后执行<code>./redis.server redis.conf</code> 进行启动</p></li><li><p>启动客户端：另起控制台（也需要在二进制源码安装的目录）<code>./redis-cli</code></p><p>为了方便Redis的启动，可自行设置脚本。</p><p><img src="/pic/linux下源码编译安装调试/Untitled 8.png" alt="Untitled"></p><p>然后<code>vim ~/.bashrc</code>后在文件末尾source这个脚本。然后重开控制台。可以直接按照函数名启动server和client</p><p><img src="/pic/linux下源码编译安装调试/Untitled 9.png" alt="Untitled"></p></li></ol><h3 id="4：GDB调试"><a href="#4：GDB调试" class="headerlink" title="4：GDB调试"></a>4：GDB调试</h3><ol><li><p>方法1，进入<code>/usr/local/redis/bin</code> 直接gdb redis-server可gdb服务进程</p></li><li><p>方法2，通过进程号gdb，可以ps ux | grep redis后查看redis-server进程id进行</p><p><img src="/pic/linux下源码编译安装调试/Untitled 10.png" alt="Untitled"></p></li></ol><h3 id="5-更改源码后，查看自己的功能"><a href="#5-更改源码后，查看自己的功能" class="headerlink" title="5.更改源码后，查看自己的功能"></a>5.更改源码后，查看自己的功能</h3><p>   需要执行第2步和第5步。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> redis学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> redis </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>手撕代码</title>
       <link href="/2023/08/24/%E6%89%8B%E6%92%95%E4%BB%A3%E7%A0%81/"/>
       <url>/2023/08/24/%E6%89%8B%E6%92%95%E4%BB%A3%E7%A0%81/</url>
