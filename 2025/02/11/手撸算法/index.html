@@ -19,23 +19,23 @@
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-    <meta name="description" content="滑动窗口">
+    <meta name="description" content="自己实现一个string类 牢记5大件：复制构造函数，移动构造函数，赋值运算符，移动赋值运算符，析构函数。 成员变量： char * 指针， int len ,要注意申请空间时+1，因为有个默认的换行符 移动构造函数&amp;移动赋值运算符可以加上 noexpect ，因为移动构造函数不会出现异常 在移动**函数中，把源对象的指针置空。  12345678910111213141516171819">
 <meta property="og:type" content="article">
-<meta property="og:title" content="leetcode hot 100 记录">
-<meta property="og:url" content="http://example.com/2025/02/11/leetcode-hot-100-%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:title" content="手撸算法">
+<meta property="og:url" content="http://example.com/2025/02/11/%E6%89%8B%E6%92%B8%E7%AE%97%E6%B3%95/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="滑动窗口">
+<meta property="og:description" content="自己实现一个string类 牢记5大件：复制构造函数，移动构造函数，赋值运算符，移动赋值运算符，析构函数。 成员变量： char * 指针， int len ,要注意申请空间时+1，因为有个默认的换行符 移动构造函数&amp;移动赋值运算符可以加上 noexpect ，因为移动构造函数不会出现异常 在移动**函数中，把源对象的指针置空。  12345678910111213141516171819">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-02-11T01:51:38.000Z">
-<meta property="article:modified_time" content="2025-02-11T01:55:00.579Z">
+<meta property="article:published_time" content="2025-02-11T15:37:23.000Z">
+<meta property="article:modified_time" content="2025-02-11T15:38:37.130Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="leetcode">
 <meta property="article:tag" content="面试">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>leetcode hot 100 记录 - Hexo</title>
+  <title>手撸算法 - Hexo</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -201,7 +201,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="leetcode hot 100 记录"></span>
+            <span id="subtitle" data-typed-text="手撸算法"></span>
           
         </div>
 
@@ -212,8 +212,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-02-11 09:51" pubdate>
-          February 11, 2025 am
+        <time datetime="2025-02-11 23:37" pubdate>
+          February 11, 2025 pm
         </time>
       </span>
     
@@ -224,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4 words
+          262 words
         
       </span>
     
@@ -235,7 +235,7 @@
         
         
         
-          1 mins
+          3 mins
         
       </span>
     
@@ -272,12 +272,18 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">leetcode hot 100 记录</h1>
+            <h1 id="seo-header">手撸算法</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h1>
+                <h1 id="自己实现一个string类"><a href="#自己实现一个string类" class="headerlink" title="自己实现一个string类"></a>自己实现一个string类</h1><ul>
+<li>牢记5大件：复制构造函数，移动构造函数，赋值运算符，移动赋值运算符，析构函数。</li>
+<li>成员变量： <code>char *</code> 指针， <code>int len</code> ,要注意申请空间时+1，因为有个默认的换行符</li>
+<li>移动构造函数&amp;移动赋值运算符可以加上 <code>noexpect</code> ，因为移动构造函数不会出现异常</li>
+<li>在移动**函数中，把源对象的指针置空。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Mystring</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Mystring</span>() : <span class="hljs-built_in">m_arr</span>(<span class="hljs-literal">nullptr</span>), <span class="hljs-built_in">m_len</span>(<span class="hljs-number">0</span>) &#123;&#125;<br>    <span class="hljs-built_in">Mystring</span>(<span class="hljs-type">const</span> Mystring&amp; str) : <span class="hljs-built_in">m_len</span>(str.m_len) &#123;<br>        <span class="hljs-keyword">if</span> (m_len != <span class="hljs-number">0</span>) &#123;<br>            m_arr = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[m_len + <span class="hljs-number">1</span>];<br>            <span class="hljs-built_in">memcpy</span>(m_arr, str.m_arr, m_len + <span class="hljs-number">1</span>);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            m_arr = <span class="hljs-literal">nullptr</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-built_in">Mystring</span>(Mystring&amp;&amp; str) <span class="hljs-keyword">noexcept</span>: <span class="hljs-built_in">m_arr</span>(str.m_arr), <span class="hljs-built_in">m_len</span>(str.m_len)&#123;<br>        str.m_arr = <span class="hljs-literal">nullptr</span>;<br>        str.m_len = <span class="hljs-number">0</span>;<br>    &#125;<br>    Mystring&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> Mystring&amp; str) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == &amp;str) &#123;<br>            <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-type">char</span>* new_arr = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[m_len + <span class="hljs-number">1</span>];<br>            <span class="hljs-built_in">memcpy</span>(new_arr, str.m_arr, str.m_len + <span class="hljs-number">1</span>);<br>            m_arr = new_arr;<br>            m_len = str.m_len;<br>            <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>        &#125;<br>    &#125;<br>    Mystring&amp; <span class="hljs-keyword">operator</span>=(Mystring&amp;&amp; str) <span class="hljs-keyword">noexcept</span> &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == &amp;str) &#123;<br>            <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">delete</span>[] m_arr;<br>            m_arr = str.m_arr;<br>            m_len = str.m_len;<br>            str.m_arr = <span class="hljs-literal">nullptr</span>;<br>            <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>        &#125;<br>    &#125;<br>    ~<span class="hljs-built_in">Mystring</span>() &#123;<br>        <span class="hljs-keyword">if</span> (m_arr) &#123;<br>            <span class="hljs-keyword">delete</span>[] m_arr;<br>            m_len = <span class="hljs-number">0</span>;<br>        &#125;<br>    &#125;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* m_arr;<br>    <span class="hljs-type">size_t</span> m_len;<br>&#125;;<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -285,34 +291,13 @@
             <div>
               <div class="post-metas my-3">
   
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/leetcode/" class="category-chain-item">leetcode</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/leetcode/" class="print-no-link">#leetcode</a>
-      
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
       
     </div>
   
@@ -324,8 +309,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>leetcode hot 100 记录</div>
-      <div>http://example.com/2025/02/11/leetcode-hot-100-记录/</div>
+      <div>手撸算法</div>
+      <div>http://example.com/2025/02/11/手撸算法/</div>
     </div>
     <div class="license-meta">
       
@@ -369,18 +354,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/02/11/%E6%89%8B%E6%92%B8%E7%AE%97%E6%B3%95/" title="手撸算法">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">手撸算法</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/02/10/hello-world/" title="Hello World">
-                        <span class="hidden-mobile">Hello World</span>
+                      <a href="/2025/02/11/leetcode-hot-100-%E8%AE%B0%E5%BD%95/" title="leetcode hot 100 记录">
+                        <span class="hidden-mobile">leetcode hot 100 记录</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
