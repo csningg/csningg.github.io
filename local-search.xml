@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>C++对象模型读书笔记</title>
+    <link href="/2025/03/01/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    <url>/2025/03/01/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
+    
+    <content type="html"><![CDATA[<p>本书阐述的编译器如何处理C++程序代码，包括已经出现的C++程序和隐匿在程序背后的C++寓意。它可以让我们写出没有错误倾向且比较有效的代码。</p><span id="more"></span><h1 id="第一章：关于对象"><a href="#第一章：关于对象" class="headerlink" title="第一章：关于对象"></a>第一章：关于对象</h1><blockquote><p>介绍C++在背后如何实现一个对象，包括<strong>内存中的布局</strong>以及和<strong>空间</strong>上的关系</p></blockquote><ol><li>C++中以类实现对象后，会增加了多少布局成本？</li></ol><p>答：没有增加任何成本</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> Type&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Point3d</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Point3d</span>(Type x, Type y, Type z) : _x(x), _y(y), _z(z) &#123;&#125;<br>    <span class="hljs-function">Type <span class="hljs-title">x</span><span class="hljs-params">()</span> </span>&#123;<span class="hljs-keyword">return</span> _x;&#125;<br><span class="hljs-keyword">private</span>:<br>    Type _x, _y, _x;<br>&#125;<br></code></pre></td></tr></table></figure><p>三个data members直接内含与一个class object内，和C中的struct一样。<br>member fun虽然声明在类的声明中，却不出现在object中，其更像类命名空间中的普通函数。<br><strong>类的封装没有带来任何的成本</strong></p><ol start="2"><li><p>C++在内存布局以及存取时间上的主要额外负担都是有virtual引起的</p><ul><li>virtual function机制：引起保持vtable和透过vtable找到函数地址；</li><li>virtual base class: 引起透过指针来找基类的成员。<br>换句话说，C++的成本来源都是来自于virtual机制，无virtual机制就无额外的开销。</li></ul></li><li><p>C++对象模型</p></li></ol><h1 id="第二章：构造函数语意学"><a href="#第二章：构造函数语意学" class="headerlink" title="第二章：构造函数语意学"></a>第二章：构造函数语意学</h1><h1 id="第三章：Data语意学"><a href="#第三章：Data语意学" class="headerlink" title="第三章：Data语意学"></a>第三章：Data语意学</h1><h1 id="第四章：Function-语意学"><a href="#第四章：Function-语意学" class="headerlink" title="第四章：Function 语意学"></a>第四章：Function 语意学</h1><h1 id="第五章：构造，析构，拷贝语意学"><a href="#第五章：构造，析构，拷贝语意学" class="headerlink" title="第五章：构造，析构，拷贝语意学"></a>第五章：构造，析构，拷贝语意学</h1><h1 id="第六章：执行期语意学"><a href="#第六章：执行期语意学" class="headerlink" title="第六章：执行期语意学"></a>第六章：执行期语意学</h1><h1 id="第七章：站在对象模型的尖端"><a href="#第七章：站在对象模型的尖端" class="headerlink" title="第七章：站在对象模型的尖端"></a>第七章：站在对象模型的尖端</h1>]]></content>
+    
+    
+    <categories>
+      
+      <category>基础知识</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>C++</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>日记</title>
     <link href="/2025/02/23/%E6%97%A5%E8%AE%B0/"/>
     <url>/2025/02/23/%E6%97%A5%E8%AE%B0/</url>
@@ -33,9 +58,9 @@
     
     <tags>
       
-      <tag>面试</tag>
-      
       <tag>C++</tag>
+      
+      <tag>面试</tag>
       
     </tags>
     
@@ -60,9 +85,9 @@
     
     <tags>
       
-      <tag>面试</tag>
-      
       <tag>leetcode</tag>
+      
+      <tag>面试</tag>
       
     </tags>
     

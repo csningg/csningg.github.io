@@ -19,22 +19,22 @@
   <meta name="author" content="zningg">
   <meta name="keywords" content="">
   
-    <meta name="description" content="2025年2月23日模板元编程来源 keywords: 模板，偏特化，全特化，可变参数模板 练手：实现一个可变参数的日志打印算子，对于不同的参数调用不同的类 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051template&lt;typename T&gt;cl">
+    <meta name="description" content="本书阐述的编译器如何处理C++程序代码，包括已经出现的C++程序和隐匿在程序背后的C++寓意。它可以让我们写出没有错误倾向且比较有效的代码。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="日记">
-<meta property="og:url" content="http://example.com/2025/02/23/%E6%97%A5%E8%AE%B0/index.html">
+<meta property="og:title" content="C++对象模型读书笔记">
+<meta property="og:url" content="http://example.com/2025/03/01/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="ning">
-<meta property="og:description" content="2025年2月23日模板元编程来源 keywords: 模板，偏特化，全特化，可变参数模板 练手：实现一个可变参数的日志打印算子，对于不同的参数调用不同的类 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051template&lt;typename T&gt;cl">
+<meta property="og:description" content="本书阐述的编译器如何处理C++程序代码，包括已经出现的C++程序和隐匿在程序背后的C++寓意。它可以让我们写出没有错误倾向且比较有效的代码。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-02-23T15:50:25.000Z">
-<meta property="article:modified_time" content="2025-02-23T16:57:08.089Z">
+<meta property="article:published_time" content="2025-03-01T14:16:31.000Z">
+<meta property="article:modified_time" content="2025-03-01T14:53:57.884Z">
 <meta property="article:author" content="zningg">
-<meta property="article:tag" content="碎碎念">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>日记 - ning</title>
+  <title>C++对象模型读书笔记 - ning</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -200,7 +200,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="日记"></span>
+            <span id="subtitle" data-typed-text="C++对象模型读书笔记"></span>
           
         </div>
 
@@ -211,8 +211,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-02-23 23:50" pubdate>
-          2025年2月23日 晚上
+        <time datetime="2025-03-01 22:16" pubdate>
+          2025年3月1日 晚上
         </time>
       </span>
     
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          210 字
+          365 字
         
       </span>
     
@@ -234,7 +234,7 @@
         
         
         
-          2 分钟
+          4 分钟
         
       </span>
     
@@ -271,16 +271,33 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">日记</h1>
+            <h1 id="seo-header">C++对象模型读书笔记</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="2025年2月23日"><a href="#2025年2月23日" class="headerlink" title="2025年2月23日"></a>2025年2月23日</h1><h2 id="模板元编程"><a href="#模板元编程" class="headerlink" title="模板元编程"></a>模板元编程</h2><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1FLAAe3E7r/?spm_id_from=333.1387.homepage.video_card.click&vd_source=e0aee50f101b406f0d1414f984f3f5c0">来源</a></p>
-<p>keywords: 模板，偏特化，全特化，可变参数模板</p>
-<p>练手：实现一个可变参数的日志打印算子，对于不同的参数调用不同的类</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">log</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; value)</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;General log &quot;</span> &lt;&lt; value &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span>&lt;T*&gt; &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">log</span><span class="hljs-params">(<span class="hljs-type">const</span> T* p_value)</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;Pointer log &quot;</span> &lt;&lt; *p_value &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span>&lt;<span class="hljs-type">double</span>&gt; &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">log</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">double</span>&amp; d_value)</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;Double log &quot;</span> &lt;&lt; d_value &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span>&lt;T&amp;&gt; &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">log</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; value)</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;Reference log &quot;</span> &lt;&lt; value &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">logone</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; value)</span> </span>&#123;<br>    Logger&lt;T&gt;::<span class="hljs-built_in">log</span>(value);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>... Args&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">logAll</span><span class="hljs-params">(<span class="hljs-type">const</span> Args&amp;... args)</span> </span>&#123;<br>    (<span class="hljs-built_in">logone</span>(args),...);<br>&#125;<br><br>---<br><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br><span class="hljs-type">double</span> b = <span class="hljs-number">10.00</span>;<br>log21::<span class="hljs-built_in">logAll</span>(a, &amp;a, b, &amp;b);<br><br>General log <span class="hljs-number">10</span><br>Pointer log <span class="hljs-number">10</span><br>Double log <span class="hljs-number">10</span><br>Pointer log <span class="hljs-number">10</span><br></code></pre></td></tr></table></figure>
-
+                <p>本书阐述的编译器如何处理C++程序代码，包括已经出现的C++程序和隐匿在程序背后的C++寓意。它可以让我们写出没有错误倾向且比较有效的代码。</p>
+<span id="more"></span>
+<h1 id="第一章：关于对象"><a href="#第一章：关于对象" class="headerlink" title="第一章：关于对象"></a>第一章：关于对象</h1><blockquote>
+<p>介绍C++在背后如何实现一个对象，包括<strong>内存中的布局</strong>以及和<strong>空间</strong>上的关系</p>
+</blockquote>
+<ol>
+<li>C++中以类实现对象后，会增加了多少布局成本？</li>
+</ol>
+<p>答：没有增加任何成本</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> Type&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Point3d</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Point3d</span>(Type x, Type y, Type z) : _x(x), _y(y), _z(z) &#123;&#125;<br>    <span class="hljs-function">Type <span class="hljs-title">x</span><span class="hljs-params">()</span> </span>&#123;<span class="hljs-keyword">return</span> _x;&#125;<br><span class="hljs-keyword">private</span>:<br>    Type _x, _y, _x;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>三个data members直接内含与一个class object内，和C中的struct一样。<br>member fun虽然声明在类的声明中，却不出现在object中，其更像类命名空间中的普通函数。<br><strong>类的封装没有带来任何的成本</strong></p>
+<ol start="2">
+<li><p>C++在内存布局以及存取时间上的主要额外负担都是有virtual引起的</p>
+<ul>
+<li>virtual function机制：引起保持vtable和透过vtable找到函数地址；</li>
+<li>virtual base class: 引起透过指针来找基类的成员。<br>换句话说，C++的成本来源都是来自于virtual机制，无virtual机制就无额外的开销。</li>
+</ul>
+</li>
+<li><p>C++对象模型</p>
+</li>
+</ol>
+<h1 id="第二章：构造函数语意学"><a href="#第二章：构造函数语意学" class="headerlink" title="第二章：构造函数语意学"></a>第二章：构造函数语意学</h1><h1 id="第三章：Data语意学"><a href="#第三章：Data语意学" class="headerlink" title="第三章：Data语意学"></a>第三章：Data语意学</h1><h1 id="第四章：Function-语意学"><a href="#第四章：Function-语意学" class="headerlink" title="第四章：Function 语意学"></a>第四章：Function 语意学</h1><h1 id="第五章：构造，析构，拷贝语意学"><a href="#第五章：构造，析构，拷贝语意学" class="headerlink" title="第五章：构造，析构，拷贝语意学"></a>第五章：构造，析构，拷贝语意学</h1><h1 id="第六章：执行期语意学"><a href="#第六章：执行期语意学" class="headerlink" title="第六章：执行期语意学"></a>第六章：执行期语意学</h1><h1 id="第七章：站在对象模型的尖端"><a href="#第七章：站在对象模型的尖端" class="headerlink" title="第七章：站在对象模型的尖端"></a>第七章：站在对象模型的尖端</h1>
                 
               </div>
             
@@ -288,11 +305,32 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">基础知识</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E7%A2%8E%E7%A2%8E%E5%BF%B5/" class="print-no-link">#碎碎念</a>
+        <a href="/tags/C/" class="print-no-link">#C++</a>
       
     </div>
   
@@ -304,8 +342,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>日记</div>
-      <div>http://example.com/2025/02/23/日记/</div>
+      <div>C++对象模型读书笔记</div>
+      <div>http://example.com/2025/03/01/C-对象模型读书笔记/</div>
     </div>
     <div class="license-meta">
       
@@ -317,7 +355,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年2月23日</div>
+          <div>2025年3月1日</div>
         </div>
       
       
@@ -349,18 +387,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/03/01/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" title="C++对象模型读书笔记">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">C++对象模型读书笔记</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/02/11/%E6%89%8B%E6%92%B8%E7%AE%97%E6%B3%95/" title="手撸算法">
-                        <span class="hidden-mobile">手撸算法</span>
+                      <a href="/2025/02/23/%E6%97%A5%E8%AE%B0/" title="日记">
+                        <span class="hidden-mobile">日记</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
