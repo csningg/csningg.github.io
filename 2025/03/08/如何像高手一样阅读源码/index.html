@@ -19,22 +19,22 @@
   <meta name="author" content="zningg">
   <meta name="keywords" content="">
   
-    <meta name="description" content="本书阐述的编译器如何处理C++程序代码，包括已经出现的C++程序和隐匿在程序背后的C++寓意。它可以让我们写出没有错误倾向且比较有效的代码。">
+    <meta name="description" content="今天看了B站上的课程讲如何阅读源码，觉得挺适合现在的我的。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++对象模型读书笔记">
-<meta property="og:url" content="http://example.com/2025/03/01/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:title" content="如何像高手一样阅读源码">
+<meta property="og:url" content="http://example.com/2025/03/08/%E5%A6%82%E4%BD%95%E5%83%8F%E9%AB%98%E6%89%8B%E4%B8%80%E6%A0%B7%E9%98%85%E8%AF%BB%E6%BA%90%E7%A0%81/index.html">
 <meta property="og:site_name" content="ning">
-<meta property="og:description" content="本书阐述的编译器如何处理C++程序代码，包括已经出现的C++程序和隐匿在程序背后的C++寓意。它可以让我们写出没有错误倾向且比较有效的代码。">
+<meta property="og:description" content="今天看了B站上的课程讲如何阅读源码，觉得挺适合现在的我的。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-03-01T14:16:31.000Z">
-<meta property="article:modified_time" content="2025-03-01T14:53:57.884Z">
+<meta property="article:published_time" content="2025-03-08T14:12:31.000Z">
+<meta property="article:modified_time" content="2025-03-08T15:22:25.382Z">
 <meta property="article:author" content="zningg">
-<meta property="article:tag" content="C++">
+<meta property="article:tag" content="读书笔记">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>C++对象模型读书笔记 - ning</title>
+  <title>如何像高手一样阅读源码 - ning</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -200,7 +200,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="C++对象模型读书笔记"></span>
+            <span id="subtitle" data-typed-text="如何像高手一样阅读源码"></span>
           
         </div>
 
@@ -211,8 +211,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-03-01 22:16" pubdate>
-          2025年3月1日 晚上
+        <time datetime="2025-03-08 22:12" pubdate>
+          2025年3月8日 晚上
         </time>
       </span>
     
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          365 字
+          470 字
         
       </span>
     
@@ -271,33 +271,48 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">C++对象模型读书笔记</h1>
+            <h1 id="seo-header">如何像高手一样阅读源码</h1>
             
             
               <div class="markdown-body">
                 
-                <p>本书阐述的编译器如何处理C++程序代码，包括已经出现的C++程序和隐匿在程序背后的C++寓意。它可以让我们写出没有错误倾向且比较有效的代码。</p>
+                <p>今天看了<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1xgAteDE9d/?spm_id_from=333.1007.top_right_bar_window_history.content.click&vd_source=e0aee50f101b406f0d1414f984f3f5c0">B站上的课程</a>讲如何阅读源码，觉得挺适合现在的我的。</p>
 <span id="more"></span>
-<h1 id="第一章：关于对象"><a href="#第一章：关于对象" class="headerlink" title="第一章：关于对象"></a>第一章：关于对象</h1><blockquote>
-<p>介绍C++在背后如何实现一个对象，包括<strong>内存中的布局</strong>以及和<strong>空间</strong>上的关系</p>
-</blockquote>
-<ol>
-<li>C++中以类实现对象后，会增加了多少布局成本？</li>
-</ol>
-<p>答：没有增加任何成本</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> Type&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Point3d</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Point3d</span>(Type x, Type y, Type z) : _x(x), _y(y), _z(z) &#123;&#125;<br>    <span class="hljs-function">Type <span class="hljs-title">x</span><span class="hljs-params">()</span> </span>&#123;<span class="hljs-keyword">return</span> _x;&#125;<br><span class="hljs-keyword">private</span>:<br>    Type _x, _y, _x;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>三个data members直接内含与一个class object内，和C中的struct一样。<br>member fun虽然声明在类的声明中，却不出现在object中，其更像类命名空间中的普通函数。<br><strong>类的封装没有带来任何的成本</strong></p>
-<ol start="2">
-<li><p>C++在内存布局以及存取时间上的主要额外负担都是有virtual引起的</p>
-<ul>
-<li>virtual function机制：引起保持vtable和透过vtable找到函数地址；</li>
-<li>virtual base class: 引起透过指针来找基类的成员。<br>换句话说，C++的成本来源都是来自于virtual机制，无virtual机制就无额外的开销。</li>
-</ul>
+<p>视频中工从三个方面讲述如何阅读一个大型的代码库，分别是<strong>心理</strong>,<strong>哲学</strong>,<strong>技术</strong>三个方面</p>
+<h1 id="心理"><a href="#心理" class="headerlink" title="心理"></a>心理</h1><ol>
+<li><p>要勇敢，不要害怕去读代码</p>
 </li>
-<li><p>C++对象模型</p>
+<li><p>疑惑没有关系，要愿意去疑惑，如果有疑惑的话可以先跳过去。</p>
+</li>
+<li><p>要从多方面去考虑一个事情呢</p>
+</li>
+<li><p>要知道你明白了什么，不明白什么，要诚实。</p>
 </li>
 </ol>
-<h1 id="第二章：构造函数语意学"><a href="#第二章：构造函数语意学" class="headerlink" title="第二章：构造函数语意学"></a>第二章：构造函数语意学</h1><h1 id="第三章：Data语意学"><a href="#第三章：Data语意学" class="headerlink" title="第三章：Data语意学"></a>第三章：Data语意学</h1><h1 id="第四章：Function-语意学"><a href="#第四章：Function-语意学" class="headerlink" title="第四章：Function 语意学"></a>第四章：Function 语意学</h1><h1 id="第五章：构造，析构，拷贝语意学"><a href="#第五章：构造，析构，拷贝语意学" class="headerlink" title="第五章：构造，析构，拷贝语意学"></a>第五章：构造，析构，拷贝语意学</h1><h1 id="第六章：执行期语意学"><a href="#第六章：执行期语意学" class="headerlink" title="第六章：执行期语意学"></a>第六章：执行期语意学</h1><h1 id="第七章：站在对象模型的尖端"><a href="#第七章：站在对象模型的尖端" class="headerlink" title="第七章：站在对象模型的尖端"></a>第七章：站在对象模型的尖端</h1>
+<h1 id="哲学"><a href="#哲学" class="headerlink" title="哲学"></a>哲学</h1><ol>
+<li><p>知道大脑运作的方式，知道脑科学的</p>
+</li>
+<li><p>你要明白你想看啥，而不是一故脑的的去看代码，不明确要懂啥东西。</p>
+</li>
+<li><p>你在实操上熟悉比你真正理解要重要的多</p>
+</li>
+</ol>
+<h1 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h1><ol>
+<li><p>知道数据结构和算法， 比如深度优先遍历等。</p>
+</li>
+<li><p>知道编程语言和编程技巧</p>
+</li>
+<li><p>在心里要有个思路如何去一一的探索代码。</p>
+</li>
+<li><p>在阅读代码的时候，要聚焦于程序员所写的东西，而不是程序运行时的顺序。</p>
+</li>
+</ol>
+<hr>
+<p>因此在后续阅读代码中</p>
+<p>不要畏难，要大胆看，遇到不懂的也没关系，可以先跳过，不用拘谨于细节。然后读代码的时候，没必要从main函数开始看，因为这个时候很多都是程序加载所需要的东西，比如配置文件之类的，或者是根据不同的参数去走不同的通路，亦或者是根据平台的不同选择不同的方式，这些都不重要。</p>
+<p>开始读之前一定要有个清晰的目标，我要看什么？比如我要看统排或者是扶持，亦或者是LSM tree中的某个细节，就针对细节去看。</p>
+<p>其次就是coding，你真正的理解，真不如写上的熟悉。</p>
+
                 
               </div>
             
@@ -305,32 +320,11 @@
             <div>
               <div class="post-metas my-3">
   
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">基础知识</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/C/" class="print-no-link">#C++</a>
+        <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" class="print-no-link">#读书笔记</a>
       
     </div>
   
@@ -342,8 +336,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>C++对象模型读书笔记</div>
-      <div>http://example.com/2025/03/01/C-对象模型读书笔记/</div>
+      <div>如何像高手一样阅读源码</div>
+      <div>http://example.com/2025/03/08/如何像高手一样阅读源码/</div>
     </div>
     <div class="license-meta">
       
@@ -355,7 +349,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年3月1日</div>
+          <div>2025年3月8日</div>
         </div>
       
       
@@ -387,18 +381,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/03/08/%E5%A6%82%E4%BD%95%E5%83%8F%E9%AB%98%E6%89%8B%E4%B8%80%E6%A0%B7%E9%98%85%E8%AF%BB%E6%BA%90%E7%A0%81/" title="如何像高手一样阅读源码">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">如何像高手一样阅读源码</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/02/23/%E6%97%A5%E8%AE%B0/" title="日记">
-                        <span class="hidden-mobile">日记</span>
+                      <a href="/2025/03/01/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" title="C++对象模型读书笔记">
+                        <span class="hidden-mobile">C++对象模型读书笔记</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
