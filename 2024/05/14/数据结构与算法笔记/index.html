@@ -26,12 +26,14 @@
 <meta property="og:site_name" content="ning">
 <meta property="og:description" content="本文是在学习数据结构与算法的记录于思考，包括但不限于LeetCode，算法笔记，算法思想的记录……">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/pic/729image.png">
 <meta property="article:published_time" content="2024-05-13T16:31:17.000Z">
-<meta property="article:modified_time" content="2025-05-15T14:25:12.974Z">
+<meta property="article:modified_time" content="2025-05-17T15:15:53.476Z">
 <meta property="article:author" content="zningg">
-<meta property="article:tag" content="leetcode">
 <meta property="article:tag" content="面试">
+<meta property="article:tag" content="leetcode">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/pic/729image.png">
   
   
   
@@ -224,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.8k 字
+          4.9k 字
         
       </span>
     
@@ -235,7 +237,7 @@
         
         
         
-          32 分钟
+          41 分钟
         
       </span>
     
@@ -408,7 +410,59 @@
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">string <span class="hljs-title">decodeString</span><span class="hljs-params">(string s)</span> </span>&#123;<br>        stack&lt;<span class="hljs-type">int</span>&gt; nums_st;<br>        stack&lt;string&gt; str_st;<br>        <span class="hljs-type">int</span> num = <span class="hljs-number">0</span>;<br>        string res&#123;<span class="hljs-string">&quot;&quot;</span>&#125;;<br>        <br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; s.<span class="hljs-built_in">size</span>(); i++) &#123;<br>            <span class="hljs-keyword">if</span> (s[i] &gt;= <span class="hljs-string">&#x27;0&#x27;</span> &amp;&amp; s[i] &lt;= <span class="hljs-string">&#x27;9&#x27;</span>) &#123;<br>                num = num * <span class="hljs-number">10</span> + s[i] - <span class="hljs-string">&#x27;0&#x27;</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (s[i] &gt;= <span class="hljs-string">&#x27;a&#x27;</span> &amp;&amp; s[i] &lt;= <span class="hljs-string">&#x27;z&#x27;</span> || s[i] &gt;= <span class="hljs-string">&#x27;A&#x27;</span> &amp;&amp;  s[i] &lt;= <span class="hljs-string">&#x27;Z&#x27;</span>) &#123;<br>                res += s[i];<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (s[i] == <span class="hljs-string">&#x27;[&#x27;</span>) &#123;<br>                nums_st.<span class="hljs-built_in">push</span>(num);<br>                str_st.<span class="hljs-built_in">push</span>(res);<br>                num = <span class="hljs-number">0</span>;<br>                res = <span class="hljs-string">&quot;&quot;</span>; <br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (s[i] == <span class="hljs-string">&#x27;]&#x27;</span>) &#123;<br>                <span class="hljs-type">int</span> time = nums_st.<span class="hljs-built_in">top</span>();<br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; time; ++i) &#123;<br>                    str_st.<span class="hljs-built_in">top</span>() += res;<br>                &#125;<br>                res = str_st.<span class="hljs-built_in">top</span>();<br>                nums_st.<span class="hljs-built_in">pop</span>();<br>                str_st.<span class="hljs-built_in">pop</span>();<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
-<h1 id="常规手撸"><a href="#常规手撸" class="headerlink" title="常规手撸"></a>常规手撸</h1><h2 id="实现一个string类"><a href="#实现一个string类" class="headerlink" title="实现一个string类"></a>实现一个string类</h2><ul>
+<h2 id="347-前-K-个高频元素"><a href="#347-前-K-个高频元素" class="headerlink" title="347. 前 K 个高频元素"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/top-k-frequent-elements/"><strong>347. 前 K 个高频元素</strong></a></h2><p>常规模拟题</p>
+<ol>
+<li>会自定义大顶堆（默认less），小顶堆（great）的比较函数</li>
+<li>直到priority_queue不止吃迭代，只能通过pop的循环方法不断循环跳出。</li>
+<li>自定义的lambda比较函数不能做为类的成员函数，由于是自定义的比较函数，因此可以出现在任何地方。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br><br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">topKFrequent</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums, <span class="hljs-type">int</span> k)</span> </span>&#123;<br>        unordered_map&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; key_cnt;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; num : nums) &#123;<br>            key_cnt[num]++;<br>        &#125;<br>        <span class="hljs-keyword">auto</span> cmp = [](<span class="hljs-type">const</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; lhs, <span class="hljs-type">const</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; rhs) &#123;<br>            <span class="hljs-keyword">return</span> lhs.second &gt; rhs.second;<br>        &#125;;<br>        priority_queue&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;, vector&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; &gt;, <span class="hljs-keyword">decltype</span>(cmp)&gt; <span class="hljs-built_in">pq</span>(cmp);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; key_val : key_cnt) &#123;<br>            <span class="hljs-keyword">if</span> (pq.<span class="hljs-built_in">size</span>() &lt; k) &#123;<br>                pq.<span class="hljs-built_in">push</span>(key_val);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">auto</span>&amp; tmp = pq.<span class="hljs-built_in">top</span>();<br>                <span class="hljs-keyword">if</span> (tmp.second &lt; key_val.second) &#123;<br>                    pq.<span class="hljs-built_in">pop</span>();<br>                    pq.<span class="hljs-built_in">push</span>(key_val);<br>                &#125;<br>            &#125;<br>        &#125;<br>        vector&lt;<span class="hljs-type">int</span>&gt; res;<br>        res.<span class="hljs-built_in">reserve</span>(k);<br>        <span class="hljs-keyword">while</span> (!pq.<span class="hljs-built_in">empty</span>()) &#123;<br>            res.<span class="hljs-built_in">emplace_back</span>(pq.<span class="hljs-built_in">top</span>().first);<br>            pq.<span class="hljs-built_in">pop</span>();<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/trapping-rain-water/"><strong>42. 接雨水</strong></a><br>方法一：单调栈</p>
+<p>想想不是接雨水，而是填水泥。水泥会把坑填平，当水泥把坑填平时，高度就不变了。</p>
+<p>需要<strong>左（栈顶元素的下一个元素）右（当前元素）</strong>以及<strong>中间柱子（栈顶元素）</strong>的高度才能计算得到最终的结果。</p>
+<p>思路：</p>
+<ol>
+<li>从左到右遍历数组</li>
+<li>如果栈不为空，并且栈顶元素大于等于当前元素，则可以接水了，栈顶元素就是中间的柱子。如果当前元素小于栈顶元素，则需要继续遍历</li>
+<li>将中间的柱子pop出栈，如果此时栈为空，则break</li>
+<li>否则则再次取栈顶元素，此时只用栈顶元素，求栈顶元素与当前元素的位置之差作为宽，高是两边柱子的较小值减去中间元素。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">trap</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; height)</span> </span>&#123;<br>        <span class="hljs-type">int</span> res = <span class="hljs-number">0</span>;<br>        stack&lt;<span class="hljs-type">int</span>&gt; st;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; height.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            <span class="hljs-keyword">while</span> (!st.<span class="hljs-built_in">empty</span>() &amp;&amp; height[i] &gt;= height[st.<span class="hljs-built_in">top</span>()]) &#123;<br>                <span class="hljs-type">int</span> bottom_h = height[st.<span class="hljs-built_in">top</span>()];<br>                st.<span class="hljs-built_in">pop</span>();<br>                <span class="hljs-keyword">if</span> (st.<span class="hljs-built_in">empty</span>()) <br>                    <span class="hljs-keyword">break</span>;<br>                <span class="hljs-type">int</span> lens = i - st.<span class="hljs-built_in">top</span>() - <span class="hljs-number">1</span>;<br>                <span class="hljs-type">int</span> hei = (<span class="hljs-built_in">min</span>(height[i], height[st.<span class="hljs-built_in">top</span>()]) - bottom_h);<br>                res += lens * hei;<br>            &#125;<br>            st.<span class="hljs-built_in">push</span>(i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>        <br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h2 id="739-每日温度"><a href="#739-每日温度" class="headerlink" title="739. 每日温度"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/daily-temperatures/description/"><strong>739. 每日温度</strong></a></h2><p>参考<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1VN411J7S7/?vd_source=e0aee50f101b406f0d1414f984f3f5c0">灵神</a>的解答</p>
+<p>方法一：右往左遍历</p>
+<p><img src="/../pic/729image.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>当遍历到5时，由于2比5小，所以2排除，3比5小，3也排除，6比5大，所以应该是6的下标减去5的下标得到目标答案。</p>
+<p>既然在遍历到5时，把2和3排除掉了，那么2和3还有可能是5左边的元素的目标答案，显然不可能，由于5的存在，5左边的元素不会选择2和3作为比其大的天气的温度。</p>
+<ul>
+<li>栈中顺序有序</li>
+<li>满足先近后出</li>
+</ul>
+<p>因此是此题用单调栈。</p>
+<p>栈中元素保证严格递减，栈中存放的是下一个更大的数。</p>
+<p>在此题中，栈中存储的应该是数组的下标，存储数组下标的好处一是可以直接用下标相减得到目标答案。二也可以通过下标的比较获得元素的大小。</p>
+<ol>
+<li>从右向左遍历</li>
+<li>当栈顶元素<strong>小于等于</strong>当前当前元素时，需要将元素pop出来，最后跳出循环时，栈顶元素一定是大于当前元素的。</li>
+<li>由于栈顶元素是大于当前元素的，所以将当前元素压榨是可以保证栈的单调性的。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dailyTemperatures</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; temperatures)</span> </span>&#123;<br>        stack&lt;<span class="hljs-type">int</span>&gt; st;<br>        <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">res</span><span class="hljs-params">(temperatures.size(), <span class="hljs-number">0</span>)</span></span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = temperatures.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i--) &#123;<br>            <span class="hljs-keyword">while</span> (!st.<span class="hljs-built_in">empty</span>() &amp;&amp; temperatures[st.<span class="hljs-built_in">top</span>()] &lt;= temperatures[i]) &#123;<br>                st.<span class="hljs-built_in">pop</span>();<br>            &#125;<br>            <span class="hljs-keyword">if</span> (!st.<span class="hljs-built_in">empty</span>()) &#123;<br>                res[i] = st.<span class="hljs-built_in">top</span>() - i;<br>            &#125;<br>            st.<span class="hljs-built_in">push</span>(i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>方法二：从左到右遍历</p>
+<p>从左到右遍历，栈中存储的元素是<strong>还没找到第一个大于它的元素</strong>，如果找到了，就将其pop出来。</p>
+<ol>
+<li>如果当前元素大于栈顶元素了，则需要更新栈顶元素的结果值。这里需要不断循环，直到栈顶元素小于等于当前元素，</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dailyTemperatures</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; temperatures)</span> </span>&#123;<br>        <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">res</span><span class="hljs-params">(temperatures.size(), <span class="hljs-number">0</span>)</span></span>;<br>        stack&lt;<span class="hljs-type">int</span>&gt; st;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; temperatures.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            <span class="hljs-keyword">while</span> (!st.<span class="hljs-built_in">empty</span>() &amp;&amp; temperatures[i] &gt; temperatures[st.<span class="hljs-built_in">top</span>()]) &#123;<br>                res[st.<span class="hljs-built_in">top</span>()] = i - st.<span class="hljs-built_in">top</span>();<br>                st.<span class="hljs-built_in">pop</span>();<br>            &#125;<br>            st.<span class="hljs-built_in">push</span>(i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<aside>
+💡
+
+<p>及时去除无用数据</p>
+<p>保证栈中数据有序</p>
+</aside>
+# 常规手撸
+
+<h2 id="实现一个string类"><a href="#实现一个string类" class="headerlink" title="实现一个string类"></a>实现一个string类</h2><ul>
 <li>牢记5大件：复制构造函数，移动构造函数，赋值运算符，移动赋值运算符，析构函数。</li>
 <li>成员变量： <code>char *</code> 指针， <code>int len</code> ,要注意申请空间时+1，因为有个默认的换行符</li>
 <li>移动构造函数&amp;移动赋值运算符可以加上 <code>noexpect</code> ，因为移动构造函数不会出现异常</li>
@@ -463,9 +517,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/leetcode/" class="print-no-link">#leetcode</a>
-      
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
+      
+        <a href="/tags/leetcode/" class="print-no-link">#leetcode</a>
       
     </div>
   
