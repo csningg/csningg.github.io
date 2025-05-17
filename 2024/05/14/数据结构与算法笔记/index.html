@@ -27,8 +27,9 @@
 <meta property="og:description" content="本文是在学习数据结构与算法的记录于思考，包括但不限于LeetCode，算法笔记，算法思想的记录……">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/pictures/729image.png">
+<meta property="og:image" content="http://example.com/pictures/729image.png">
 <meta property="article:published_time" content="2024-05-13T16:31:17.000Z">
-<meta property="article:modified_time" content="2025-05-17T15:25:31.981Z">
+<meta property="article:modified_time" content="2025-05-17T15:29:39.672Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="面试">
 <meta property="article:tag" content="leetcode">
@@ -420,7 +421,7 @@
 <h2 id="42-接雨水"><a href="#42-接雨水" class="headerlink" title="42. 接雨水"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/trapping-rain-water/"><strong>42. 接雨水</strong></a></h2><p>方法一：单调栈</p>
 <p>想想不是接雨水，而是填水泥。水泥会把坑填平，当水泥把坑填平时，高度就不变了。</p>
 <p>需要<strong>左（栈顶元素的下一个元素）右（当前元素）</strong>以及<strong>中间柱子（栈顶元素）</strong>的高度才能计算得到最终的结果。</p>
-<p>思路：</p>
+<p><img src="/../pictures/729image.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>思路：</p>
 <ol>
 <li>从左到右遍历数组</li>
 <li>如果栈不为空，并且栈顶元素大于等于当前元素，则可以接水了，栈顶元素就是中间的柱子。如果当前元素小于栈顶元素，则需要继续遍历</li>
@@ -430,7 +431,7 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">trap</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; height)</span> </span>&#123;<br>        <span class="hljs-type">int</span> res = <span class="hljs-number">0</span>;<br>        stack&lt;<span class="hljs-type">int</span>&gt; st;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; height.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            <span class="hljs-keyword">while</span> (!st.<span class="hljs-built_in">empty</span>() &amp;&amp; height[i] &gt;= height[st.<span class="hljs-built_in">top</span>()]) &#123;<br>                <span class="hljs-type">int</span> bottom_h = height[st.<span class="hljs-built_in">top</span>()];<br>                st.<span class="hljs-built_in">pop</span>();<br>                <span class="hljs-keyword">if</span> (st.<span class="hljs-built_in">empty</span>()) <br>                    <span class="hljs-keyword">break</span>;<br>                <span class="hljs-type">int</span> lens = i - st.<span class="hljs-built_in">top</span>() - <span class="hljs-number">1</span>;<br>                <span class="hljs-type">int</span> hei = (<span class="hljs-built_in">min</span>(height[i], height[st.<span class="hljs-built_in">top</span>()]) - bottom_h);<br>                res += lens * hei;<br>            &#125;<br>            st.<span class="hljs-built_in">push</span>(i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>        <br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <h2 id="739-每日温度"><a href="#739-每日温度" class="headerlink" title="739. 每日温度"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/daily-temperatures/description/"><strong>739. 每日温度</strong></a></h2><p>参考<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1VN411J7S7/?vd_source=e0aee50f101b406f0d1414f984f3f5c0">灵神</a>的解答</p>
 <p>方法一：右往左遍历</p>
-<p><img src="/../pictures/729image.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="/./pictures/729image.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>当遍历到5时，由于2比5小，所以2排除，3比5小，3也排除，6比5大，所以应该是6的下标减去5的下标得到目标答案。</p>
 <p>既然在遍历到5时，把2和3排除掉了，那么2和3还有可能是5左边的元素的目标答案，显然不可能，由于5的存在，5左边的元素不会选择2和3作为比其大的天气的温度。</p>
 <ul>
