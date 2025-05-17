@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/pic/729image.png">
 <meta property="article:published_time" content="2024-05-13T16:31:17.000Z">
-<meta property="article:modified_time" content="2025-05-17T15:15:53.476Z">
+<meta property="article:modified_time" content="2025-05-17T15:19:26.158Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="面试">
 <meta property="article:tag" content="leetcode">
@@ -417,7 +417,7 @@
 <li>自定义的lambda比较函数不能做为类的成员函数，由于是自定义的比较函数，因此可以出现在任何地方。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br><br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">topKFrequent</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums, <span class="hljs-type">int</span> k)</span> </span>&#123;<br>        unordered_map&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; key_cnt;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; num : nums) &#123;<br>            key_cnt[num]++;<br>        &#125;<br>        <span class="hljs-keyword">auto</span> cmp = [](<span class="hljs-type">const</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; lhs, <span class="hljs-type">const</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; rhs) &#123;<br>            <span class="hljs-keyword">return</span> lhs.second &gt; rhs.second;<br>        &#125;;<br>        priority_queue&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;, vector&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; &gt;, <span class="hljs-keyword">decltype</span>(cmp)&gt; <span class="hljs-built_in">pq</span>(cmp);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; key_val : key_cnt) &#123;<br>            <span class="hljs-keyword">if</span> (pq.<span class="hljs-built_in">size</span>() &lt; k) &#123;<br>                pq.<span class="hljs-built_in">push</span>(key_val);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">auto</span>&amp; tmp = pq.<span class="hljs-built_in">top</span>();<br>                <span class="hljs-keyword">if</span> (tmp.second &lt; key_val.second) &#123;<br>                    pq.<span class="hljs-built_in">pop</span>();<br>                    pq.<span class="hljs-built_in">push</span>(key_val);<br>                &#125;<br>            &#125;<br>        &#125;<br>        vector&lt;<span class="hljs-type">int</span>&gt; res;<br>        res.<span class="hljs-built_in">reserve</span>(k);<br>        <span class="hljs-keyword">while</span> (!pq.<span class="hljs-built_in">empty</span>()) &#123;<br>            res.<span class="hljs-built_in">emplace_back</span>(pq.<span class="hljs-built_in">top</span>().first);<br>            pq.<span class="hljs-built_in">pop</span>();<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/trapping-rain-water/"><strong>42. 接雨水</strong></a><br>方法一：单调栈</p>
+<h2 id="42-接雨水"><a href="#42-接雨水" class="headerlink" title="42. 接雨水"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/trapping-rain-water/"><strong>42. 接雨水</strong></a></h2><p>方法一：单调栈</p>
 <p>想想不是接雨水，而是填水泥。水泥会把坑填平，当水泥把坑填平时，高度就不变了。</p>
 <p>需要<strong>左（栈顶元素的下一个元素）右（当前元素）</strong>以及<strong>中间柱子（栈顶元素）</strong>的高度才能计算得到最终的结果。</p>
 <p>思路：</p>
@@ -460,9 +460,8 @@
 <p>及时去除无用数据</p>
 <p>保证栈中数据有序</p>
 </aside>
-# 常规手撸
 
-<h2 id="实现一个string类"><a href="#实现一个string类" class="headerlink" title="实现一个string类"></a>实现一个string类</h2><ul>
+<h1 id="常规手撸"><a href="#常规手撸" class="headerlink" title="常规手撸"></a>常规手撸</h1><h2 id="实现一个string类"><a href="#实现一个string类" class="headerlink" title="实现一个string类"></a>实现一个string类</h2><ul>
 <li>牢记5大件：复制构造函数，移动构造函数，赋值运算符，移动赋值运算符，析构函数。</li>
 <li>成员变量： <code>char *</code> 指针， <code>int len</code> ,要注意申请空间时+1，因为有个默认的换行符</li>
 <li>移动构造函数&amp;移动赋值运算符可以加上 <code>noexpect</code> ，因为移动构造函数不会出现异常</li>
