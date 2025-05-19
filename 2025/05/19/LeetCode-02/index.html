@@ -19,23 +19,23 @@
   <meta name="author" content="zningg">
   <meta name="keywords" content="">
   
-    <meta name="description" content="本文是在学习数据结构与算法的记录于思考，包括但不限于LeetCode，算法笔记，算法思想的记录…… 数据结构与算法之美递归&amp;分治递归： 递归的本质就是循环，只是与我们传统理解的for，while不同，其是用函数来进行循环。递归的实现和盗梦空间里的场景非常类似，可以在梦里再进入梦境，但是总归有梦醒的时候。所以之前的故事，从前有座山，山里有座庙，庙里有个和尚讲故事……，这是个死递归，因为没有递">
+    <meta name="description" content="本文是LeetCode刷题记录的第一批">
 <meta property="og:type" content="article">
-<meta property="og:title" content="数据结构与算法笔记">
-<meta property="og:url" content="http://example.com/2024/05/14/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:title" content="LeetCode-02">
+<meta property="og:url" content="http://example.com/2025/05/19/LeetCode-02/index.html">
 <meta property="og:site_name" content="ning">
-<meta property="og:description" content="本文是在学习数据结构与算法的记录于思考，包括但不限于LeetCode，算法笔记，算法思想的记录…… 数据结构与算法之美递归&amp;分治递归： 递归的本质就是循环，只是与我们传统理解的for，while不同，其是用函数来进行循环。递归的实现和盗梦空间里的场景非常类似，可以在梦里再进入梦境，但是总归有梦醒的时候。所以之前的故事，从前有座山，山里有座庙，庙里有个和尚讲故事……，这是个死递归，因为没有递">
+<meta property="og:description" content="本文是LeetCode刷题记录的第一批">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-05-13T16:31:17.000Z">
-<meta property="article:modified_time" content="2025-05-19T14:01:24.726Z">
+<meta property="article:published_time" content="2025-05-19T13:56:30.000Z">
+<meta property="article:modified_time" content="2025-05-19T14:00:07.272Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="面试">
-<meta property="article:tag" content="leetcode">
+<meta property="article:tag" content="基础能力">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>数据结构与算法笔记 - ning</title>
+  <title>LeetCode-02 - ning</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -201,7 +201,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="数据结构与算法笔记"></span>
+            <span id="subtitle" data-typed-text="LeetCode-02"></span>
           
         </div>
 
@@ -212,8 +212,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-05-14 00:31" pubdate>
-          2024年5月14日 凌晨
+        <time datetime="2025-05-19 21:56" pubdate>
+          2025年5月19日 晚上
         </time>
       </span>
     
@@ -224,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          366 字
+          570 字
         
       </span>
     
@@ -235,7 +235,7 @@
         
         
         
-          4 分钟
+          5 分钟
         
       </span>
     
@@ -272,21 +272,77 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">数据结构与算法笔记</h1>
+            <h1 id="seo-header">LeetCode-02</h1>
             
             
               <div class="markdown-body">
                 
-                <p>本文是在学习数据结构与算法的记录于思考，包括但不限于LeetCode，算法笔记，算法思想的记录……</p>
-<h1 id="数据结构与算法之美"><a href="#数据结构与算法之美" class="headerlink" title="数据结构与算法之美"></a>数据结构与算法之美</h1><h2 id="递归-分治"><a href="#递归-分治" class="headerlink" title="递归&amp;分治"></a>递归&amp;分治</h2><p>递归：</p>
-<p>递归的本质就是循环，只是与我们传统理解的<code>for</code>，<code>while</code>不同，其是用函数来进行循环。递归的实现和盗梦空间里的场景非常类似，可以在梦里再进入梦境，但是总归有梦醒的时候。所以之前的故事，从前有座山，山里有座庙，庙里有个和尚讲故事……，这是个死递归，因为没有递归返回的时候。</p>
-<p>因此我们在编写递归程序的时候，一定要避免这种情况，一定要有递归跳出的时候。所以递归的模板总结如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#  level 表示当前进入了递归的哪一层</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">recuresion</span>(<span class="hljs-params">level, param1, param2, ...</span>)<br>    <span class="hljs-keyword">if</span> level &gt; MAX_LEVEL<br>        print_result()<br>        <span class="hljs-keyword">return</span><br>    <span class="hljs-comment"># 当前层处理逻辑</span><br>    process_data(level, data...)<br>    <span class="hljs-comment"># 进入下一层</span><br>    <span class="hljs-variable language_">self</span>.recuresion(level + <span class="hljs-number">1</span>, p1, ...)<br><br>    <span class="hljs-comment"># 当前层如果需要一下后置处理</span><br>    reverse_state(level)<br></code></pre></td></tr></table></figure>
+                <p>本文是LeetCode刷题记录的第一批</p>
+<span id="more"></span>
+<h1 id="155-最小栈"><a href="#155-最小栈" class="headerlink" title="155. 最小栈"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/min-stack/description/?envType=study-plan-v2&envId=top-100-liked"><strong>155. 最小栈</strong></a></h1><p>设计一个支持 <code>push</code> ，<code>pop</code> ，<code>top</code> 操作，并能在常数时间内检索到最小元素的栈。</p>
+<p>实现 <code>MinStack</code> 类:</p>
+<ul>
+<li><code>MinStack()</code> 初始化堆栈对象。</li>
+<li><code>void push(int val)</code> 将元素val推入堆栈。</li>
+<li><code>void pop()</code> 删除堆栈顶部的元素。</li>
+<li><code>int top()</code> 获取堆栈顶部的元素。</li>
+<li><code>int getMin()</code> 获取堆栈中的最小元素。</li>
+</ul>
+<p>解答：此题是模拟题，不难，主要在于思路的打开。想明白成员变量的设计，此题就迎刃而解。</p>
+<p>仍然使用<code>stack</code>作为底层的存储结构，只是成员变量用<code>pari&lt;int, int&gt;</code>，其中<code>first</code>为<code>value</code>， <code>second</code>为目前的最小值。</p>
+<p>如此往栈中新加入数据时，只需要使用<code>geMin()</code>与当前的值取最小值，作为新加入数据的最小值即可。</p>
+<p>在初始化栈时，需要额外<code>(0, INT_MAX)</code>作为初始值，如此在后续添加数据时可以直接使用<code>getMin()</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MinStack</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MinStack</span>() &#123;<br>        min_st.<span class="hljs-built_in">push</span>(&#123;<span class="hljs-number">0</span>, INT_MAX&#125;);<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">push</span><span class="hljs-params">(<span class="hljs-type">int</span> val)</span> </span>&#123;<br>        min_st.<span class="hljs-built_in">push</span>(&#123;val, <span class="hljs-built_in">min</span>(<span class="hljs-built_in">getMin</span>(), val)&#125;);<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">pop</span><span class="hljs-params">()</span> </span>&#123;<br>        min_st.<span class="hljs-built_in">pop</span>();<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">top</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> min_st.<span class="hljs-built_in">top</span>().first;<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getMin</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> min_st.<span class="hljs-built_in">top</span>().second;<br>    &#125;<br><span class="hljs-keyword">private</span>:<br>    stack&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;&gt; min_st;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
-<p>分治：</p>
-<p>分治需要将大问题分割成小问题，然后依次处理各个小问题，最后合并。思想比较简单，但是实现起来就没那么简单了，算法模板如下所示：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">divide_conquer</span>(<span class="hljs-params">problem, param1, param2, ...</span>)<br>    <span class="hljs-keyword">if</span> problem <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        print_result()<br>        <span class="hljs-keyword">return</span><br>    <br>    data = process_data(problem)<br>    subproblems = spilt_problem(problem, data)<br><br>    subresult1 = <span class="hljs-variable language_">self</span>.divide_conquer(subproblems[<span class="hljs-number">0</span>], p1, p2, ...)<br>    subresult2 = <span class="hljs-variable language_">self</span>.divide_conquer(subproblems[<span class="hljs-number">1</span>], p1, p2, ...)<br>    subresult3 = <span class="hljs-variable language_">self</span>.divide_conquer(subproblems[<span class="hljs-number">2</span>], p1, p2, ...)<br>    <span class="hljs-comment"># ...</span><br><br>    result = process_result(subresult1, subresult2, subresult3, ...)<br></code></pre></td></tr></table></figure>
+<p>此题中用到了make_pair，关于其用法如下：</p>
+<table>
+<thead>
+<tr>
+<th><strong>方法</strong></th>
+<th><strong>示例</strong></th>
+<th><strong>备注</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>std::make_pair</code></td>
+<td><code>auto p = std::make_pair(1, 2);</code></td>
+<td>最简洁、推荐</td>
+</tr>
+<tr>
+<td>直接构造 <code>pair</code></td>
+<td><code>std::pair&lt;int, int&gt; p(1, 2);</code></td>
+<td>明确创建对象</td>
+</tr>
+<tr>
+<td>列表初始化</td>
+<td><code>std::pair&lt;int, int&gt; p&#123;1, 2&#125;;</code></td>
+<td>C++11特性</td>
+</tr>
+<tr>
+<td>复制构造</td>
+<td><code>auto p = std::pair&lt;int, int&gt;(1, 2);</code></td>
+<td>也可以用，效果一样</td>
+</tr>
+</tbody></table>
+<ul>
+<li>通常建议用 <code>std::make_pair()</code>，因为它可以自动推导类型。</li>
+<li>如果明确类型，直接用构造函数也很好。</li>
+</ul>
+<p>对于<code>pair</code>和<code>make_pair</code>的解析如下：</p>
+<p><code>std::make_pair</code>实际上是一个模板函数，而<code>pair</code>是一个模板类。</p>
+<p>具体来说：</p>
+<p><strong><code>std::pair</code> 是一个模板类</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">pair</span> &#123;<br>    T1 first;<br>    T2 second;<br>    *<span class="hljs-comment">// 构造函数等成员*</span><br>&#125;;<br></code></pre></td></tr></table></figure>
 
+<p>可以用它来定义不同类型的pair，比如：</p>
+<p><code>std::pair&lt;int, int&gt; p1(1, 2);  std::pair&lt;std::string, double&gt; p2(&quot;hello&quot;, 3.14);</code></p>
+<p><code>std::make_pair</code> 是一个模板函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;</span><br><span class="hljs-function">std::pair&lt;T1, T2&gt; <span class="hljs-title">make_pair</span><span class="hljs-params">(T1 t, T2 u)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">pair</span>&lt;T1, T2&gt;(t, u);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>模板参数：<code>T1</code> 和 <code>T2</code> <strong>根据传入的参数自动推导</strong>。</li>
+<li>返回值：<code>pair&lt;T1, T2&gt;</code>。</li>
+</ul>
 
                 
               </div>
@@ -308,6 +364,13 @@
   <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" class="category-chain-item">数据结构与算法</a>
   
   
+    <span>></span>
+    
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/LeetCode/" class="category-chain-item">LeetCode</a>
+  
+  
+
+  
 
       </span>
     
@@ -322,7 +385,7 @@
       
         <a href="/tags/%E9%9D%A2%E8%AF%95/" class="print-no-link">#面试</a>
       
-        <a href="/tags/leetcode/" class="print-no-link">#leetcode</a>
+        <a href="/tags/%E5%9F%BA%E7%A1%80%E8%83%BD%E5%8A%9B/" class="print-no-link">#基础能力</a>
       
     </div>
   
@@ -334,8 +397,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>数据结构与算法笔记</div>
-      <div>http://example.com/2024/05/14/数据结构与算法笔记/</div>
+      <div>LeetCode-02</div>
+      <div>http://example.com/2025/05/19/LeetCode-02/</div>
     </div>
     <div class="license-meta">
       
@@ -347,7 +410,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年5月14日</div>
+          <div>2025年5月19日</div>
         </div>
       
       
@@ -379,15 +442,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/02/23/%E6%97%A5%E8%AE%B0/" title="日记">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">日记</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2025/05/17/%E6%A8%A1%E6%9D%BF%E5%85%83%E7%BC%96%E7%A8%8B/" title="模板元编程">
+                        <span class="hidden-mobile">模板元编程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
