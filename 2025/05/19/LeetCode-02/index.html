@@ -27,7 +27,7 @@
 <meta property="og:description" content="本文是LeetCode刷题记录的第二批">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-05-19T13:56:30.000Z">
-<meta property="article:modified_time" content="2025-05-20T14:02:39.320Z">
+<meta property="article:modified_time" content="2025-05-21T16:12:34.068Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="面试">
 <meta property="article:tag" content="基础能力">
@@ -224,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1k 字
+          1.7k 字
         
       </span>
     
@@ -235,7 +235,7 @@
         
         
         
-          9 分钟
+          14 分钟
         
       </span>
     
@@ -368,6 +368,31 @@
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">double</span> <span class="hljs-title">myPow</span><span class="hljs-params">(<span class="hljs-type">double</span> x, <span class="hljs-type">int</span> n)</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">0</span>) &#123;<br>            x = <span class="hljs-number">1</span> / x;<br>            n = -n;<br>        &#125;<br>        <span class="hljs-type">int</span> pow = <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">while</span> (n)<br>        &#123;<br>            <span class="hljs-keyword">if</span> (n &amp; <span class="hljs-number">1</span>) &#123;<br>                pow = x * pow;<br>            &#125;<br>            x *= x;<br>            n = n &gt;&gt; <span class="hljs-number">1</span>;<br>        &#125; <br>        <span class="hljs-keyword">return</span> pow;   <br>    &#125;<br>&#125;；<br></code></pre></td></tr></table></figure>
 
+<h1 id="128-最长连续序列"><a href="#128-最长连续序列" class="headerlink" title="128. 最长连续序列"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/longest-consecutive-sequence/description/?envType=study-plan-v2&envId=top-100-liked"><strong>128. 最长连续序列</strong></a></h1><p>给定一个未排序的整数数组 <code>nums</code> ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。</p>
+<p>请你设计并实现时间复杂度为 <code>O(n)</code> **的算法解决此问题。</p>
+<ol>
+<li>排序后求解，时间复杂度不合题意</li>
+<li>核心思想，如果在遍历<code>x</code>的时候，发现<code>x-1</code>也在数组里面，那么一定不会以<code>x</code>为起点，至少应该以<code>x-1</code>为起点。</li>
+<li>如果找到了<code>x</code>，其是当前序列最小的，需要循环去遍历<code>x+1</code>是否存在，求得以<code>x</code>开始的序列的长度。</li>
+<li>数组需要去重，因此需要将其放在<code>set</code>里面，然后去**遍历<code>set</code>**求解。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">longestConsecutive</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums)</span> </span>&#123;<br>        <span class="hljs-type">int</span> res = <span class="hljs-number">0</span>;<br>        <span class="hljs-function">unordered_set <span class="hljs-title">st</span><span class="hljs-params">(nums.begin(), nums.end())</span></span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; num : st) &#123;<br>            <span class="hljs-comment">// 如果i - 1 存在，则一定不用从i -1 开始遍历</span><br>            <span class="hljs-keyword">if</span> (st.<span class="hljs-built_in">count</span>(num - <span class="hljs-number">1</span>)) &#123;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br>            <span class="hljs-type">int</span> tmp = num + <span class="hljs-number">1</span>;<br>            <span class="hljs-keyword">while</span> (st.<span class="hljs-built_in">count</span>(tmp)) &#123;<br>                tmp++;<br>            &#125;<br>            res = <span class="hljs-built_in">max</span>(res, tmp - num);<br>        &#125;<br>        <br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>另外，其中对于容器的遍历，请用现代C++推荐的<code>based_for</code>形式，无论是关系型容器还是序列性容器，如果只是提取元素，建议<code>for (const auto&amp; val : vec) &#123; /* 访问val */ &#125;</code></p>
+<h1 id="200-岛屿数量"><a href="#200-岛屿数量" class="headerlink" title="200. 岛屿数量"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/number-of-islands/description/?envType=study-plan-v2&envId=top-100-liked"><strong>200. 岛屿数量</strong></a></h1><p>给你一个由 <code>&#39;1&#39;</code>（陆地）和 <code>&#39;0&#39;</code>（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>岛屿总是被水包围，并且每座岛屿只能由水平方向和&#x2F;或竖直方向上相邻的陆地连接形成。</p>
+<p>此外，你可以假设该网格的四条边均被水包围。</p>
+<p>对于图的遍历，要求掌握DFS和BFS两种算法，此题由于陆地是连续的，因此要使用DFS遍历。</p>
+<p>使用DFS遍历图时，要注意边界条件，边界条件是递归的出口。</p>
+<p>此题中应该是</p>
+<ol>
+<li>不超过矩阵的范围</li>
+<li>还没有被填充（假设填充时将此块置2）</li>
+</ol>
+<p>所以DFS的算法应该这样写：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">numIslands</span><span class="hljs-params">(vector&lt;vector&lt;<span class="hljs-type">char</span>&gt;&gt;&amp; grid)</span> </span>&#123;<br>        <span class="hljs-type">int</span> row = grid.<span class="hljs-built_in">size</span>(), col = grid[<span class="hljs-number">0</span>].<span class="hljs-built_in">size</span>();<br>        std::function&lt;<span class="hljs-type">void</span>(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)&gt; dfs = [&amp;](<span class="hljs-type">int</span> i, <span class="hljs-type">int</span> j) &#123;<br>            <span class="hljs-keyword">if</span> (i &lt; <span class="hljs-number">0</span> || i &gt;= row || j &lt; <span class="hljs-number">0</span> || j &gt;=  col || grid[i][j] != <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br>            grid[i][j] = <span class="hljs-string">&#x27;2&#x27;</span>;<br>            <span class="hljs-built_in">dfs</span>(i - <span class="hljs-number">1</span>, j);<br>            <span class="hljs-built_in">dfs</span>(i + <span class="hljs-number">1</span>, j);<br>            <span class="hljs-built_in">dfs</span>(i, j - <span class="hljs-number">1</span>);<br>            <span class="hljs-built_in">dfs</span>(i, j + <span class="hljs-number">1</span>);<br>        &#125;;<br>        <span class="hljs-type">int</span> ans = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; row; ++i) &#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; col; ++j) &#123;<br>                <span class="hljs-keyword">if</span> (grid[i][j] == <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>                    <span class="hljs-built_in">dfs</span>(i, j);<br>                    ans++;<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> ans;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>此题的难点主要在于养成图算法的思路，如果遍历整个图？如何写DFS等？</p>
 
                 
               </div>
