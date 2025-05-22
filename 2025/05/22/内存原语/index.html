@@ -19,12 +19,12 @@
   <meta name="author" content="zningg">
   <meta name="keywords" content="">
   
-    <meta name="description" content="内存管理本文是对侯捷老师内存管理课程学习记录与总结，原课程见此处 使用内存的方式有哪些？在日常的开发环境中，我们都是在应用层进行开发，其直接接触内存的方式有多种。如下图   直接使用标准库，比如STL 使用C++提供的管理内存的方式，比如new，delete，operator new() 使用C提供的内存管理方式，malloc&#x2F;free 直接使用OS的API(几乎没)，此种方式和操作会和">
+    <meta name="description" content="本文是对侯捷老师内存管理课程学习记录与总结，原课程见此处,其中本文是对第一节的整理，第一节是关于内存原语~">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内存原语">
 <meta property="og:url" content="http://example.com/2025/05/22/%E5%86%85%E5%AD%98%E5%8E%9F%E8%AF%AD/index.html">
 <meta property="og:site_name" content="ning">
-<meta property="og:description" content="内存管理本文是对侯捷老师内存管理课程学习记录与总结，原课程见此处 使用内存的方式有哪些？在日常的开发环境中，我们都是在应用层进行开发，其直接接触内存的方式有多种。如下图   直接使用标准库，比如STL 使用C++提供的管理内存的方式，比如new，delete，operator new() 使用C提供的内存管理方式，malloc&#x2F;free 直接使用OS的API(几乎没)，此种方式和操作会和">
+<meta property="og:description" content="本文是对侯捷老师内存管理课程学习记录与总结，原课程见此处,其中本文是对第一节的整理，第一节是关于内存原语~">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/pictures/20250522/eda72137-4d4d-4349-9b25-987a8ef9aa16.png">
 <meta property="og:image" content="http://example.com/pictures/20250522/image.png">
@@ -57,7 +57,7 @@
 <meta property="og:image" content="http://example.com/pictures/20250522/image%2027.png">
 <meta property="og:image" content="http://example.com/pictures/20250522/image%2028.png">
 <meta property="article:published_time" content="2025-05-22T14:45:24.000Z">
-<meta property="article:modified_time" content="2025-05-22T15:06:50.996Z">
+<meta property="article:modified_time" content="2025-05-22T15:12:48.436Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="基础知识">
@@ -308,7 +308,9 @@
             
               <div class="markdown-body">
                 
-                <h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><p>本文是对侯捷老师内存管理课程学习记录与总结，原课程见<a target="_blank" rel="noopener" href="https://www.youtube.com/playlist?list=PLTcwR9j5y6W2eH37R2_4oEO4Y0tksot56">此处</a></p>
+                <p>本文是对侯捷老师内存管理课程学习记录与总结，原课程见<a target="_blank" rel="noopener" href="https://www.youtube.com/playlist?list=PLTcwR9j5y6W2eH37R2_4oEO4Y0tksot56">此处</a>,其中本文是对第一节的整理，第一节是关于内存原语~</p>
+<span id="more"></span>
+
 <h1 id="使用内存的方式有哪些？"><a href="#使用内存的方式有哪些？" class="headerlink" title="使用内存的方式有哪些？"></a>使用内存的方式有哪些？</h1><p>在日常的开发环境中，我们都是在应用层进行开发，其直接接触内存的方式有多种。如下图</p>
 <p><img src="/../pictures/20250522/eda72137-4d4d-4349-9b25-987a8ef9aa16.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <ol>
@@ -523,9 +525,6 @@
 <p><img src="/../pictures/20250522/image%2027.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p><img src="/../pictures/20250522/image%2028.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//借鏡 MFC macros. </span><br><span class="hljs-comment">// DECLARE_POOL_ALLOC -- used in class definition</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DECLARE_POOL_ALLOC() \</span><br><span class="hljs-meta">public: \</span><br><span class="hljs-meta">    void* operator new(size_t size) &#123; return myAlloc.allocate(size); &#125; \</span><br><span class="hljs-meta">    void operator delete(void* p) &#123; myAlloc.deallocate(p, 0); &#125; \</span><br><span class="hljs-meta">protected: \</span><br><span class="hljs-meta">    static allocator myAlloc; </span><br><br><span class="hljs-comment">// IMPLEMENT_POOL_ALLOC -- used in class implementation file</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> IMPLEMENT_POOL_ALLOC(class_name) \</span><br><span class="hljs-meta">allocator class_name::myAlloc; </span><br><br><span class="hljs-comment">// in class definition file</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Foo</span> &#123;<br>   <span class="hljs-built_in">DECLARE_POOL_ALLOC</span>()<br><span class="hljs-keyword">public</span>: <br>    <span class="hljs-type">long</span> L;<br>    string str;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Foo</span>(<span class="hljs-type">long</span> l) : <span class="hljs-built_in">L</span>(l) &#123;  &#125;   <br>&#125;;<br><span class="hljs-comment">//in class implementation file</span><br><span class="hljs-built_in">IMPLEMENT_POOL_ALLOC</span>(Foo) <br><br><span class="hljs-comment">//  in class definition file</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Goo</span> &#123;<br>   <span class="hljs-built_in">DECLARE_POOL_ALLOC</span>()<br><span class="hljs-keyword">public</span>: <br>    complex&lt;<span class="hljs-type">double</span>&gt; c;<br>    string str;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Goo</span>(<span class="hljs-type">const</span> complex&lt;<span class="hljs-type">double</span>&gt;&amp; x) : <span class="hljs-built_in">c</span>(x) &#123;  &#125;   <br>&#125;;<br><span class="hljs-comment">//in class implementation file</span><br><span class="hljs-built_in">IMPLEMENT_POOL_ALLOC</span>(Goo) <br></code></pre></td></tr></table></figure>
-
-<h1 id="CNU-C-allocator-版本五"><a href="#CNU-C-allocator-版本五" class="headerlink" title="CNU C++ allocator 版本五"></a>CNU C++ allocator 版本五</h1><h1 id="三-std-allocate1"><a href="#三-std-allocate1" class="headerlink" title="三. std::allocate1"></a>三. std::allocate1</h1><h1 id="3-malloc-free"><a href="#3-malloc-free" class="headerlink" title="3. malloc&#x2F;free"></a>3. malloc&#x2F;free</h1><h1 id="4-loki-allocate"><a href="#4-loki-allocate" class="headerlink" title="4. loki::allocate"></a>4. loki::allocate</h1><h1 id="5-other-issues"><a href="#5-other-issues" class="headerlink" title="5. other issues"></a>5. other issues</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/c_1509919961053503488">https://zhuanlan.zhihu.com/c_1509919961053503488</a></p>
-
                 
               </div>
             
