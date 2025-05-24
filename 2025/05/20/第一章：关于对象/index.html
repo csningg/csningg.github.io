@@ -26,13 +26,13 @@
 <meta property="og:site_name" content="ning">
 <meta property="og:description" content="本章主要以对象为基础观念背景，对对象模型进行一个概述~">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/pictures/20250523/cpp.jpg">
+<meta property="og:image" content="http://example.com/pictures/20250523/model_cpp.jpg">
 <meta property="article:published_time" content="2025-05-20T15:44:57.000Z">
-<meta property="article:modified_time" content="2025-05-24T12:50:13.190Z">
+<meta property="article:modified_time" content="2025-05-24T13:20:31.964Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/pictures/20250523/cpp.jpg">
+<meta name="twitter:image" content="http://example.com/pictures/20250523/model_cpp.jpg">
   
   
   
@@ -196,7 +196,7 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/pictures/20250523/cpp.jpg') no-repeat center center; background-size: cover;">
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -281,7 +281,7 @@
                 <p>本章主要以对象为基础观念背景，对对象模型进行一个概述~</p>
 <span id="more"></span>
 <p>前情提要，本文示例的编译环境<code>Linux ubuntu-linux-22-04-02-desktop 5.15.0-133-generic #144-Ubuntu SMP Sat Feb 8 14:13:21 UTC 2025 aarch64 aarch64 aarch64 GNU/Linux</code> g++版本<code>g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0</code></p>
-<h2 id="1-基础"><a href="#1-基础" class="headerlink" title="1. 基础"></a>1. 基础</h2><p>首先是不考虑C++的基本的特性，单纯用C++写C，观察下C++在运行时的一些特性。</p>
+<h1 id="1-基础"><a href="#1-基础" class="headerlink" title="1. 基础"></a>1. 基础</h1><p>首先是不考虑C++的基本的特性，单纯用C++写C，观察下C++在运行时的一些特性。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> &#123;<br><span class="hljs-keyword">public</span>: <span class="hljs-comment">//section1</span><br>    <span class="hljs-type">uint64_t</span> longNo2; <span class="hljs-comment">// 8</span><br><span class="hljs-keyword">public</span>: <span class="hljs-comment">//section2</span><br>    <span class="hljs-type">uint64_t</span> longNo1; <span class="hljs-comment">// 8</span><br>    <span class="hljs-type">uint8_t</span> no1; <span class="hljs-comment">// 1</span><br>    <span class="hljs-type">uint8_t</span> no2; <span class="hljs-comment">// 1</span><br>    <span class="hljs-type">uint8_t</span> no3; <span class="hljs-comment">// 1</span><br><span class="hljs-keyword">public</span>: <span class="hljs-comment">//section3</span><br>    <span class="hljs-type">uint8_t</span> no4; <span class="hljs-comment">// 1</span><br>&#125;;<br><span class="hljs-comment">/// 调试代码</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj = <span class="hljs-built_in">Object</span>();<br>    <span class="hljs-type">size_t</span> sizeObj = <span class="hljs-built_in">sizeof</span>(Object);<br>    cout &lt;&lt; sizeObj &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>运行结果<code>sizeObj</code>为 24，调整下不同变量的位置，发现输出结果不同：</p>
@@ -318,7 +318,7 @@
 
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) p objPtr <br><span class="hljs-variable">$6</span> = (Object *) 0xaaaaaaac3eb0<br></code></pre></td></tr></table></figure>
 
-<h2 id="2-继承"><a href="#2-继承" class="headerlink" title="2. 继承"></a>2. 继承</h2><p>上面的类的实现与C语言的struct本质上并没有什么区别，C++相比比C语言而言，最突出的优势是封装，继承，多态。那么在上面的基础情况下，我们再考虑下继承的情况。</p>
+<h1 id="2-继承"><a href="#2-继承" class="headerlink" title="2. 继承"></a>2. 继承</h1><p>上面的类的实现与C语言的struct本质上并没有什么区别，C++相比比C语言而言，最突出的优势是封装，继承，多态。那么在上面的基础情况下，我们再考虑下继承的情况。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint64_t</span> longNo2 = <span class="hljs-number">1</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no2 = <span class="hljs-number">12</span>;<br>    <span class="hljs-type">uint64_t</span> longNo1 = <span class="hljs-number">2</span>;<br>    <span class="hljs-type">uint8_t</span> no1 = <span class="hljs-number">11</span>;<br>    <span class="hljs-type">uint8_t</span> no3 = <span class="hljs-number">13</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no4 = <span class="hljs-number">14</span>;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SubClassObject</span> : Object &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint64_t</span> subLongNo1 = <span class="hljs-number">3</span>;<br>    <span class="hljs-type">uint8_t</span> subNo1 = <span class="hljs-number">16</span>;<br>    <span class="hljs-type">uint8_t</span> subNo2 = <span class="hljs-number">15</span>;<br>    <br>&#125;;<br><br><span class="hljs-comment">/// 调试代码</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj;<br>    <span class="hljs-type">size_t</span> sizeObj = <span class="hljs-built_in">sizeof</span>(Object);<br>    <br>    SubClassObject subobj;<br>    <span class="hljs-type">size_t</span> sizeSubobj = <span class="hljs-built_in">sizeof</span>(SubClassObject);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>打印<code>sizeSubobj</code>为 48，<code>x/48b &amp;subobj</code>打印内存空间，不难发现，子类成员变量的数据是直接拼接在基类的成员变量内存空间后面。可以看到低32字节是子类的成员变量，高16字节是派生类的成员变量，派生类是直接append到子类的后面的。</p>
