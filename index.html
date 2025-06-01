@@ -381,7 +381,7 @@
       
       <a class="index-excerpt " href="/2025/05/22/std-allocate%E8%A7%A3%E6%9E%90/" target="_blank">
         <div>
-          
+          不同编译器对标准分配器的实现    通过看源代码可得，以上两种分配器的allocator只是以::operator new()和::operator delete()完成allocate()和deallocate()。没有对内存进行管理，所以这两种编译器的分配效率并不高，因为直接使用::operator new()和::operator delete() 会产生大量的cookies。 v此处的分配
         </div>
       </a>
 
