@@ -26,13 +26,13 @@
 <meta property="og:site_name" content="ning">
 <meta property="og:description" content="背景HNSW(Hierarchical Navigable Small World)是一种向量检索算法，向量检索算法包含基于树，图，哈希以及量化的各种算法，HNSW是基于图的一种高效ANN(Approximate Nearest Neighbors)检索算法，其在查询性能和召回率上表现十分优异，广泛应用在工业界中。  HNSW的中文名称是分层可导航的最小网络世界，其是基于跳表(Skip List)">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://csningg.github.io/pictures/20250523/06/06.jpg">
+<meta property="og:image" content="https://csningg.github.io/pictures/20250523/06/6.jpg">
 <meta property="article:published_time" content="2025-06-15T14:48:32.000Z">
-<meta property="article:modified_time" content="2025-06-15T14:55:18.192Z">
+<meta property="article:modified_time" content="2025-06-15T15:15:13.338Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="vectordb">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/06/06.jpg">
+<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/06/6.jpg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -397,7 +397,7 @@
 <p><em>距离计算次数等于 “检索要经过的节点数量” 乘以 “每个节点的度”。“检索要经过的节点数量” 以及 “每个节点的度”随着图规模的增大，都是对数增长的。两个对数复杂度相乘，是多重对数复杂度了。</em></p>
 <p><strong>解决方案就是分层：</strong></p>
 <p>只要把“每个节点的度”控制住，如果节点的度太高了，就把它们分散到不同层级。这样可以保证，“检索要经过的节点数量”依旧对数增长，而节点的度是常量，那么整个检索过程就是对数增长而不是多重对数增长了。</p>
-<h2 id="插入过程"><a href="#插入过程" class="headerlink" title="插入过程"></a>插入过程</h2><p>一个新的节点，在哪一层开始插入，是随机的。随机是带权的，随机到下层的概率较高。如果随机到l层，那么从l-0层都要插入此点。</p>
+<h2 id="插入过程"><a href="#插入过程" class="headerlink" title="插入过程:"></a>插入过程:</h2><p>一个新的节点，在哪一层开始插入，是随机的。随机是带权的，随机到下层的概率较高。如果随机到l层，那么从l-0层都要插入此点。</p>
 <p><img src="/pictures/20250523/hnsw/image%2010.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <p>在图中新插入一个节点，首先通过随机函数确定该节点的最大层l，例如l &#x3D; 2, max layer &#x3D; 5。整个新增流程主要分为两部分，第一步先从最上层开始，使用BFS寻找最近的节点。找到的节点随后被用作下一层的入口点，并继续进行搜索。一旦到达第l层，插入过程将进入第二步。<br>从第l层开始，算法在当前层插入新节点。然后，它在步骤1中的操作与之前相同，但不再只寻找一个最近邻，而是贪婪地搜索efConstruction个最近邻。接着，从efConstruction个邻近节点中选择M个，并建立从插入节点到这些节点的边。之后，算法下降到下一层，每个找到的efConstruction个节点都作为入口点。当新节点及其边被插入到最底层0后，算法终止。</p>
 <p><img src="/pictures/20250523/hnsw/image%2011.png" srcset="/img/loading.gif" lazyload alt=" "></p>
