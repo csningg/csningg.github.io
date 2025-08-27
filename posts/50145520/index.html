@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://csningg.github.io/pictures/20250523/web/3.jpg">
 <meta property="article:published_time" content="2025-08-25T15:14:34.000Z">
-<meta property="article:modified_time" content="2025-08-26T15:19:50.252Z">
+<meta property="article:modified_time" content="2025-08-27T15:41:02.759Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="面试">
 <meta property="article:tag" content="基础知识">
@@ -244,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          650 字
+          879 字
         
       </span>
     
@@ -255,7 +255,7 @@
         
         
         
-          6 分钟
+          8 分钟
         
       </span>
     
@@ -319,6 +319,20 @@
 <li>用第一行和第一列记录之后，遍历矩阵应该从[1，1]的位置开始遍历，需要把第一行和第一列去除掉，因为第一行第一列已经用其他的变量的表示了。</li>
 </ol>
 <h1 id="54-螺旋矩阵"><a href="#54-螺旋矩阵" class="headerlink" title="54. 螺旋矩阵"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/spiral-matrix/description/?envType=study-plan-v2&envId=top-100-liked"><strong>54. 螺旋矩阵</strong></a></h1><p>给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。</p>
+<p>根据题意，从左上角出发，按照【右下左上】的顺序遍历：</p>
+<ol>
+<li>右:到边界，右转90°，向下</li>
+<li>下:到边界，右转90°，向左</li>
+<li>左:到边界，右转90°，向上</li>
+<li>上:会遇到访问过的数字，然后右转90°，再向右</li>
+<li>重复上述过程，直到答案的长度为mn</li>
+</ol>
+<h2 id="方法一：标记法"><a href="#方法一：标记法" class="headerlink" title="方法一：标记法"></a>方法一：标记法</h2><ol>
+<li>对于已经访问过的数字，将其标记为空，避免二次访问</li>
+<li>用一个长度为4的方向数组<code>DIRS[(0,1),(1,0),(0,-1)(-1,0)]</code>表示右下左上四个方向（为什么是这4个数组，可以用笔画下点的走向），同时用一个下标di表示当前的方向，初始值为0</li>
+<li>每次移动时，相当于把行号增加<code>DIRS[di][0]</code>，把列号增加<code>DIRS[di][1]</code></li>
+<li>向右转90°，相当于把di增加1，但是<code>di=3</code>时要回到<code>di=0</code>，所以di为<code>(di + 1) mod 4</code></li>
+</ol>
 
                 
               </div>
