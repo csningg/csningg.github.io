@@ -1,0 +1,1065 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zningg">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="VSAG论文解读论文介绍了一个名为 VSAG (Vector Search Algorithm Graph) 的开源框架，由蚂蚁集团（Ant Group）开发 。它的核心目标是解决当前主流的基于图的近似最近邻搜索（ANNS）算法（如 HNSW）在生产环境中面临的性能瓶颈。简单来说，VSAG 是对现有图算法（Graph-based ANNS）的一套全方位工业级优化方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vsag框架概要">
+<meta property="og:url" content="https://csningg.github.io/posts/3838167042/index.html">
+<meta property="og:site_name" content="ning">
+<meta property="og:description" content="VSAG论文解读论文介绍了一个名为 VSAG (Vector Search Algorithm Graph) 的开源框架，由蚂蚁集团（Ant Group）开发 。它的核心目标是解决当前主流的基于图的近似最近邻搜索（ANNS）算法（如 HNSW）在生产环境中面临的性能瓶颈。简单来说，VSAG 是对现有图算法（Graph-based ANNS）的一套全方位工业级优化方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csningg.github.io/pictures/20250523/11.25/Untitled/dff374c348_indexing-in-vector-database.png">
+<meta property="article:published_time" content="2025-11-24T12:30:47.000Z">
+<meta property="article:modified_time" content="2025-11-24T12:37:18.018Z">
+<meta property="article:author" content="zningg">
+<meta property="article:tag" content="向量检索">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/11.25/Untitled/dff374c348_indexing-in-vector-database.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>vsag框架概要 - ning</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/macpanel.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"csningg.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":"https://csningg.github.io/"}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong class="navbar-title">Zning</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="vsag框架概要"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-24 20:30" pubdate>
+          2025年11月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">vsag框架概要</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="VSAG论文解读"><a href="#VSAG论文解读" class="headerlink" title="VSAG论文解读"></a>VSAG论文解读</h1><p><a target="_blank" rel="noopener" href="https://www.vldb.org/pvldb/vol18/p5017-cheng.pdf">论文</a>介绍了一个名为 <strong>VSAG (Vector Search Algorithm Graph)</strong> 的开源框架，由蚂蚁集团（Ant Group）开发 。它的核心目标是解决当前主流的基于图的近似最近邻搜索（ANNS）算法（如 HNSW）在<strong>生产环境</strong>中面临的性能瓶颈。简单来说，VSAG 是对现有图算法（Graph-based ANNS）的一套<strong>全方位工业级优化方案</strong>。</p>
+<span id="more"></span>
+
+<p>尽管 HNSW 等基于图的算法在召回率和性能上表现优异，但在大规模生产环境中存在三大痛点 ：</p>
+<ol>
+<li><strong>随机内存访问导致的高延迟：</strong> 图遍历需要在内存中随机跳转，导致 CPU 的 L3 缓存未命中率（Cache Miss Rate）极高，严重拖慢速度。</li>
+<li><strong>距离计算开销大：</strong> 高维向量的距离计算非常消耗 CPU 资源。</li>
+<li><strong>调参成本过高：</strong> 图索引对参数（如最大度数、候选集大小）非常敏感。传统调参需要反复重建索引，耗时极长（可能需要数天），导致很多系统只能使用次优参数。</li>
+</ol>
+<p>针对以上三个问题，论文依次提出了解决方案，以下是对该论文的解读，包括其主要思想、整体流程以及巧妙设计的解读。</p>
+<h1 id="VSAG-主要思想"><a href="#VSAG-主要思想" class="headerlink" title="VSAG 主要思想"></a>VSAG 主要思想</h1><h2 id="1-三大设计优化"><a href="#1-三大设计优化" class="headerlink" title="1. 三大设计优化"></a>1. 三大设计优化</h2><p>VSAG 针对上述问题提出了三个维度的优化：</p>
+<h3 id="内存访问优化-Memory-Access-Optimization"><a href="#内存访问优化-Memory-Access-Optimization" class="headerlink" title="内存访问优化 (Memory Access Optimization)"></a>内存访问优化 (Memory Access Optimization)</h3><p>这是 VSAG 最底层的创新，旨在让“随机”的图搜索变得对 CPU 缓存更友好。</p>
+<ul>
+<li><strong>确定性访问贪婪搜索 (Deterministic Access Greedy Search)：</strong> 传统的贪婪搜索是串行的（计算一个-&gt;取下一个）。VSAG 将其改为<strong>批量处理</strong>，对邻居节点进行分组，并利用软件预取（Software Prefetching）技术，在计算当前节点距离时，提前将下一个节点的数据加载到缓存中。</li>
+<li><strong>部分冗余存储 (PRS - Partial Redundant Storage)：</strong> VSAG 设计了一种特殊的存储结构。它不仅存储节点本身，还将该节点的<strong>压缩后的邻居向量</strong>直接冗余存储在节点旁边。<ul>
+<li><strong>作用：</strong> 这样一来，访问某个节点的邻居时，内存访问就从“随机跳转”变成了“顺序读取”。这激活了 CPU 的 <strong>硬件预取（Hardware Prefetching）</strong> 机制，极大降低了缓存未命中率。</li>
+<li><strong>平衡：</strong> 引入了参数 $\delta$（冗余比率）来平衡内存占用和 CPU 效率。$\delta&#x3D;1$时全冗余（速度最快，费内存），$\delta&#x3D;0$ 时无冗余（省内存）</li>
+</ul>
+</li>
+</ul>
+<h3 id="自动参数调优-Automatic-Parameter-Tuning"><a href="#自动参数调优-Automatic-Parameter-Tuning" class="headerlink" title="自动参数调优 (Automatic Parameter Tuning)"></a>自动参数调优 (Automatic Parameter Tuning)</h3><p>VSAG 不需要用户手动痛苦地调参，也不需要为了调参反复重建索引。</p>
+<ul>
+<li><strong>基于“掩码&#x2F;标签”的索引压缩技术：</strong> VSAG 先用较宽松的参数构建一个“大索引”，并在每条边上打上标签（Label），标记这条边在不同参数下是否应该存在。</li>
+<li><strong>免重建调优：</strong> 在调优或搜索时，只需根据标签过滤边，就能模拟出不同参数构建的索引效果。这使得<strong>索引级参数（Index-level Parameters）</strong> 的调优时间从“数天”缩短为“几乎即时” 。</li>
+<li><strong>查询级自适应：</strong> 使用决策树模型判断查询的难易程度，动态调整搜索时的候选集大小（$ef_s$）。简单的查询少搜点，复杂的查询多搜点。</li>
+</ul>
+<h3 id="距离计算加速-Distance-Computation-Optimization"><a href="#距离计算加速-Distance-Computation-Optimization" class="headerlink" title="距离计算加速 (Distance Computation Optimization)"></a>距离计算加速 (Distance Computation Optimization)</h3><ul>
+<li><strong>标量量化 (Scalar Quantization, SQ) + SIMD：</strong> 将浮点向量压缩（如 SQ4&#x2F;SQ8），利用 AVX-512 指令集并行计算，大幅减少计算量。</li>
+<li><strong>距离分解 (Distance Decomposition)：</strong> 预先计算向量的模长（Norm）并缓存，将欧氏距离计算简化为内积运算，减少实时计算指令。</li>
+<li><strong>选择性重排序 (Selective Re-rank)：</strong> 先用低精度（量化后）向量快速筛选出一批候选者，再对其中极少部分进行高精度重算，兼顾了速度和准确率。</li>
+</ul>
+<h2 id="2-整体流程"><a href="#2-整体流程" class="headerlink" title="2. 整体流程"></a>2. 整体流程</h2><p><img src="/../pictures/20250523/11.25/Untitled/image.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>Figure 1 展示了 <strong>VSAG（Vector Search Algorithm Graph）</strong> 的整个搜索框架流程。它将整个搜索过程分为了三个主要阶段：<strong>存储（PRS）</strong>、<strong>搜索执行（Deterministic Access Greedy Search）</strong> 和 <strong>结果优化（Selective Re-rank）</strong>，同时贯穿了自动参数调优。</p>
+<p>以下是对这张图的<strong>分步详细解释</strong>：</p>
+<p><strong>第一步：左侧模块 —— PRS (Partial Redundant Storage, 部分冗余存储)</strong></p>
+<p>这是 VSAG 的数据存储基础，旨在优化内存访问效率。</p>
+<ul>
+<li><strong>混合存储结构 (Redundant vs. Flat):</strong> 图中展示了两种存储状态。<ul>
+<li><strong>Original Vector (蓝色):</strong> 存储原始的高精度向量数据。</li>
+<li><strong>Redundant Neighbors (绿色):</strong> 这是核心设计。VSAG 将某个节点的<strong>邻居向量</strong>（压缩后的）直接冗余存储在该节点旁边。</li>
+<li><strong>$\delta &#x3D; 0.5$ (Redundancy Ratio):</strong> 这是一个调节参数。图中 $\delta&#x3D;0.5$表示只有 50% 的数据采用了冗余存储（Redundant Storage），剩下的 50% 采用普通存储（Flat Storage)。这是一种在“内存占用”和“计算速度”之间取得平衡的机制。</li>
+</ul>
+</li>
+<li><strong>Code Layout (数据布局):</strong> 放大镜展示了邻居节点具体存了什么：<ul>
+<li><strong>Quantized Code:</strong> 量化后的低精度向量代码（例如 4-bit 量化），用于快速计算。</li>
+<li><strong>Id:</strong> 邻居的 ID。</li>
+<li><strong>Norm:</strong> 预先计算好的向量模长，用于加速距离计算（距离分解技术）。</li>
+<li><strong>Metric Transform:</strong> 距离变换逻辑。</li>
+</ul>
+</li>
+</ul>
+<p><strong>第二步：中间模块 —— Deterministic Access Greedy Search (确定性访问贪婪搜索)</strong></p>
+<p>这是搜索执行的核心阶段，主要解决图搜索中“内存随机访问”导致的 Cache Miss 问题。</p>
+<ul>
+<li><strong>Async Prefetch During Computing (计算时异步预取):</strong> 顶部的框图展示了流水线工作模式。当 CPU 正在计算当前向量的量化代码（Q Code Computing）时，利用空闲带宽同时<strong>预取（Prefetching）</strong> 下一批需要的数据到缓存中。</li>
+<li><strong>Only Prefetch Valid Neighbors (只预取有效邻居):</strong> 中间的 $x_1$到 $x_{10}$ 序列展示了过滤逻辑。算法会先剔除掉那些已经访问过的或者被剪枝的邻居（图中 $x_2, x_3$被跳过），只对有效的邻居进行预取和计算。</li>
+<li><strong>Stride Prefetch (步长预取):</strong> 底部的箭头（例如从 $x_1$指向 $x_6$）展示了步长预取策略。为了防止数据还没加载进缓存 CPU 就要用，VSAG 会“看得很远”。例如，在计算 $x_1$ 的距离时，它发出的指令是预取 $x_6$ 的数据（步长为 5），从而掩盖内存延迟。</li>
+</ul>
+<p><strong>第三步：右侧模块 —— Selective Re-rank (选择性重排序)</strong></p>
+<p>这一步是为了弥补第二步中使用“低精度量化向量”带来的精度损失。</p>
+<ul>
+<li><strong>Result Push Heap (结果入堆):</strong> 第二步计算出的邻居节点会被推入一个结果堆中。</li>
+<li><strong>Low vs. High Precision:</strong><ul>
+<li>在搜索过程中使用低精度（Quantized Code）快速筛选。</li>
+<li>只有通过筛选的少量优质候选项，才会回读原始向量（Original Vector）进行高精度距离计算（即 Re-rank），确保最终结果准确。</li>
+</ul>
+</li>
+<li><strong>Pop Heap and Visit:</strong> 底部蓝色的长箭头表示循环。从堆中弹出当前最近的节点，回到左侧 PRS 读取它的邻居，开始下一轮搜索 。</li>
+</ul>
+<p><strong>第四步：最右侧 —— Self-Tuned Parameters (自动参数调优)</strong></p>
+<p>在整个框架运行过程中，有一个自动调优器在持续工作。</p>
+<ul>
+<li><strong>三层参数 (Environment&#x2F;Query&#x2F;Index):</strong> 图例展示了 VSAG 针对三个层级的参数进行自动化管理<ul>
+<li><strong>Index-level:</strong> 如图的最大度数，通过“掩码”技术在不重建索引的情况下动态调整。</li>
+<li><strong>Query-level:</strong> 如搜索时的候选集大小 ($ef_s$)，根据查询难度动态调整。</li>
+<li><strong>Environment-level:</strong> 如预取步长 ($\omega$)，根据硬件环境自动调整。</li>
+</ul>
+</li>
+</ul>
+<p><strong>VSAG 不是一种全新的图算法结构，而是一个针对图算法的“生产级加速器”。</strong></p>
+<p>它保留了图算法（如 HNSW）的高召回率特性，但通过<strong>魔改内存布局（PRS）解决了“缓存未命中”这一最大的性能杀手，并通过标签化索引</strong>解决了“调参难”的运维痛点。对于需要大规模部署向量数据库的企业来说，VSAG 是比原生 HNSWlib 更高效、更可控的选择。</p>
+<h2 id="预取技术"><a href="#预取技术" class="headerlink" title="预取技术"></a>预取技术</h2><p>下图完整描述了 VSAG 如何通过特定的内存布局（PRS）配合流水线式的搜索策略（Stride Prefetch）来“喂饱”CPU，最后通过重排序（Re-rank）保证精度，并利用自动调优来适应不同场景。</p>
+<p><img src="/../pictures/20250523/11.25/Untitled/image%201.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>这张图（Figure 2）直观地展示了 VSAG 如何利用 <strong>软件预取</strong>（Software-based Prefetch)技术，将传统的“串行等待”内存访问模式优化为“并行流水线”模式，从而显著减少 CPU 的空转等待时间。</p>
+<p>以下是详细的分步解释：</p>
+<p><strong>图例说明</strong></p>
+<ul>
+<li><strong>橙色方块 (Fetch - Sync Operation):</strong> 代表<strong>同步的内存读取</strong>。在基准算法中，当 CPU 需要某个向量数据但缓存中没有时（Cache Miss），必须停下来等待数据从内存加载完毕，这会阻塞后续操作 。</li>
+<li><strong>蓝色方块 ($\tau(x, x_q)$ - Sync Operation):</strong> 代表<strong>同步的计算操作</strong>。这里指计算向量 $x$与查询向量 $x_q$ 之间的距离（如欧氏距离)。</li>
+<li><strong>绿色方块 (Prefetch - Async Operation):</strong> 代表<strong>异步的预取指令</strong>。这是 VSAG 引入的关键优化。它是一条告诉 CPU “提前把数据从内存拉到缓存”的指令，它在后台运行，<strong>不会阻塞</strong>当前的计算任务。</li>
+</ul>
+<p><strong>1. 上半部分：Baselines (传统基准方法的痛点)</strong></p>
+<p>这是现有普通图搜索算法（如未优化的 HNSW）的执行流程：</p>
+<ul>
+<li><strong>模式：</strong> Fetch $\rightarrow$ Compute $\rightarrow$ Fetch $\rightarrow$ Compute。</li>
+<li><strong>过程：</strong><ol>
+<li>先花时间取 $x_1$ 的数据（橙色 Fetch）。</li>
+<li>数据到了才能算 $x_1$的距离（蓝色 $\tau$）。</li>
+<li>算完后，再去花时间取 $x_2$ 的数据（橙色 Fetch）。</li>
+<li>数据到了再算 $x_2$ 的距离…</li>
+</ol>
+</li>
+<li><strong>缺陷：</strong> 这种串行模式导致 CPU 频繁陷入等待。每当处理一个新邻居节点，CPU 都要停下来等内存数据（即图中橙色方块占用的时间），导致了大量的时间浪费。</li>
+</ul>
+<p><strong>2. 下半部分：Ours (VSAG 的优化方案)</strong></p>
+<p>这是 VSAG 采用软件预取后的执行流程，核心在于<strong>将“取数据”的时间重叠在“算数据”的时间里</strong>：</p>
+<ul>
+<li><strong>$t_1$ (初始加载):</strong> 处理第一个节点 $x_1$ 时，不可避免地需要先从内存获取数据（Fetch）。</li>
+<li><strong>$t_2$ (并行流水线 - 关键点):</strong><ul>
+<li>CPU 开始计算 $x_1$ 的距离（蓝色块）。</li>
+<li><strong>与此同时</strong>，VSAG 发出了一条异步指令 <code>Prefetch x2</code>（绿色块），让内存控制器在后台去加载下一个节点 $x_2$ 的数据 。</li>
+<li>因为预取是异步的，它没有打断 $x_1$ 的计算，两者并行发生。</li>
+</ul>
+</li>
+<li><strong>$t_3$ (无缝衔接):</strong><ul>
+<li>当 CPU 准备处理 $x_2$ 时，由于在 $t_2$ 阶段已经提前发出了预取请求，$x_2$ 的数据此时已经加载到了 L3 缓存中 。</li>
+<li>因此，CPU <strong>不需要</strong>像 Baseline 那样执行橙色的 <code>Fetch</code> 等待，而是直接开始计算 x_2 的距离。</li>
+<li>同时，利用计算 $x_2$ 的这段时间，再次预取下一个节点 $x_3$。</li>
+</ul>
+</li>
+<li><strong>$t_4$:</strong> 同样，$x_3$ 的数据也已就绪，直接进行计算。</li>
+</ul>
+<p><strong>结论：Saving 2 timeslots (节省了 2 个时间片)</strong></p>
+<p>通过这种“吃着碗里的（计算当前），看着锅里的（预取下一个）”的策略，VSAG 成功消除了 $x_2$ 和 $x_3$ 的内存读取等待时间。</p>
+<ul>
+<li><strong>效果：</strong> 如右下角所示，原本 Baseline 需要 6 个时间片（$t_1$ 到 $t_6$）才能完成的任务，VSAG 仅用了 4 个时间片（$t_1$ 到 $t_4$）就完成了，节省了 $t_5$ 和 $t_6$ 。</li>
+<li>这解释了为什么 VSAG 能大幅降低 L3 Cache Miss Rate 并提升 QPS。</li>
+</ul>
+<!-- ## 部分冗余存储
+
+![image.png](../pictures/20250523/11.25/Untitled/image%202.png)
+
+这张图（Figure 3）详细展示了 **VSAG 框架中 PRS（Partial Redundant Storage，部分冗余存储）** 的数据存储布局。这是 VSAG 内存访问优化中的核心创新，旨在利用 CPU 的硬件预取机制。
+
+核心目的是展示如何通过**重新组织数据在内存中的排列**，将图搜索中**随机**访问邻居向量的行为，转化为对 CPU 缓存友好的**连续访问（Sequential Access）**。
+
+以下是该图的分步详细解释：
+
+图中的每个小方块所示的是 VSAG 存储一个节点 $x_i$ 所占用的内存块。它由四个逻辑部分组成：
+
+**Node $x_i$ Metadata (元数据)**：这是节点的基础信息，通常存储节点 ID、邻居数量 ($M_{x_i}$) 以及指向原始向量的指针或偏移量等。
+
+**Neighbor ID List (邻居 ID 列表)**:存储节点 $x_i$ 所有邻居的 ID 列表。图搜索过程中需要访问这些 ID 来获取下一个节点。
+
+**Original Vector $V_{x_i}$ (原始向量)**:存储节点 $x_i$ 自己的高精度（例如 Float32）向量数据。这部分数据在最终的“选择性重排序”（Selective Re-rank）阶段使用，以确保高精度召回。
+
+**Redundantly Stored Neighbor Codes (冗余存储的邻居代码)**:这是 PRS 的核心创新。它是一个**连续的内存块**，存储了节点 $x_i$ 的一部分邻居（数量为 $M_{x_i}^{\text{redundant}}$）的**压缩后的低精度向量代码**（例如 SQ4 或 SQ8 量化代码）。
+
+- **$Q_{x_{i1}}, Q_{x_{i2}}, \dots$：** 代表邻居 $x_{i1}, x_{i2}, \dots$ 的量化代码。
+- **连续性：** 这段冗余代码紧接在节点 $x_i$ 的数据后面。
+
+### 连续性与硬件预取
+图中 $B_1$ 块的整个结构是连续存储在内存中的。
+- **传统问题：** 传统算法在读取 $x_i$ 邻居 $x_{i1}$ 的向量时，需要通过 ID 查找 $x_{i1}$ 在内存中的**随机地址**，这几乎必然导致 Cache Miss。
+- **VSAG 解决方案：** 当算法访问 $x_i$ 的数据时，由于 $x_i$ 的冗余邻居代码是紧密排列的（$B_1$ 内连续），CPU 的**硬件预取器Hardware Prefetcher**会自动识别这种顺序访问模式。它会猜测后续要访问的数据，并将整个 $B_1$ 块（包括 $x_{i}$ 的元数据、ID 列表以及冗余的邻居代码）**提前、自动、批量**地加载到 CPU 的 L1/L2 缓存中。
+
+### 4冗余比率的控制
+
+- $M_{x_i}^{\text{redundant}}$ 标识了冗余存储的邻居数量。
+- 这个数量是由**冗余比率 \delta** 控制的：$M_{x_i}^{\text{redundant}} = \lceil \delta \cdot M_{x_i} \rceil$。
+- **作用：** $\delta$ 是一个可配置的参数，它允许系统在**内存消耗**（增加 $\delta$ 占用更多内存）和**搜索速度**（增加 $\delta$ 提高 Cache 命中率）之间进行灵活的权衡。
+  
+PRS 的设计精髓在于通过**牺牲少量内存空间**（冗余存储压缩代码）来**换取巨大的时间收益**。通过将图搜索中最耗时的随机内存访问转化为高速、自动化的**硬件预取**，VSAG 极大地提升了搜索的吞吐量。 -->
+
+<h2 id="参数自动寻优"><a href="#参数自动寻优" class="headerlink" title="参数自动寻优"></a>参数自动寻优</h2><h3 id="1-查询级参数调优-QLP-：集成了-GBDT-决策树模型"><a href="#1-查询级参数调优-QLP-：集成了-GBDT-决策树模型" class="headerlink" title="1. 查询级参数调优 (QLP)：集成了 GBDT 决策树模型"></a>1. 查询级参数调优 (QLP)：集成了 GBDT 决策树模型</h3><p>查询级参数（Query-level Parameters, QLP）主要指的是搜索时的**候选集大小 $ef_s$**（在伪代码中是 $L$）。这个参数对查询速度和召回率的影响最大。</p>
+<ul>
+<li><strong>问题：</strong> 不同的查询向量（Query Vector）搜索难度差异巨大。对简单的查询使用很大的 $ef_s$ 会浪费时间；对困难的查询使用很小的 $ef_s$ 会牺牲召回率。</li>
+<li><strong>VSAG 的解决方案：</strong> <strong>训练一个轻量级的分类器，实时判断查询的难度，动态调整 $ef_s$。</strong></li>
+</ul>
+<p><strong>模型细节：</strong></p>
+<ol>
+<li><strong>使用的模型：</strong> <strong>GBDT (Gradient Boosting Decision Tree，梯度提升决策树)。</strong> 论文选择 GBDT 是因为它计算速度快、模型小巧，适合在低延迟的搜索路径中实时推理。</li>
+<li><strong>训练目标：</strong> 模型的目标是预测一个查询是“简单”还是“困难”，或者更细致地分为 $k$ 个难度等级。</li>
+<li><strong>特征工程：</strong> 模型使用在搜索初期阶段（前几跳）就能获取到的<strong>局部特征</strong>作为输入，例如：<ul>
+<li><strong>当前候选集的距离分布：</strong> 候选者之间的距离方差、最大最小值。</li>
+<li><strong>距离变化率：</strong> 上一轮和本轮最远距离的变化。</li>
+<li><strong>节点连通度：</strong> 当前探索的节点的度数等。</li>
+</ul>
+</li>
+<li><strong>动态调整：</strong><ul>
+<li>当模型预测当前查询属于“简单”类别时，系统会动态地将 $ef_s$ 设置为一个较小的值 ($L_{min}$)，提前结束不必要的探索。</li>
+<li>当模型预测为“困难”类别时，系统会增大 $ef_s$ ($L_{max}$)，允许算法探索更多的邻居，以确保高召回率。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="2-索引级参数调优-ILP-：基于“标签”的免重建技术（非模型）"><a href="#2-索引级参数调优-ILP-：基于“标签”的免重建技术（非模型）" class="headerlink" title="2. 索引级参数调优 (ILP)：基于“标签”的免重建技术（非模型）"></a>2. 索引级参数调优 (ILP)：基于“标签”的免重建技术（非模型）</h3><p>索引级参数（Index-level Parameters, ILP）如最大度数 $M$、建图时的候选集大小 $ef_{construction}$ 等。调整这些参数传统上需要<strong>重建整个图索引</strong>。</p>
+<ul>
+<li><strong>问题：</strong> 重建索引非常耗时（如 GIST1M 需要数十小时）。</li>
+<li><strong>VSAG 的解决方案：</strong> <strong>基于“标签”的虚拟索引技术，实现参数调优的“免重建”。</strong></li>
+</ul>
+<p><strong>技术细节：</strong></p>
+<ol>
+<li><strong>一次性构建：</strong> VSAG 只用一套<strong>最宽松</strong>的参数（例如最大的 $M$）构建一次索引。</li>
+<li><strong>边标签（Edge Labeling）：</strong> 在构建过程中，VSAG 不会物理删除那些被剪枝的边。相反，它会给每条边打上一个<strong>标签（Label）</strong>，记录这条边在多严格的剪枝条件下会被保留。</li>
+<li><strong>动态过滤：</strong> 在搜索阶段，用户可以动态设置一个<strong>虚拟参数</strong>。系统会根据这个虚拟参数，实时地在图遍历时<strong>过滤掉</strong>那些标签不满足要求的边。</li>
+<li><strong>结论：</strong> 这是一种<strong>工程优化</strong>而非机器学习模型，它将原本需要大量时间进行 I&#x2F;O 操作（重建索引）的调优过程，转化为了极快的<strong>内存内数据过滤</strong>操作。</li>
+</ol>
+<h3 id="3-环境级参数调优-ELP-：基于网格搜索（非模型）"><a href="#3-环境级参数调优-ELP-：基于网格搜索（非模型）" class="headerlink" title="3. 环境级参数调优 (ELP)：基于网格搜索（非模型）"></a>3. 环境级参数调优 (ELP)：基于网格搜索（非模型）</h3><p>环境级参数（Environment-level Parameters, ELP）主要与底层硬件和运行环境相关，例如 **软件预取步长 $\omega$**。</p>
+<ul>
+<li><strong>问题：</strong> 不同的 CPU 架构、缓存大小、内存带宽，其最优的预取步长 $\omega$ 是不同的。</li>
+<li><strong>VSAG 的解决方案：</strong> <strong>离线网格搜索（Grid Search）。</strong></li>
+</ul>
+<p><strong>技术细节：</strong></p>
+<ol>
+<li><strong>测试：</strong> 在索引构建完毕后，VSAG 在一个预定义的参数网格中，运行少量的测试查询，系统性地尝试 $\omega$ 的不同取值。</li>
+<li><strong>评估：</strong> 评估哪个 $\omega$ 值能带来最高的 QPS（即最低的 L3 Cache Miss Rate）。</li>
+<li><strong>锁定：</strong> 一旦找到最优的 $\omega$ 值，就将其锁定为当前运行环境的配置参数。</li>
+</ol>
+<p>这同样是一种<strong>系统配置自动化</strong>的方法，不依赖复杂的机器学习模型，但能确保底层硬件的效率得到最大化。</p>
+<hr>
+<h2 id="VSAG伪码解读"><a href="#VSAG伪码解读" class="headerlink" title="VSAG伪码解读"></a>VSAG伪码解读</h2><p><img src="/../pictures/20250523/11.25/Untitled/image%203.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p> <strong>VSAG 论文中的算法 1：确定性访问贪婪搜索（Deterministic Access Greedy Search）</strong></p>
+<p>从表面上看，这段代码与标准的基于图的近似最近邻搜索（如 HNSW）中的贪婪搜索逻辑非常相似。<strong>然而，VSAG 的全部性能提升和设计优势，都隐藏在算法中关键操作的底层实现细节中。</strong></p>
+<p>以下是对该算法的详细解释：</p>
+<h3 id="1-算法概述与标准流程"><a href="#1-算法概述与标准流程" class="headerlink" title="1. 算法概述与标准流程"></a>1. 算法概述与标准流程</h3><p>该算法描述了在 VSAG 构建的图索引 ($G$) 上，从一个入口点开始搜索，最终找到最接近查询向量 ($q$) 的 L 个候选者（即 $ef_s$）的过程。</p>
+<ul>
+<li><strong>初始化（Lines 1-3）：</strong> 从预先确定的入口点 $e$ 开始搜索。将 $e$ 加入到两个优先级队列：<ul>
+<li>$C$ (Candidate Pool)：最终候选集，大小限制为 L。</li>
+<li>$W$ (Working Queue)：待探索节点集合，用于驱动搜索。</li>
+</ul>
+</li>
+<li><strong>主循环（Lines 4-14）：</strong> 只要 $W$ 中还有未探索的节点，就继续循环。</li>
+<li><strong>探索（Line 5）：</strong> 从 $W$ 中取出当前离查询向量 $q$ 最近的节点 $x_c$。</li>
+</ul>
+<h3 id="2-VSAG-核心优化实现（三层加速）"><a href="#2-VSAG-核心优化实现（三层加速）" class="headerlink" title="2. VSAG 核心优化实现（三层加速）"></a>2. VSAG 核心优化实现（三层加速）</h3><p>VSAG 的三大优化（内存、计算、调参）都被嵌入在主循环内部（Lines 6-14）的操作中：</p>
+<h3 id="优化-A：内存访问加速-Deterministic-Access-PRS"><a href="#优化-A：内存访问加速-Deterministic-Access-PRS" class="headerlink" title="优化 A：内存访问加速 (Deterministic Access &amp; PRS)"></a>优化 A：内存访问加速 (Deterministic Access &amp; PRS)</h3><p>VSAG 针对图搜索的随机内存访问模式进行了改造，尽管伪代码是线性循环，但底层实现是并行的。</p>
+<ul>
+<li><strong>邻居获取（Line 6）：</strong> 获取 $x_c$ 的所有邻居 $N(x_c)$。<ul>
+<li><strong>PRS 机制：</strong> 在实际实现中，由于 <strong>PRS（部分冗余存储）</strong> 的内存布局，当程序访问 $x_c$ 的数据时，其部分邻居的压缩向量（$Q_{x_i}$）已经被 <strong>硬件预取器</strong> 自动加载到 Cache 中了。</li>
+</ul>
+</li>
+<li><strong>批量处理与预取（Lines 7-14 的实际实现）：</strong><ul>
+<li>在执行循环前，VSAG 会先将所有<strong>有效</strong>邻居（未访问且未被剪枝）收集成一个批次。</li>
+<li>在计算 $x_j$ 的距离时，底层实现会利用 <strong>软件预取（Stride Prefetch）</strong> 指令，同时异步加载下一个批次中 $x_{j+\omega}$ 的数据。这实现了计算与内存 I&#x2F;O 的重叠（如图 Figure 2 所示）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="优化-B：计算加速-Low-Precision-Distance"><a href="#优化-B：计算加速-Low-Precision-Distance" class="headerlink" title="优化 B：计算加速 (Low-Precision Distance)"></a>优化 B：计算加速 (Low-Precision Distance)</h3><p>距离计算是高维搜索中的 CPU 瓶颈。VSAG 在 <strong>Line 10</strong> 的距离计算 $d_{c,j}$ 中应用了加速技术：</p>
+<ul>
+<li><strong>低精度计算：</strong> 这里的距离计算使用的不是原始的高精度（Float32）向量，而是 <strong>PRS 中存储的低精度量化代码（Quantized Code）</strong>。这极大减少了计算量。</li>
+<li><strong>距离分解与 SIMD：</strong> 实际的距离函数还使用了<strong>距离分解</strong>（预先计算 $||y||^2$）来简化欧氏距离的计算，并利用 <strong>SIMD</strong> 指令（如 AVX-512）进行高度并行计算，进一步提高 $d_{c,j}$ 的计算速度。</li>
+</ul>
+<h3 id="优化-C：自动参数调优-Self-Tuned-Parameters"><a href="#优化-C：自动参数调优-Self-Tuned-Parameters" class="headerlink" title="优化 C：自动参数调优 (Self-Tuned Parameters)"></a>优化 C：自动参数调优 (Self-Tuned Parameters)</h3><p>算法中的两个关键参数和判断条件都受到了 VSAG 自动调优机制的动态影响：</p>
+<ul>
+<li><strong>动态 L（Line 13）：</strong><ul>
+<li>L 是最终候选集 C 的大小限制（对应于 $ef_s$ 参数）。在传统算法中这是固定的。</li>
+<li>在 VSAG 中，这个参数由 <strong>查询级参数调优 (QLP)</strong> 机制控制。QLP 使用一个 GBDT 决策树模型，根据查询 $q$ 的难度<strong>动态调整 $L$ 的值</strong>。简单的查询会设置较小的 $L$，困难的查询会设置较大的 L，以平衡召回率和速度。</li>
+</ul>
+</li>
+<li><strong>动态剪枝条件（Line 8）：</strong><ul>
+<li>$\text{IsPruned}(x_j)$ 判断邻居 $x_j$ 是否应该被剪枝。</li>
+<li>这个判断结合了 <strong>索引级参数调优 (ILP)</strong> 机制。VSAG 在建图时给每条边打了标签，**$\text{IsPruned}$ 函数在运行时根据标签动态过滤边**，模拟不同的索引结构，避免了耗时的索引重建。</li>
+</ul>
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>尽管算法 1 的骨架是经典的贪婪搜索，但 VSAG 赋予了其中关键操作全新的、高效的实现：</p>
+<table>
+<thead>
+<tr>
+<th><strong>伪代码行数</strong></th>
+<th><strong>对应操作</strong></th>
+<th><strong>VSAG 的底层优化</strong></th>
+<th><strong>目的</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Line 6</td>
+<td>获取邻居列表</td>
+<td><strong>PRS 内存布局</strong></td>
+<td>触发硬件预取，减少 Cache Miss</td>
+</tr>
+<tr>
+<td>Line 8</td>
+<td>检查是否剪枝</td>
+<td><strong>ILP (索引标签过滤)</strong></td>
+<td>动态调优索引参数，无需重建</td>
+</tr>
+<tr>
+<td>Line 10</td>
+<td>计算距离 $d_{c,j}$</td>
+<td><strong>量化计算、距离分解、SIMD</strong></td>
+<td>降低 CPU 消耗，提速</td>
+</tr>
+<tr>
+<td>Line 13</td>
+<td>限制候选集大小 L</td>
+<td><strong>QLP (动态 $ef_s$ 模型)</strong></td>
+<td>根据查询难度自适应，平衡性能和精度</td>
+</tr>
+</tbody></table>
+<p>VSAG 的性能优势正是来源于这种<strong>系统工程级</strong>的集成优化，将内存访问、计算加速和参数自适应完美地嵌入到了这个基本的图遍历流程中。</p>
+<p>这是一个很好的问题。<strong>是的，VSAG 的自动参数调优机制确实集成了机器学习模型。</strong></p>
+<p>VSAG 的调优策略是分层的，针对不同类型的参数使用了不同的方法，其中一个核心部分就是基于模型的<strong>查询级参数调优（QLP）</strong>。</p>
+<p>以下是 VSAG 三层参数调优的详细解释，重点介绍集成的模型：</p>
+<hr>
+<h2 id="VSAG-相比现有优秀算法（如-HNSWlib）在哪里？"><a href="#VSAG-相比现有优秀算法（如-HNSWlib）在哪里？" class="headerlink" title="VSAG 相比现有优秀算法（如 HNSWlib）在哪里？"></a>VSAG 相比现有优秀算法（如 HNSWlib）在哪里？</h2><p>相比于目前工业界标准的 <strong>HNSWlib</strong> 和 Facebook 的 <strong>Faiss</strong>，VSAG 的优势主要体现在以下几个方面：</p>
+<p><strong>显著的性能提升 (高达 4 倍 QPS)</strong></p>
+<p>在相同的召回率（Recall）下，VSAG 的吞吐量（QPS）显著高于 HNSWlib。</p>
+<ul>
+<li><strong>数据：</strong> 在 GIST1M 数据集上，同等精度下 VSAG 比 HNSWlib 快 <strong>4倍</strong> 。</li>
+<li><strong>原因：</strong> HNSWlib 的 L3 Cache Miss 率通常高达 90% 以上，而 VSAG 通过 PRS 和预取技术将其降低到了 <strong>39%</strong> 左右。</li>
+</ul>
+<p><strong>“免重建”的参数自适应</strong></p>
+<ul>
+<li><strong>存量痛点：</strong> 在 HNSWlib 中，如果你想调整图的连通度（M）来优化性能，你必须重新插入所有数据重建索引。</li>
+<li><strong>VSAG 优势：</strong> VSAG 可以在不重建索引的情况下，通过“边过滤”动态调整索引结构参数。对于拥有十亿级向量的生产系统，这节省了数小时甚至数天的运维时间。</li>
+</ul>
+<p><strong>更好的资源利用率平衡</strong></p>
+<ul>
+<li><strong>存量痛点：</strong> 传统算法通常受限于机器规格（例如 4核16G），经常出现 CPU 跑满但内存空闲，或者内存满了 CPU 却在空转。</li>
+<li><strong>VSAG 优势：</strong> 通过 PRS 的冗余比率 $\delta$，VSAG 可以根据机器的实际硬件（计算型 vs 内存型实例）灵活调整。如果是计算型机器，增加冗余以换取速度；如果是内存受限机器，减少冗余以节省空间。</li>
+</ul>
+<p><strong>对高维数据的处理更优</strong></p>
+<ul>
+<li><strong>VSAG 优势：</strong> 针对 OpenAI 等大模型生成的 1536 维 embedding，VSAG 的量化和距离优化表现尤为突出。实验显示在 OpenAI 数据集上，VSAG 提供了比 HNSWlib 高约 400% 的 QPS 16。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">向量数据库</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" class="print-no-link">#向量检索</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>vsag框架概要</div>
+      <div>https://csningg.github.io/posts/3838167042/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>zningg</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/2498300446/" title="标准库的常用算法">
+                        <span class="hidden-mobile">标准库的常用算法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"csningg/comment","repo-id":"R_kgDOOvyAGA","category":"General","category-id":"DIC_kwDOOvyAGM4Cqinz","theme-light":"light","theme-dark":"dark","mapping":"pathname","reactions-enabled":1,"emit-metadata":0,"input-position":"bottom","lang":"zh-CN"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <div>
+    <span id="timeDate">正在载入天数...</span>
+    <span id="times">载入时分秒...</span>
+    <script>
+    var now = new Date();
+    function createtime(){
+        var grt= new Date("03/08/2025 00:00:00");
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if(String(mnum).length ==1 ){
+                  mnum = "0" + mnum;
+        }
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if(String(snum).length ==1 ){
+                  snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "🚀已持续航行&nbsp"+dnum+"&nbsp天";  
+        document.getElementById("times").innerHTML = hnum + "&nbsp时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒";
+    }
+    setInterval("createtime()",250);
+    </script>
+  </div>
+
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
