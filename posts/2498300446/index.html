@@ -1,0 +1,843 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zningg">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文记录在阅读代码中遇到的std中常用的算法，在此做个总结记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="标准库的常用算法">
+<meta property="og:url" content="https://csningg.github.io/posts/2498300446/index.html">
+<meta property="og:site_name" content="ning">
+<meta property="og:description" content="本文记录在阅读代码中遇到的std中常用的算法，在此做个总结记录">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csningg.github.io/pictures/20250523/06/10.jpg">
+<meta property="article:published_time" content="2025-08-26T15:03:37.000Z">
+<meta property="article:modified_time" content="2025-11-21T02:46:03.880Z">
+<meta property="article:author" content="zningg">
+<meta property="article:tag" content="cpp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/06/10.jpg">
+  
+  
+  
+  <title>标准库的常用算法 - ning</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"csningg.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="标准库的常用算法"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-08-26 23:03" pubdate>
+          2025年8月26日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          115 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">标准库的常用算法</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文记录在阅读代码中遇到的std中常用的算法，在此做个总结记录</p>
+<span id="more"></span>
+<h1 id="C-常用算法函数详解"><a href="#C-常用算法函数详解" class="headerlink" title="C++ 常用算法函数详解"></a>C++ 常用算法函数详解</h1><h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#stdany_of">std::any_of</a></li>
+<li><a href="#stdfill">std::fill</a></li>
+<li><a href="#stdreverse">std::reverse</a></li>
+<li><a href="#stdrotate">std::rotate</a></li>
+<li><a href="#%E7%BB%BC%E5%90%88%E7%A4%BA%E4%BE%8B">综合示例</a></li>
+</ol>
+<h2 id="std-any-of"><a href="#std-any-of" class="headerlink" title="std::any_of"></a>std::any_of</h2><h3 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h3><p>检查范围内是否至少有一个元素满足谓词条件，注意此处的谓词一般可以用lambda表达式表示，（初次使用时在lc中检查某行元素是否含有0）</p>
+<h3 id="原型"><a href="#原型" class="headerlink" title="原型"></a>原型</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt; <span class="hljs-keyword">class</span> InputIt, <span class="hljs-keyword">class</span> UnaryPredicate &gt;</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">any_of</span><span class="hljs-params">( InputIt first, InputIt last, UnaryPredicate p )</span></span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::vector&lt;<span class="hljs-type">int</span>&gt; numbers = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>&#125;;<br>    <br>    <span class="hljs-comment">// 检查是否存在偶数</span><br>    <span class="hljs-type">bool</span> hasEven = std::<span class="hljs-built_in">any_of</span>(numbers.<span class="hljs-built_in">begin</span>(), numbers.<span class="hljs-built_in">end</span>(),<br>                              [](<span class="hljs-type">int</span> n) &#123; <span class="hljs-keyword">return</span> n % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Contains even number: &quot;</span> &lt;&lt; std::boolalpha &lt;&lt; hasEven &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 检查是否存在大于10的数</span><br>    <span class="hljs-type">bool</span> hasLarge = std::<span class="hljs-built_in">any_of</span>(numbers.<span class="hljs-built_in">begin</span>(), numbers.<span class="hljs-built_in">end</span>(),<br>                               [](<span class="hljs-type">int</span> n) &#123; <span class="hljs-keyword">return</span> n &gt; <span class="hljs-number">10</span>; &#125;);<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Contains number &gt; 10: &quot;</span> &lt;&lt; hasLarge &lt;&lt; std::endl;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="std-fill"><a href="#std-fill" class="headerlink" title="std::fill"></a>std::fill</h2><h3 id="功能-1"><a href="#功能-1" class="headerlink" title="功能"></a>功能</h3><p>将指定范围内的所有元素设置为给定值，这个第3个参数是T类型的值，初次使用时在lc中将某行元素全部置0</p>
+<h3 id="原型-1"><a href="#原型-1" class="headerlink" title="原型"></a>原型</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt; <span class="hljs-keyword">class</span> ForwardIt, <span class="hljs-keyword">class</span> T &gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">fill</span><span class="hljs-params">( ForwardIt first, ForwardIt last, <span class="hljs-type">const</span> T&amp; value )</span></span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">numbers</span><span class="hljs-params">(<span class="hljs-number">5</span>)</span></span>; <span class="hljs-comment">// 创建包含5个元素的vector</span><br>    <br>    <span class="hljs-comment">// 将所有元素填充为42</span><br>    std::<span class="hljs-built_in">fill</span>(numbers.<span class="hljs-built_in">begin</span>(), numbers.<span class="hljs-built_in">end</span>(), <span class="hljs-number">42</span>);<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;After fill: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : numbers) &#123;<br>        std::cout &lt;&lt; n &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 填充部分范围</span><br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">partial</span><span class="hljs-params">(<span class="hljs-number">10</span>)</span></span>;<br>    std::<span class="hljs-built_in">fill</span>(partial.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">2</span>, partial.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">7</span>, <span class="hljs-number">99</span>);<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Partial fill: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : partial) &#123;<br>        std::cout &lt;&lt; n &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="std-reverse"><a href="#std-reverse" class="headerlink" title="std::reverse"></a>std::reverse</h2><h3 id="功能-2"><a href="#功能-2" class="headerlink" title="功能"></a>功能</h3><p>反转指定范围内的元素顺序</p>
+<h3 id="原型-2"><a href="#原型-2" class="headerlink" title="原型"></a>原型</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt; <span class="hljs-keyword">class</span> BidirIt &gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">reverse</span><span class="hljs-params">( BidirIt first, BidirIt last )</span></span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 反转整数数组</span><br>    std::vector&lt;<span class="hljs-type">int</span>&gt; numbers = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br>    std::<span class="hljs-built_in">reverse</span>(numbers.<span class="hljs-built_in">begin</span>(), numbers.<span class="hljs-built_in">end</span>());<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Reversed numbers: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : numbers) &#123;<br>        std::cout &lt;&lt; n &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 反转字符串</span><br>    std::string text = <span class="hljs-string">&quot;Hello, World!&quot;</span>;<br>    std::<span class="hljs-built_in">reverse</span>(text.<span class="hljs-built_in">begin</span>(), text.<span class="hljs-built_in">end</span>());<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Reversed string: &quot;</span> &lt;&lt; text &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 反转部分范围</span><br>    std::vector&lt;<span class="hljs-type">int</span>&gt; partial = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>&#125;;<br>    std::<span class="hljs-built_in">reverse</span>(partial.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">2</span>, partial.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">6</span>);<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Partially reversed: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : partial) &#123;<br>        std::cout &lt;&lt; n &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="std-rotate"><a href="#std-rotate" class="headerlink" title="std::rotate"></a>std::rotate</h2><h3 id="功能-3"><a href="#功能-3" class="headerlink" title="功能"></a>功能</h3><p>对范围内的元素进行循环<strong>左移</strong>操作,第二个参数是旋转后应该出现在起始原始位置的元素。具体功能可以背住</p>
+<h3 id="原型-3"><a href="#原型-3" class="headerlink" title="原型"></a>原型</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt; <span class="hljs-keyword">class</span> ForwardIt &gt;</span><br><span class="hljs-function">ForwardIt <span class="hljs-title">rotate</span><span class="hljs-params">( ForwardIt first, ForwardIt n_first, ForwardIt last )</span></span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><ul>
+<li><code>first</code>: 范围的起始位置</li>
+<li><code>n_first</code>: 应该出现在旋转后范围起始位置的元素</li>
+<li><code>last</code>: 范围的结束位置</li>
+</ul>
+<h3 id="示例-3"><a href="#示例-3" class="headerlink" title="示例"></a>示例</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::vector&lt;<span class="hljs-type">int</span>&gt; numbers = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>&#125;;<br>    <br>    <span class="hljs-comment">// 将前3个元素移到末尾</span><br>    std::<span class="hljs-built_in">rotate</span>(numbers.<span class="hljs-built_in">begin</span>(), numbers.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">3</span>, numbers.<span class="hljs-built_in">end</span>());<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;After rotating left by 3: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : numbers) &#123;<br>        std::cout &lt;&lt; n &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 重置并演示右旋转（通过左旋转实现）</span><br>    numbers = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>&#125;;<br>    std::<span class="hljs-built_in">rotate</span>(numbers.<span class="hljs-built_in">rbegin</span>(), numbers.<span class="hljs-built_in">rbegin</span>() + <span class="hljs-number">3</span>, numbers.<span class="hljs-built_in">rend</span>());<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;After rotating right by 3: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : numbers) &#123;<br>        std::cout &lt;&lt; n &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 使用rotate进行循环移位</span><br>    numbers = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>&#125;;<br>    <span class="hljs-keyword">auto</span> middle = numbers.<span class="hljs-built_in">begin</span>() + numbers.<span class="hljs-built_in">size</span>() / <span class="hljs-number">2</span>;<br>    std::<span class="hljs-built_in">rotate</span>(numbers.<span class="hljs-built_in">begin</span>(), middle, numbers.<span class="hljs-built_in">end</span>());<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Rotated around middle: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : numbers) &#123;<br>        std::cout &lt;&lt; n &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="综合示例"><a href="#综合示例" class="headerlink" title="综合示例"></a>综合示例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Person</span> &#123;<br>    std::string name;<br>    <span class="hljs-type">int</span> age;<br>    <span class="hljs-type">bool</span> isStudent;<br>    <br>    <span class="hljs-built_in">Person</span>(std::string n, <span class="hljs-type">int</span> a, <span class="hljs-type">bool</span> s) : <span class="hljs-built_in">name</span>(n), <span class="hljs-built_in">age</span>(a), <span class="hljs-built_in">isStudent</span>(s) &#123;&#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::vector&lt;Person&gt; people = &#123;<br>        <span class="hljs-built_in">Person</span>(<span class="hljs-string">&quot;Alice&quot;</span>, <span class="hljs-number">25</span>, <span class="hljs-literal">false</span>),<br>        <span class="hljs-built_in">Person</span>(<span class="hljs-string">&quot;Bob&quot;</span>, <span class="hljs-number">19</span>, <span class="hljs-literal">true</span>),<br>        <span class="hljs-built_in">Person</span>(<span class="hljs-string">&quot;Charlie&quot;</span>, <span class="hljs-number">22</span>, <span class="hljs-literal">true</span>),<br>        <span class="hljs-built_in">Person</span>(<span class="hljs-string">&quot;Diana&quot;</span>, <span class="hljs-number">30</span>, <span class="hljs-literal">false</span>),<br>        <span class="hljs-built_in">Person</span>(<span class="hljs-string">&quot;Eve&quot;</span>, <span class="hljs-number">17</span>, <span class="hljs-literal">true</span>)<br>    &#125;;<br>    <br>    <span class="hljs-comment">// 使用any_of检查是否有未成年人</span><br>    <span class="hljs-type">bool</span> hasMinor = std::<span class="hljs-built_in">any_of</span>(people.<span class="hljs-built_in">begin</span>(), people.<span class="hljs-built_in">end</span>(),<br>                               [](<span class="hljs-type">const</span> Person&amp; p) &#123; <span class="hljs-keyword">return</span> p.age &lt; <span class="hljs-number">18</span>; &#125;);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Has minors: &quot;</span> &lt;&lt; std::boolalpha &lt;&lt; hasMinor &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 使用fill重置所有年龄为0</span><br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">ages</span><span class="hljs-params">(people.size())</span></span>;<br>    std::<span class="hljs-built_in">transform</span>(people.<span class="hljs-built_in">begin</span>(), people.<span class="hljs-built_in">end</span>(), ages.<span class="hljs-built_in">begin</span>(),<br>                  [](<span class="hljs-type">const</span> Person&amp; p) &#123; <span class="hljs-keyword">return</span> p.age; &#125;);<br>    <br>    std::<span class="hljs-built_in">fill</span>(ages.<span class="hljs-built_in">begin</span>(), ages.<span class="hljs-built_in">end</span>(), <span class="hljs-number">0</span>);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Ages after fill: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> age : ages) std::cout &lt;&lt; age &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 使用reverse反转人员顺序</span><br>    std::<span class="hljs-built_in">reverse</span>(people.<span class="hljs-built_in">begin</span>(), people.<span class="hljs-built_in">end</span>());<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Reversed order: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; p : people) std::cout &lt;&lt; p.name &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-comment">// 使用rotate将学生移到前面</span><br>    <span class="hljs-keyword">auto</span> studentStart = std::<span class="hljs-built_in">stable_partition</span>(people.<span class="hljs-built_in">begin</span>(), people.<span class="hljs-built_in">end</span>(),<br>                                            [](<span class="hljs-type">const</span> Person&amp; p) &#123; <span class="hljs-keyword">return</span> p.isStudent; &#125;);<br>    std::<span class="hljs-built_in">rotate</span>(people.<span class="hljs-built_in">begin</span>(), studentStart, people.<span class="hljs-built_in">end</span>());<br>    <br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Students first: &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; p : people) &#123;<br>        std::cout &lt;&lt; p.name &lt;&lt; <span class="hljs-string">&quot;(&quot;</span> &lt;&lt; (p.isStudent ? <span class="hljs-string">&quot;student&quot;</span> : <span class="hljs-string">&quot;adult&quot;</span>) &lt;&lt; <span class="hljs-string">&quot;) &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="总结表"><a href="#总结表" class="headerlink" title="总结表"></a>总结表</h2><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>功能</th>
+<th>时间复杂度</th>
+<th>适用容器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>std::any_of</code></td>
+<td>检查是否存在满足条件的元素</td>
+<td>O(n)</td>
+<td>所有序列容器</td>
+</tr>
+<tr>
+<td><code>std::fill</code></td>
+<td>填充范围内的元素</td>
+<td>O(n)</td>
+<td>所有序列容器</td>
+</tr>
+<tr>
+<td><code>std::reverse</code></td>
+<td>反转元素顺序</td>
+<td>O(n)</td>
+<td>双向迭代器容器</td>
+</tr>
+<tr>
+<td><code>std::rotate</code></td>
+<td>循环移动元素</td>
+<td>O(n)</td>
+<td>前向迭代器容器</td>
+</tr>
+</tbody></table>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li><strong>迭代器有效性</strong>: 确保使用的迭代器范围有效</li>
+<li><strong>谓词函数</strong>: 不应该修改元素（对于any_of等查询算法）</li>
+<li><strong>性能</strong>: 所有算法都有线性时间复杂度</li>
+<li><strong>容器要求</strong>: 不同算法对迭代器类型有不同要求<ul>
+<li><code>any_of</code>: 输入迭代器</li>
+<li><code>fill</code>: 前向迭代器</li>
+<li><code>reverse</code>: 双向迭代器</li>
+<li><code>rotate</code>: 前向迭代器</li>
+</ul>
+</li>
+</ol>
+<p>除此之外，在询问完GPT后，还有很多算法需要我们提前了解，在此mark下。</p>
+<h1 id="C-常用算法函数大全"><a href="#C-常用算法函数大全" class="headerlink" title="C++ 常用算法函数大全"></a>C++ 常用算法函数大全</h1><h2 id="目录-1"><a href="#目录-1" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#%E9%9D%9E%E4%BF%AE%E6%94%B9%E5%BA%8F%E5%88%97%E6%93%8D%E4%BD%9C">非修改序列操作</a></li>
+<li><a href="#%E4%BF%AE%E6%94%B9%E5%BA%8F%E5%88%97%E6%93%8D%E4%BD%9C">修改序列操作</a></li>
+<li><a href="#%E5%88%92%E5%88%86%E6%93%8D%E4%BD%9C">划分操作</a></li>
+<li><a href="#%E6%8E%92%E5%BA%8F%E6%93%8D%E4%BD%9C">排序操作</a></li>
+<li><a href="#%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%E6%93%8D%E4%BD%9C">二分搜索操作</a></li>
+<li><a href="#%E9%9B%86%E5%90%88%E6%93%8D%E4%BD%9C">集合操作</a></li>
+<li><a href="#%E5%A0%86%E6%93%8D%E4%BD%9C">堆操作</a></li>
+<li><a href="#%E6%9C%80%E5%B0%8F%E6%9C%80%E5%A4%A7%E6%93%8D%E4%BD%9C">最小&#x2F;最大操作</a></li>
+<li><a href="#%E6%AF%94%E8%BE%83%E6%93%8D%E4%BD%9C">比较操作</a></li>
+<li><a href="#%E6%8E%92%E5%88%97%E6%93%8D%E4%BD%9C">排列操作</a></li>
+<li><a href="#%E6%95%B0%E5%80%BC%E6%93%8D%E4%BD%9C">数值操作</a></li>
+</ol>
+<h2 id="非修改序列操作"><a href="#非修改序列操作" class="headerlink" title="非修改序列操作"></a>非修改序列操作</h2><h3 id="std-all-of"><a href="#std-all-of" class="headerlink" title="std::all_of"></a>std::all_of</h3><p>检查是否所有元素都满足条件</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>&#125;;<br><span class="hljs-type">bool</span> allEven = std::<span class="hljs-built_in">all_of</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br><span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-none-of"><a href="#std-none-of" class="headerlink" title="std::none_of"></a>std::none_of</h3><p>检查是否没有元素满足条件</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>&#125;;<br><span class="hljs-type">bool</span> noneEven = std::<span class="hljs-built_in">none_of</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br><span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-for-each"><a href="#std-for-each" class="headerlink" title="std::for_each"></a>std::for_each</h3><p>对每个元素执行操作</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;<br>std::for_each(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span>&amp; x) &#123; x *= <span class="hljs-number">2</span>; &#125;);<br><span class="hljs-comment">// v becomes &#123;2, 4, 6, 8&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-count-std-count-if"><a href="#std-count-std-count-if" class="headerlink" title="std::count &#x2F; std::count_if"></a>std::count &#x2F; std::count_if</h3><p>计数满足条件的元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>&#125;;<br><span class="hljs-type">int</span> count2 = std::<span class="hljs-built_in">count</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">2</span>); <span class="hljs-comment">// 3</span><br><span class="hljs-type">int</span> countEven = std::<span class="hljs-built_in">count_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;); <span class="hljs-comment">// 4</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-find-std-find-if-std-find-if-not"><a href="#std-find-std-find-if-std-find-if-not" class="headerlink" title="std::find &#x2F; std::find_if &#x2F; std::find_if_not"></a>std::find &#x2F; std::find_if &#x2F; std::find_if_not</h3><p>查找元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>&#125;;<br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">find</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">5</span>); <span class="hljs-comment">// 指向5的迭代器</span><br><span class="hljs-keyword">auto</span> evenIt = std::<span class="hljs-built_in">find_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;); <span class="hljs-comment">// v.end()</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-mismatch"><a href="#std-mismatch" class="headerlink" title="std::mismatch"></a>std::mismatch</h3><p>查找两个序列中第一个不匹配的位置</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v2 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">4</span>&#125;;<br><span class="hljs-keyword">auto</span> mismatch = std::<span class="hljs-built_in">mismatch</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>());<br><span class="hljs-comment">// mismatch.first指向3，mismatch.second指向4</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-equal"><a href="#std-equal" class="headerlink" title="std::equal"></a>std::equal</h3><p>检查两个序列是否相等</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v2 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br><span class="hljs-type">bool</span> equal = std::<span class="hljs-built_in">equal</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>()); <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-search"><a href="#std-search" class="headerlink" title="std::search"></a>std::search</h3><p>在序列中搜索子序列</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; pattern = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">search</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), pattern.<span class="hljs-built_in">begin</span>(), pattern.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// 指向第一个1的迭代器</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="修改序列操作"><a href="#修改序列操作" class="headerlink" title="修改序列操作"></a>修改序列操作</h2><h3 id="std-copy-std-copy-if"><a href="#std-copy-std-copy-if" class="headerlink" title="std::copy &#x2F; std::copy_if"></a>std::copy &#x2F; std::copy_if</h3><p>复制元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; src = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dst</span><span class="hljs-params">(<span class="hljs-number">5</span>)</span></span>;<br>std::<span class="hljs-built_in">copy</span>(src.<span class="hljs-built_in">begin</span>(), src.<span class="hljs-built_in">end</span>(), dst.<span class="hljs-built_in">begin</span>());<br><br>std::vector&lt;<span class="hljs-type">int</span>&gt; evenNumbers;<br>std::<span class="hljs-built_in">copy_if</span>(src.<span class="hljs-built_in">begin</span>(), src.<span class="hljs-built_in">end</span>(), std::<span class="hljs-built_in">back_inserter</span>(evenNumbers),<br>             [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br><span class="hljs-comment">// evenNumbers = &#123;2, 4&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-move"><a href="#std-move" class="headerlink" title="std::move"></a>std::move</h3><p>移动元素（C++11）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;std::string&gt; src = &#123;<span class="hljs-string">&quot;hello&quot;</span>, <span class="hljs-string">&quot;world&quot;</span>&#125;;<br><span class="hljs-function">std::vector&lt;std::string&gt; <span class="hljs-title">dst</span><span class="hljs-params">(<span class="hljs-number">2</span>)</span></span>;<br>std::<span class="hljs-built_in">move</span>(src.<span class="hljs-built_in">begin</span>(), src.<span class="hljs-built_in">end</span>(), dst.<span class="hljs-built_in">begin</span>());<br><span class="hljs-comment">// src中的字符串被移动到dst</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-transform"><a href="#std-transform" class="headerlink" title="std::transform"></a>std::transform</h3><p>对元素进行转换</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; squared;<br>std::<span class="hljs-built_in">transform</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), std::<span class="hljs-built_in">back_inserter</span>(squared),<br>               [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x * x; &#125;);<br><span class="hljs-comment">// squared = &#123;1, 4, 9, 16&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-generate"><a href="#std-generate" class="headerlink" title="std::generate"></a>std::generate</h3><p>用生成函数填充序列</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">v</span><span class="hljs-params">(<span class="hljs-number">5</span>)</span></span>;<br><span class="hljs-type">int</span> n = <span class="hljs-number">0</span>;<br>std::<span class="hljs-built_in">generate</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [&amp;n]() &#123; <span class="hljs-keyword">return</span> n++; &#125;);<br><span class="hljs-comment">// v = &#123;0, 1, 2, 3, 4&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-remove-std-remove-if"><a href="#std-remove-std-remove-if" class="headerlink" title="std::remove &#x2F; std::remove_if"></a>std::remove &#x2F; std::remove_if</h3><p>移除满足条件的元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-keyword">auto</span> newEnd = std::<span class="hljs-built_in">remove_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br>v.<span class="hljs-built_in">erase</span>(newEnd, v.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// v = &#123;1, 3, 5&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-replace-std-replace-if"><a href="#std-replace-std-replace-if" class="headerlink" title="std::replace &#x2F; std::replace_if"></a>std::replace &#x2F; std::replace_if</h3><p>替换元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">5</span>&#125;;<br>std::<span class="hljs-built_in">replace</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">2</span>, <span class="hljs-number">99</span>);<br><span class="hljs-comment">// v = &#123;1, 99, 3, 99, 5&#125;</span><br><br>std::<span class="hljs-built_in">replace_if</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x &gt; <span class="hljs-number">3</span>; &#125;, <span class="hljs-number">0</span>);<br><span class="hljs-comment">// v = &#123;1, 0, 3, 0, 0&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-swap-ranges"><a href="#std-swap-ranges" class="headerlink" title="std::swap_ranges"></a>std::swap_ranges</h3><p>交换两个范围的元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v2 = &#123;<span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br>std::<span class="hljs-built_in">swap_ranges</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>());<br><span class="hljs-comment">// v1 = &#123;4, 5, 6&#125;, v2 = &#123;1, 2, 3&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="划分操作"><a href="#划分操作" class="headerlink" title="划分操作"></a>划分操作</h2><h3 id="std-partition"><a href="#std-partition" class="headerlink" title="std::partition"></a>std::partition</h3><p>将满足条件的元素划分到前面</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">partition</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br><span class="hljs-comment">// 偶数在前，奇数在后</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-stable-partition"><a href="#std-stable-partition" class="headerlink" title="std::stable_partition"></a>std::stable_partition</h3><p>保持相对顺序的划分</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">stable_partition</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br><span class="hljs-comment">// 偶数在前（保持顺序），奇数在后（保持顺序）</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-partition-point"><a href="#std-partition-point" class="headerlink" title="std::partition_point"></a>std::partition_point</h3><p>查找划分点</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">partition_point</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; &#125;);<br><span class="hljs-comment">// 指向第一个奇数的迭代器</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="排序操作"><a href="#排序操作" class="headerlink" title="排序操作"></a>排序操作</h2><h3 id="std-sort"><a href="#std-sort" class="headerlink" title="std::sort"></a>std::sort</h3><p>排序</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">5</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span class="hljs-number">2</span>&#125;;<br>std::<span class="hljs-built_in">sort</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// v = &#123;1, 2, 3, 4, 5&#125;</span><br><br><span class="hljs-comment">// 自定义比较</span><br>std::<span class="hljs-built_in">sort</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), std::<span class="hljs-built_in">greater</span>&lt;<span class="hljs-type">int</span>&gt;());<br><span class="hljs-comment">// v = &#123;5, 4, 3, 2, 1&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-stable-sort"><a href="#std-stable-sort" class="headerlink" title="std::stable_sort"></a>std::stable_sort</h3><p>稳定排序（保持相等元素的相对顺序）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;&gt; v = &#123;&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>&#125;, &#123;<span class="hljs-number">2</span>, <span class="hljs-number">1</span>&#125;, &#123;<span class="hljs-number">1</span>, <span class="hljs-number">1</span>&#125;&#125;;<br>std::<span class="hljs-built_in">stable_sort</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>());<br></code></pre></td></tr></table></figure>
+
+<h3 id="std-partial-sort"><a href="#std-partial-sort" class="headerlink" title="std::partial_sort"></a>std::partial_sort</h3><p>部分排序</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">5</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span class="hljs-number">2</span>, <span class="hljs-number">6</span>&#125;;<br>std::<span class="hljs-built_in">partial_sort</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">3</span>, v.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// 前3个是最小的，按顺序排列：&#123;1, 2, 3, ...&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-nth-element"><a href="#std-nth-element" class="headerlink" title="std::nth_element"></a>std::nth_element</h3><p>将第n小的元素放在正确位置</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">5</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span class="hljs-number">2</span>, <span class="hljs-number">6</span>&#125;;<br>std::<span class="hljs-built_in">nth_element</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">2</span>, v.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// v[2]是第三小的元素，前面的元素都&lt;=它，后面的都&gt;=它</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="二分搜索操作"><a href="#二分搜索操作" class="headerlink" title="二分搜索操作"></a>二分搜索操作</h2><h3 id="std-lower-bound"><a href="#std-lower-bound" class="headerlink" title="std::lower_bound"></a>std::lower_bound</h3><p>查找第一个不小于给定值的元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">lower_bound</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">4</span>);<br><span class="hljs-comment">// 指向第一个4的迭代器</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-upper-bound"><a href="#std-upper-bound" class="headerlink" title="std::upper_bound"></a>std::upper_bound</h3><p>查找第一个大于给定值的元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">upper_bound</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">4</span>);<br><span class="hljs-comment">// 指向5的迭代器</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-equal-range"><a href="#std-equal-range" class="headerlink" title="std::equal_range"></a>std::equal_range</h3><p>查找等于给定值的范围</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-keyword">auto</span> range = std::<span class="hljs-built_in">equal_range</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">4</span>);<br><span class="hljs-comment">// range.first指向第一个4，range.second指向5</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-binary-search"><a href="#std-binary-search" class="headerlink" title="std::binary_search"></a>std::binary_search</h3><p>检查值是否存在于已排序序列中</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-type">bool</span> found = std::<span class="hljs-built_in">binary_search</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">3</span>); <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="集合操作"><a href="#集合操作" class="headerlink" title="集合操作"></a>集合操作</h2><h3 id="std-merge"><a href="#std-merge" class="headerlink" title="std::merge"></a>std::merge</h3><p>合并两个已排序序列</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v2 = &#123;<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">result</span><span class="hljs-params">(<span class="hljs-number">6</span>)</span></span>;<br>std::<span class="hljs-built_in">merge</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">end</span>(), result.<span class="hljs-built_in">begin</span>());<br><span class="hljs-comment">// result = &#123;1, 2, 3, 4, 5, 6&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-set-union-std-set-intersection-std-set-difference"><a href="#std-set-union-std-set-intersection-std-set-difference" class="headerlink" title="std::set_union &#x2F; std::set_intersection &#x2F; std::set_difference"></a>std::set_union &#x2F; std::set_intersection &#x2F; std::set_difference</h3><p>集合操作</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v2 = &#123;<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; unionResult, intersectionResult, differenceResult;<br><br>std::<span class="hljs-built_in">set_union</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">end</span>(), <br>               std::<span class="hljs-built_in">back_inserter</span>(unionResult));<br><span class="hljs-comment">// unionResult = &#123;1, 2, 3, 4, 5, 6&#125;</span><br><br>std::<span class="hljs-built_in">set_intersection</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">end</span>(),<br>                     std::<span class="hljs-built_in">back_inserter</span>(intersectionResult));<br><span class="hljs-comment">// intersectionResult = &#123;3, 4&#125;</span><br><br>std::<span class="hljs-built_in">set_difference</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">end</span>(),<br>                   std::<span class="hljs-built_in">back_inserter</span>(differenceResult));<br><span class="hljs-comment">// differenceResult = &#123;1, 2&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="堆操作"><a href="#堆操作" class="headerlink" title="堆操作"></a>堆操作</h2><h3 id="std-make-heap-std-push-heap-std-pop-heap"><a href="#std-make-heap-std-push-heap-std-pop-heap" class="headerlink" title="std::make_heap &#x2F; std::push_heap &#x2F; std::pop_heap"></a>std::make_heap &#x2F; std::push_heap &#x2F; std::pop_heap</h3><p>堆操作</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">9</span>&#125;;<br>std::<span class="hljs-built_in">make_heap</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>()); <span class="hljs-comment">// 构建最大堆</span><br><br>v.<span class="hljs-built_in">push_back</span>(<span class="hljs-number">6</span>);<br>std::<span class="hljs-built_in">push_heap</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>()); <span class="hljs-comment">// 维护堆性质</span><br><br>std::<span class="hljs-built_in">pop_heap</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>()); <span class="hljs-comment">// 将最大元素移到末尾</span><br>v.<span class="hljs-built_in">pop_back</span>(); <span class="hljs-comment">// 移除最大元素</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="最小-最大操作"><a href="#最小-最大操作" class="headerlink" title="最小&#x2F;最大操作"></a>最小&#x2F;最大操作</h2><h3 id="std-min-element-std-max-element-std-minmax-element"><a href="#std-min-element-std-max-element-std-minmax-element" class="headerlink" title="std::min_element &#x2F; std::max_element &#x2F; std::minmax_element"></a>std::min_element &#x2F; std::max_element &#x2F; std::minmax_element</h3><p>查找最小&#x2F;最大元素</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">9</span>&#125;;<br><span class="hljs-keyword">auto</span> minIt = std::<span class="hljs-built_in">min_element</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>()); <span class="hljs-comment">// 指向1</span><br><span class="hljs-keyword">auto</span> maxIt = std::<span class="hljs-built_in">max_element</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>()); <span class="hljs-comment">// 指向9</span><br><span class="hljs-keyword">auto</span> minmax = std::<span class="hljs-built_in">minmax_element</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// minmax.first指向1，minmax.second指向9</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="比较操作"><a href="#比较操作" class="headerlink" title="比较操作"></a>比较操作</h2><h3 id="std-lexicographical-compare"><a href="#std-lexicographical-compare" class="headerlink" title="std::lexicographical_compare"></a>std::lexicographical_compare</h3><p>字典序比较</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v2 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>&#125;;<br><span class="hljs-type">bool</span> less = std::<span class="hljs-built_in">lexicographical_compare</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), <br>                                        v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">end</span>()); <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="排列操作"><a href="#排列操作" class="headerlink" title="排列操作"></a>排列操作</h2><h3 id="std-next-permutation-std-prev-permutation"><a href="#std-next-permutation-std-prev-permutation" class="headerlink" title="std::next_permutation &#x2F; std::prev_permutation"></a>std::next_permutation &#x2F; std::prev_permutation</h3><p>生成排列</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br><span class="hljs-keyword">do</span> &#123;<br>    <span class="hljs-comment">// 处理排列</span><br>&#125; <span class="hljs-keyword">while</span> (std::<span class="hljs-built_in">next_permutation</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>()));<br></code></pre></td></tr></table></figure>
+
+<h2 id="数值操作"><a href="#数值操作" class="headerlink" title="数值操作"></a>数值操作</h2><h3 id="std-accumulate"><a href="#std-accumulate" class="headerlink" title="std::accumulate"></a>std::accumulate</h3><p>累加</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-type">int</span> sum = std::<span class="hljs-built_in">accumulate</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">0</span>); <span class="hljs-comment">// 15</span><br><span class="hljs-type">int</span> product = std::<span class="hljs-built_in">accumulate</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">1</span>, std::<span class="hljs-built_in">multiplies</span>&lt;<span class="hljs-type">int</span>&gt;()); <span class="hljs-comment">// 120</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-inner-product"><a href="#std-inner-product" class="headerlink" title="std::inner_product"></a>std::inner_product</h3><p>内积</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v1 = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v2 = &#123;<span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;;<br><span class="hljs-type">int</span> result = std::<span class="hljs-built_in">inner_product</span>(v<span class="hljs-number">1.</span><span class="hljs-built_in">begin</span>(), v<span class="hljs-number">1.</span><span class="hljs-built_in">end</span>(), v<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>(), <span class="hljs-number">0</span>); <span class="hljs-comment">// 32 (1*4 + 2*5 + 3*6)</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-partial-sum"><a href="#std-partial-sum" class="headerlink" title="std::partial_sum"></a>std::partial_sum</h3><p>部分和</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">result</span><span class="hljs-params">(<span class="hljs-number">5</span>)</span></span>;<br>std::<span class="hljs-built_in">partial_sum</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), result.<span class="hljs-built_in">begin</span>());<br><span class="hljs-comment">// result = &#123;1, 3, 6, 10, 15&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-adjacent-difference"><a href="#std-adjacent-difference" class="headerlink" title="std::adjacent_difference"></a>std::adjacent_difference</h3><p>相邻差</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>, <span class="hljs-number">11</span>&#125;;<br><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">result</span><span class="hljs-params">(<span class="hljs-number">5</span>)</span></span>;<br>std::<span class="hljs-built_in">adjacent_difference</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), result.<span class="hljs-built_in">begin</span>());<br><span class="hljs-comment">// result = &#123;1, 1, 2, 3, 4&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="std-iota"><a href="#std-iota" class="headerlink" title="std::iota"></a>std::iota</h3><p>填充递增序列（C++11）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">v</span><span class="hljs-params">(<span class="hljs-number">5</span>)</span></span>;<br>std::<span class="hljs-built_in">iota</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">10</span>);<br><span class="hljs-comment">// v = &#123;10, 11, 12, 13, 14&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>C++标准库提供了丰富的算法函数，涵盖了各种常见操作。这些算法具有以下优点：</p>
+<ol>
+<li><strong>通用性</strong>: 适用于各种容器类型</li>
+<li><strong>效率</strong>: 经过高度优化</li>
+<li><strong>安全性</strong>: 减少手动循环的错误</li>
+<li><strong>可读性</strong>: 代码意图更明确</li>
+</ol>
+<p>熟练掌握这些算法可以大大提高C++编程的效率和代码质量。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/cpp/" class="print-no-link">#cpp</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>标准库的常用算法</div>
+      <div>https://csningg.github.io/posts/2498300446/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>zningg</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年8月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/907060870/" title="hello">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">hello</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/50145520/" title="LeetCode-03">
+                        <span class="hidden-mobile">LeetCode-03</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

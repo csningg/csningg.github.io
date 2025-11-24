@@ -1,0 +1,862 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zningg">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文是对STL中标准分配器原理的剖析，通过13张流程图详尽在使用分配器时遇到的各种情况，值得好好揣摩…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="std::allocate解析">
+<meta property="og:url" content="https://csningg.github.io/posts/1398903302/index.html">
+<meta property="og:site_name" content="ning">
+<meta property="og:description" content="本文是对STL中标准分配器原理的剖析，通过13张流程图详尽在使用分配器时遇到的各种情况，值得好好揣摩…">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csningg.github.io/pictures/20250523/web/8.jpg">
+<meta property="article:published_time" content="2025-05-22T14:46:51.000Z">
+<meta property="article:modified_time" content="2025-11-21T02:46:03.880Z">
+<meta property="article:author" content="zningg">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="基础知识">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/web/8.jpg">
+  
+  
+  
+  <title>std::allocate解析 - ning</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"csningg.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="std::allocate解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-05-22 22:46" pubdate>
+          2025年5月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          49 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">std::allocate解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文是对STL中标准分配器原理的剖析，通过13张流程图详尽在使用分配器时遇到的各种情况，值得好好揣摩…</p>
+<span id="more"></span>
+<h1 id="不同编译器对标准分配器的实现"><a href="#不同编译器对标准分配器的实现" class="headerlink" title="不同编译器对标准分配器的实现"></a>不同编译器对标准分配器的实现</h1><p><img src="/../pictures/20250523/0601/image.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/../pictures/20250523/0601/image%201.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/../pictures/20250523/0601/image%202.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>通过看源代码可得，以上两种分配器的<code>allocator</code>只是以<code>::operator new()</code>和<code>::operator delete()</code>完成<code>allocate()</code>和<code>deallocate()</code>。没有对内存进行管理，所以这两种编译器的分配效率并不高，因为直接使用<code>::operator new()</code>和<code>::operator delete()</code> 会产生大量的cookies。</li>
+<li>v此处的分配是<strong>以指定的元素的类型为单位</strong>，比方说类型指定为 int，分配 512 就是 512 个 int</li>
+<li>我们为什么要着重看容器的分配器呢？因为现在写代码大部分时间都是用容器，所以重视容器的效率</li>
+</ul>
+<h1 id="std-alloc概述"><a href="#std-alloc概述" class="headerlink" title="std::alloc概述"></a>std::alloc概述</h1><p><img src="/../pictures/20250523/0601/image%203.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><code>std::alloc</code>是STL中高效的内存分配器实现，分配器一定要提供两个重要的函数：<code>allocate()</code>（分配）和<code>deallocate()</code>（回收）</p>
+<p><code>std::alloc</code>提供了16 条链表，超过这个链表最大管理的内存块大小范围（128 字节）的内存分配不再受 <code>std::alloc</code> 管理，而是通过 <code>malloc()</code> 进行分配，对于上图有如下解释：</p>
+<ul>
+<li>#0 串联 8 字节的内存块，#1 串联 16 字节的内存块，#2 串联 24 字节的内存块… 链表间的内存块相差 8 字节</li>
+<li>如果容器中的每个元素需求的内存块的大小不是 8 的倍数，比如需要 6，则进入<code>std::alloc</code>这个系统后，会被调成 8；这个设计在所有的分配器上都一样，<code>malloc()</code> 也是这样的设计，一定会调整为设定好的边界</li>
+<li>如果声明一个 vector，每个元素的大小都是 32 字节。#3 是管理 32 字节的内存块的，一开始 #3 是空的，它就会去挖（<code>malloc()</code>）一块 20 * 32 大小的内存以备使用（20 应该是开发 <code>std::alloc</code> 的人员的经验值）；当这 20 块 32 字节的内存使用完之后，又会再要 20* 32 字节大小的内存，以此类推</li>
+<li>实际上挖的大小是 20* 32 字节，其中一半拿来切 32 字节的内存块，另一半空置等待使用</li>
+<li>声明另一个 vector，每个元素的大小是 64 字节。需要 #7 链表来管理 64 字节的内存块，当 #7 链表需要的时候，将剩余的 20*32 切割成每个内存块 64 字节的大小，可以切出 10 个，可以看到它们 #3 和 #7 的内存块是相连的；至此，分配的内存都使用完了</li>
+<li>再声明一个 vector，每个元素的大小是 96 字节。#11 是管理 96 字节内存块的，此时它是空的，而且之前 #3 多分出来的也都用光了，于是<code>malloc()</code> 20 * <em>6</em>2 字节内存，一半拿来用，一半备用</li>
+<li>容器不再需要元素的时候，要归还内存，根据内存大小就回收到负责该大小的内存块的链表上</li>
+<li>如果容器中的每个元素的大小为 256 字节，超出了链表的内存块的范围（8~128），于是调用 malloc 进行分配，将分配得到的空间传回给容器</li>
+<li>容器每次动态分配得到的都是指针，它并不会知道分配到的内存是否带 cookie</li>
+<li>最初分配的 20 * 2 的一大块是<code>malloc()</code>出来的，带 cookie，但<code>std::alloc</code>管理的内存块都是 cookie free 的</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%204.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>链表借用每个内存块的前4个字节做指针，当把内存块分给容器后，这4个字节会被容器的数据填充，容器归还内存块后，分配器会重新把前 4 个字节用作指针，接到链表上。这种做法称为 embedded pointer（嵌入式指针）</li>
+<li>好的内存管理一定会使用嵌入式指针，否则 class 里还要多设计一个指针</li>
+<li>源代码中的<code>char client_data[1];</code>并没有用到，可以删除，删掉后是 union 还是 struct 就没区别了</li>
+<li>如果对象本身小于 4 个字节，就不能被借用作指针了。但是通常对象大小会大于等于 4 字节</li>
+</ul>
+<h1 id="GNU-allocator-行为剖析"><a href="#GNU-allocator-行为剖析" class="headerlink" title="GNU allocator 行为剖析"></a>GNU allocator 行为剖析</h1><p>接下来会对alloc的行为进行解释，总共有13个幻灯片，对于每个幻灯片，解释为与下方。</p>
+<p><img src="/../pictures/20250523/0601/image%205.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p>开始，定义了<code>free_list[16]</code></p>
+<p><img src="/../pictures/20250523/0601/image%206.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>容器首次申请32字节，此时链表为空，直接调用malloc申请 32 * 20 * 2 + RoundUp(0&gt;&gt;4) &#x3D; 1280个字节，从中切除1个返回用户，另外19个挂在list 3中，余下的640备用。</li>
+<li>pool 指的就是之前说的多出来的备用空间，称它为战备池，由 start_free 和 end_free 两个指针围起来。只是蓝色的那个部分，注意区分。</li>
+<li><code>RoundUp()</code>的作用是把数字上调到 8 的倍数，0&gt;&gt;4 指的是 0 右移 4 位，即 0 除以 16。RoundUp(0&gt;&gt;4) 结果是 0，这部分我们可以称为“追加量”</li>
+<li>#3 是空的，先看 pool 有没有，发现也是空的，于是给 pool 申请 32 * 20 * 2 +RoundUp(0&gt;&gt;4) &#x3D;1280 的空间。640 给客户，另一半 640 备用（pool）</li>
+<li>这一整块是用<code>malloc()</code>分配的，头尾都有 cookie</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%207.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>另一个容器申请 64 字节，因为 pool 有余量，所以从 pool 中切出 10 个，第一个给用户，剩余的9个挂在list 7。此时战备池已经为空了。注意7号链表的开始是从3号链表的末尾指上去的。</li>
+<li>因为是同一块，所以没有产生额外cookie</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%208.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请 96 字节</li>
+<li>pool 是空的，用<code>malloc()</code>分配 96 * 20 * 2+RoundUp(1280&gt;&gt;4)&#x3D; 3920，加上之前申请的1280，共5200。分出 20*96&#x3D;1920，pool 留下 2000，这一大块是带 cookie 的</li>
+<li>这里可以看出追加量的计算方式，<code>RoundUp()</code> 里是累计申请量&gt;&gt;4，即累计申请量&#x2F;16，发现追加量会越来越大。为什么会有追加量，以及为何如此计算，源码的注释中并没有解释，不过这样的处理带来了安全阀门（后面讲解）</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%209.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请88字节，pool 中有余量，分出20个（哪怕 pool 还有更多，最多也只能分出 20）。此时会将11号链表的剩下的所有的都挂在10号链表下面。所以此时战备此也在10号链表下面了。</li>
+<li>分配为88 * 10个空间后，战备词还剩240个字节。</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2010.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>不再新建容器了，而是某个容器连续三次申请88</li>
+<li>直接取出 3 个返回给容器，速度很快，不会影响原来战备池的大小。</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2011.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请 8 字节，pool中有余量大小为240，分出 20 个。分出20个还剩余80个字节。</li>
+<li>如果不同的容器（vector、list、deque……）大小相同，会共用同一条链表</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2012.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请 104 字节</li>
+<li>pool只有80，连 1 个都不够，这 80 便是内存碎片，需要先处理碎片</li>
+<li>80归 #9 管理，所以处理方式就是把 80拨给 #9</li>
+<li>然后<code>malloc()</code>分配 104<em>20</em>2+RoundUp(5200&gt;&gt;4)&#x3D;4488</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2013.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请 112 字节，pool 中有余量，分出 20 个</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2014.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请 48 字节，pool 中有余量，分出 3 个。</li>
+</ul>
+<p>以上步骤把所有可能的情况都列出来了，下面看一下内存耗尽的话会发生什么</p>
+<p><img src="/../pictures/20250523/0601/image%2015.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>为了测试，将系统内存大小设置为了 10000，而现在已经申请了 9688 了</li>
+<li>又有一个容器申请 72 字节</li>
+<li>pool 只有 24，是碎片，这 24 挂到 #2</li>
+<li><code>malloc()</code>分配 72<em>20</em>2+RoundUp(9688&gt;&gt;4)，因为内存不足，<code>malloc()</code>失败</li>
+<li>为了满足用户需求，从 #8 右侧找离 #8 最近的，发现 #9 有一个 80，于是从 80 中切出 72 给 #8，剩下 8 作为 pool，#9为空</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2016.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请 72 字节</li>
+<li>pool 只有 8，分给 #0</li>
+<li>从 #10 中拿出一块，72 给 #8，剩下 16 作为 pool</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2017.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>又有一个容器申请 120 字节</li>
+<li>从 #14 右边找，发现右边的 #15 也是空的，山穷水尽，无法满足需求</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2018.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>如果要把小块合并：因为都是链表，指来指去的，很难找到相邻的两块或几块合并，而且链表长度也不确定，虽然理论上可行，但难度极高，其他分配器也没有实现这样操作的</li>
+<li>如果要把系统剩下的 312 用光：比较简单，<code>malloc()</code> 失败的话，就把<code>malloc()</code>内的数值减半，直到成功，但 GCC 并没有这么做，后面会给出答案</li>
+</ul>
+<h1 id="GNU-alloc源码分析"><a href="#GNU-alloc源码分析" class="headerlink" title="GNU alloc源码分析"></a>GNU alloc源码分析</h1><p><img src="/../pictures/20250523/0601/image%2019.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/../pictures/20250523/0601/image%2020.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/../pictures/20250523/0601/image%2021.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>这是第一级分配器，前面讲的步骤都在第二级分配器中，如果第二级分配器分配失败就会来到第一级</li>
+<li>第一级会模拟 new handler，不断循环给用户机会去分配</li>
+<li>C++ 本来就有 new handler，没必要模拟，这里这么写可能是因为历史元素，GCC 4.9 就没有这个第一级分配，所以此处也跳过，不详细讲解</li>
+<li>第一级分配器到 74 行截止。77~89 是换肤工程，第二级分配器的单位是字节，换肤工程可以把字节转换为元素的个数。</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2022.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>第二级分配器从 90 行开始。为了教学，多线程的部分都被拿掉了。</li>
+<li>三行 enum 其实就是常量定义，因为历史原因没有写成 static const</li>
+<li><code>ROUND_UP()</code>会将传入参数上调为 8 的倍数</li>
+<li>union obj 是嵌入式指针，free_list_link 其实就是我们平时常写的 next</li>
+<li>所有的数据和函数都是静态的，可见非常容易改写为 C 语言</li>
+<li><code>FREELIST_INDEX()</code> 计算出申请的内存块应该由第几号链表提供；</li>
+<li><code>refill()</code> 就是当链表为空的时候，要进行充值（即申请一大块内存）；</li>
+<li><code>chunk_alloc()</code> 申请一大块内存；</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2023.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>最重要的<code>allocate()</code>和<code>deallocate()</code></li>
+<li>my_free_list 是指针的指针，因为它指向 16 条链表的其中一个，而里面的元素又是个指向下面链表的指针</li>
+<li>如果申请的内存的大小大于 128，就改用第一级分配器</li>
+<li><code>my_free_list = free_list + FREELIST_INDEX(n);</code>表示定位到第几号链表</li>
+<li>如果 result &#x3D;&#x3D; 0 ，即链表为空，则需要充值；</li>
+<li>如果不为空，便<code>my_free_list = result-&gt;free_list_link;</code>将第一块内存块给到用户，并向下移动指针；</li>
+<li><code>deallocate()</code>接收指针，并把它还回链表。如果 n&gt;128 也会改用第一级去回收</li>
+<li>两个问题<ul>
+<li><code>deallocate()</code>没有将内存还给操作系统（free），而是将申请到的内存全部掌握在自己手中，不算内存泄露，但是这种做法是有争议的</li>
+<li><code>deallocate()</code>并没有检查传入指针是不是这个 alloc 给出去的，如果这个指针指的大小不是 8 的倍数，可能会有灾难性的后果</li>
+</ul>
+</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2024.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/../pictures/20250523/0601/image%2025.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>通过图片更好地展示上面代码的作用</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2026.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li><code>chunk_alloc()</code>负责帮我们分配一大块区域</li>
+<li>total_bytes 是 20 个的大小，bytes_left 是 pool 的大小</li>
+<li>如果 pool 足够分出 20 个，就直接改 start_free 的位置，然后把 start_free 原先位置传回去</li>
+<li>如果不够 20 个，但够 &gt;&#x3D; 1 个，看够几个，然后分配</li>
+<li>如果连 1 个都不够，就是 0 或碎片了，对碎片做处理</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2027.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>处理完碎片后 pool 为空，开始分配内存，让 start_free 和 end_free 指到对应位置，然后递归调用自己，因为 pool 大小足够了，所以肯定能满足要求，完成分配</li>
+<li>如果<code>malloc()</code>失败，找右边的链表，拿出一块，放到 pool 中，然后再递归调用自己，完成分配</li>
+<li>英文注释部分说明了为什么没有再申请更小的内存，后面 2.3.4 检讨部分会解释</li>
+<li>G4.9 中 start_free 是通过 operator new 进行分配的，而非 malloc，所以可以重载 operator new 接管内存分配，这就是为什么我们在 2.4 节是用 4.9 版测试的</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2028.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li><code>refill()</code>函数</li>
+<li>20 是个 magic number，不大好，最好是写成常量或宏</li>
+<li>交给<code>chunk_alloc()</code>去拿一大块内存</li>
+<li>如果只有一个，直接返回，否则就建立自由链表</li>
+<li>注意 for 循环是从 1 开始的，因为第一个要给出去，没必要再切割、链接</li>
+<li>所谓切割就是把指针所指处转为 obj*（嵌入式指针）</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2029.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>因为数据是 static 的，所以需要在 class 外部定义</li>
+</ul>
+<h1 id="G4-9-pool-allocator-运行观察"><a href="#G4-9-pool-allocator-运行观察" class="headerlink" title="G4.9 pool allocator 运行观察"></a><strong>G4.9 pool allocator 运行观察</strong></h1><p><img src="/../pictures/20250523/0601/image%2030.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>Foo(1) 是个临时对象，非动态分配的，存在于 stack，容器 c 的内存是通过 alloc 分配的，不带 cookie</li>
+<li>new 底层是通过<code>malloc()</code>分配的，存在于 heap，分配的内存块带 cookie。<code>push_back()</code>到链表后也是不带 cookie 的。</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2031.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>208、218、255 行是数值比较，一般的习惯则是把变量写左边，把要比较的值写右边，这里之所以反着写，是因为如果把变量写左边，哪怕 &#x3D;&#x3D; 写成 &#x3D; 也会通过编译，数值写左边的话编译器可以帮我们找出问题</li>
+<li>197 行的变量一直到 207 行才用到，中间做了许多操作，这样不好，应该把变量写到 206 行。因为如果是指针的话，中间的操作可能会使指针失效，出了问题后难以排查</li>
+<li>136 和 210 行不用管 volatile。<code>obj* *my_free_list, *p;</code> 的意思是<code>obj** my_free_list</code>和<code>obj* p</code>，所以它这种写法很容易搞错，建议分开写</li>
+<li>34 行的内容等同于右边框里的两行，硬要把这两行写成一行，纯属炫技，可读性差</li>
+<li>212、213、214 行说如果尝试申请小内存，会在多进程机器上造成大灾难，意思不是说这个程序会怎么样，而是如果把内存都占用光，机器上的其他程序会没有内存可用</li>
+<li><code>deallocate()</code>没有调用<code>free()</code>或<code>delete()</code>，源于其设计上的先天缺陷：交给客户的内存块没有指针一直记录着其地址，所以归还的时候不知道地址，就无法回收。后面第四部分讲 Loki allocator 时会处理这个问题</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2032.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>为了测试是否真的节省了 cookie，编写测试代码，通过重写 operator new&#x2F;delete 统计总分配量和总释放量</li>
+<li>右边为什么 (1) (2) 可以并存老师也不知道</li>
+</ul>
+<p><img src="/../pictures/20250523/0601/image%2033.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<ul>
+<li>右侧 lst 默认使用的是标准分配器，每个元素都带 cookie。double 占 8 字节，每个节点带两个指针，一个元素就是 16 字节，<code>push_back()</code>1000000 次，总共执行了 1000000 次<code>malloc()</code>，分配了 16000000 字节，这 1000000 次每次都带 cookie</li>
+<li>左侧 lst 使用的分配器为 __pool_alloc，<code>push_back()</code>1000000 次，总共只执行了 122 次<code>malloc()</code>，分配了 16752832 字节，122 次每次都带 cookie，可见差距之大</li>
+<li>不能观察到 malloc 真正分配出去的总量（含所有 overhead），因为 malloc 不能重载，除非你有很高的技巧，清楚地理解了 malloc 的行为模式，理解了它管理的每个区块其实是个链表，知道了链表的头，遍历一遍，就能得到内存块的大小。第三讲我们会为大家建立起这种能力</li>
+</ul>
+<h1 id="G2-9-std-alloc-移植至C"><a href="#G2-9-std-alloc-移植至C" class="headerlink" title="G2.9 std::alloc 移植至C"></a><strong>G2.9 std::alloc 移植至C</strong></h1><p><img src="/../pictures/20250523/0601/image%2034.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/" class="category-chain-item">课程学习</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86-%E4%BE%AF%E6%8D%B7/" class="category-chain-item">内存管理-侯捷</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="print-no-link">#基础知识</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>std::allocate解析</div>
+      <div>https://csningg.github.io/posts/1398903302/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>zningg</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年5月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/3614768602/" title="malloc/free详解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">malloc/free详解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/572525303/" title="内存原语">
+                        <span class="hidden-mobile">内存原语</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zningg">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在 C++ 编程中，constexpr 和 const 是两个常用的关键字，它们在定义常量和函数时有着不同的用途和行为。理解它们的区别对于编写高效、安全的代码至关重要。本文将深入探讨 constexpr 和 const 的区别，并通过详细的使用场景和示例代码进行说明。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="const vs constexpr">
+<meta property="og:url" content="https://csningg.github.io/posts/2212644689/index.html">
+<meta property="og:site_name" content="ning">
+<meta property="og:description" content="在 C++ 编程中，constexpr 和 const 是两个常用的关键字，它们在定义常量和函数时有着不同的用途和行为。理解它们的区别对于编写高效、安全的代码至关重要。本文将深入探讨 constexpr 和 const 的区别，并通过详细的使用场景和示例代码进行说明。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csningg.github.io/pictures/20250523/06/5.jpg">
+<meta property="article:published_time" content="2025-06-15T13:55:36.000Z">
+<meta property="article:modified_time" content="2025-11-21T03:09:02.348Z">
+<meta property="article:author" content="zningg">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/06/5.jpg">
+  
+  
+  
+  <title>const vs constexpr - ning</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"csningg.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="const vs constexpr"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-15 21:55" pubdate>
+          2025年6月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          34 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">const vs constexpr</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在 C++ 编程中，<code>constexpr</code> 和 <code>const</code> 是两个常用的关键字，它们在定义常量和函数时有着不同的用途和行为。理解它们的区别对于编写高效、安全的代码至关重要。本文将深入探讨 <code>constexpr</code> 和 <code>const</code> 的区别，并通过详细的使用场景和示例代码进行说明。</p>
+<span id="more"></span>
+<ul>
+<li><strong><code>constexpr</code><strong>：用于定义</strong>编译期常量</strong>和<strong>编译期计算的函数</strong>。它确保表达式在编译期计算，从而提高性能和安全性。</li>
+<li>**<code>const</code>**：用于定义运行时常量和不可变的值。它仅表示变量的值在初始化后不可改变，但不保证在编译期计算。</li>
+</ul>
+<h1 id="1-适用场景"><a href="#1-适用场景" class="headerlink" title="1. 适用场景"></a>1. 适用场景</h1><ul>
+<li><strong>编译期常量</strong>：如果需要在编译期确定值，应该使用 <code>constexpr</code>。例如，数组大小、数学常量等。</li>
+<li><strong>运行时常量</strong>：如果值在运行时确定，但在整个程序运行期间不变，使用 <code>const</code>。例如，配置参数、运行时计算结果等。</li>
+</ul>
+<h1 id="2-修饰函数的区别"><a href="#2-修饰函数的区别" class="headerlink" title="2. 修饰函数的区别"></a>2. 修饰函数的区别</h1><h2 id="2-1-constexpr-修饰函数"><a href="#2-1-constexpr-修饰函数" class="headerlink" title="2.1 constexpr 修饰函数"></a>2.1 <code>constexpr</code> 修饰函数</h2><ol>
+<li><code>constexpr</code> 函数可以在编译期进行计算，如果其参数是编译期常量。</li>
+<li>编译器会尝试在编译期求值 <code>constexpr</code> 函数，以提高性能和安全性。</li>
+<li><strong>函数要求</strong>：<ul>
+<li><code>constexpr</code> 函数必须是纯函数，即没有副作用，且其返回值仅依赖于输入参数。</li>
+<li>函数体必须是一个单一的返回语句，或者是一个常量表达式。</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>可以用于定义编译期常量。</li>
+<li>可以在编译期进行复杂的计算，一般是数学公式。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> i + <span class="hljs-number">5</span>;<br>&#125;<br><br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">foo</span>(<span class="hljs-number">10</span>);  <span class="hljs-comment">// 编译期计算</span><br></code></pre></td></tr></table></figure>
+
+<p><code>constexpr</code> 的限制</p>
+<ul>
+<li>函数体限制：<code>constexpr</code> 函数的函数体必须是一个单一的返回语句，或者是一个可以在编译时计算的表达式。</li>
+<li><strong>循环和条件语句</strong>：<code>constexpr</code> 函数可以包含循环和条件语句，但这些语句必须能够在编译时完全展开和计算。</li>
+<li><strong>递归</strong>：<code>constexpr</code> 函数可以是递归的，但递归深度必须在编译时确定。</li>
+</ul>
+<h2 id="2-2-const-修饰函数"><a href="#2-2-const-修饰函数" class="headerlink" title="2.2 const 修饰函数"></a>2.2 <code>const</code> 修饰函数</h2><ul>
+<li><strong>运行时计算</strong>：<ul>
+<li><code>const</code> 修饰函数的返回值在运行时计算。</li>
+<li><code>const</code> 仅表示函数返回的值是不可变的，但不保证在编译期计算。</li>
+</ul>
+</li>
+<li><strong>函数要求</strong>：<ul>
+<li><code>const</code> 修饰函数没有特别的要求，可以有副作用。</li>
+<li>函数体可以包含任意的合法 C++ 代码。</li>
+</ul>
+</li>
+<li><strong>使用场景</strong>：<ul>
+<li>用于返回一个不可变的值。</li>
+<li>适用于需要在运行时计算的场景。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> i + <span class="hljs-number">5</span>;<br>&#125;<br><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">foo</span>(<span class="hljs-number">10</span>);  <span class="hljs-comment">// 运行时计算</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="3-const-的详细使用场景和示例"><a href="#3-const-的详细使用场景和示例" class="headerlink" title="3. const 的详细使用场景和示例"></a>3. <code>const</code> 的详细使用场景和示例</h1><ol>
+<li><p><strong>修饰变量</strong>：<code>const</code> 用于修饰变量，表示该变量的值在初始化后不可改变。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> x = <span class="hljs-number">10</span>;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>修饰指针</strong>： <code>const</code> 可以修饰指针，表示指针本身或指针指向的值不可变。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span>* ptr = &amp;x;  <span class="hljs-comment">// 指向常量的指针</span><br><span class="hljs-type">int</span>* <span class="hljs-type">const</span> ptr2 = &amp;x; <span class="hljs-comment">// 常量指针</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>修饰函数参数</strong>：<code>const</code> 可以修饰函数参数，表示参数在函数内部不可改变。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">int</span> y)</span> </span>&#123;<br>    <span class="hljs-comment">// y 不能被修改</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>修饰成员函数</strong>：<code>const</code> 可以修饰成员函数，表示该成员函数不会修改类的成员变量。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-comment">// 不能修改类的成员变量</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>成员变量</strong>：<code>const</code> 成员变量必须在构造函数初始化列表中初始化。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MyClass</span>(<span class="hljs-type">int</span> v) : <span class="hljs-built_in">value</span>(v) &#123;&#125;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> value;<br>&#125;;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="4-constexpr-的详细使用场景和示例"><a href="#4-constexpr-的详细使用场景和示例" class="headerlink" title="4. constexpr 的详细使用场景和示例"></a>4. <code>constexpr</code> 的详细使用场景和示例</h1><ol>
+<li><p><strong>修饰变量</strong>：<code>constexpr</code> 用于修饰变量，表示该变量的值在编译期确定。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> y = <span class="hljs-number">20</span>;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>修饰函数</strong>：<code>constexpr</code> 用于修饰函数，表示该函数可以在编译期求值。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>修饰表达式</strong>： <code>constexpr</code> 可以修饰表达式，表示该表达式在编译期求值。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">add</span>(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>构造函数</strong>：<code>constexpr</code> 可以用于构造函数，表示该构造函数可以在编译时执行。</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-title">MyClass</span><span class="hljs-params">(<span class="hljs-type">int</span> v)</span> : value(v) &#123;</span>&#125;<br>    <span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">getValue</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> value;<br>    &#125;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> value;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>静态成员变量</strong>：<code>constexpr</code> 可以用于静态成员变量，表示该变量在编译时初始化。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> staticValue = <span class="hljs-number">100</span>;<br>&#125;;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="5-constexpr-高级用法"><a href="#5-constexpr-高级用法" class="headerlink" title="5. constexpr 高级用法"></a>5. <code>constexpr</code> 高级用法</h1><ol>
+<li><strong>模板元编程</strong>：<code>constexpr</code> 可以与模板结合使用，实现更强大的编译时计算。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> N&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Factorial</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> value = N * Factorial&lt;N - <span class="hljs-number">1</span>&gt;::value;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Factorial</span>&lt;<span class="hljs-number">0</span>&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> value = <span class="hljs-number">1</span>;<br>&#125;;<br><br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> fact5 = Factorial&lt;<span class="hljs-number">5</span>&gt;::value;  <span class="hljs-comment">// 120</span><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li><strong><code>constexpr</code></strong> <strong>和 Lambda 表达式：</strong>C++17 引入了 <code>constexpr</code> Lambda 表达式，允许在编译时计算 Lambda 表达式的结果。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-keyword">auto</span> lambda = [](<span class="hljs-type">int</span> x) &#123; <span class="hljs-keyword">return</span> x * x; &#125;;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">lambda</span>(<span class="hljs-number">5</span>);  <span class="hljs-comment">// 25</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="6-具体对比"><a href="#6-具体对比" class="headerlink" title="6. 具体对比"></a>6. 具体对比</h1><ol>
+<li><strong>编译期 vs 运行时</strong>：<ul>
+<li><code>constexpr</code> 函数可以在编译期计算，<code>const</code> 函数只能在运行时计算。</li>
+</ul>
+</li>
+<li><strong>修饰对象</strong>：<ul>
+<li><code>const</code> 可以修饰变量、指针、函数参数和成员函数。</li>
+<li><code>constexpr</code> 可以修饰变量和函数，确保它们在编译期求值。</li>
+</ul>
+</li>
+<li><strong>函数修饰</strong>：<ul>
+<li><code>const</code> 修饰成员函数，表示该成员函数不会修改类的成员变量。</li>
+<li><code>constexpr</code> 修饰函数，表示该函数可以在编译期求值。</li>
+</ul>
+</li>
+</ol>
+<h1 id="7-示例代码对比"><a href="#7-示例代码对比" class="headerlink" title="7. 示例代码对比"></a>7. 示例代码对比</h1><p><strong><code>constexpr</code> 函数</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> i + <span class="hljs-number">5</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">foo</span>(<span class="hljs-number">10</span>);  <span class="hljs-comment">// 编译期计算</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong><code>const</code> 函数</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">int</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> i + <span class="hljs-number">5</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">foo</span>(<span class="hljs-number">10</span>);  <span class="hljs-comment">// 运行时计算</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="8-使用建议"><a href="#8-使用建议" class="headerlink" title="8. 使用建议"></a>8. 使用建议</h1><h2 id="8-1-什么时候使用-const"><a href="#8-1-什么时候使用-const" class="headerlink" title="8.1 什么时候使用 const"></a><strong>8.1 什么时候使用 <code>const</code></strong></h2><ol>
+<li><p><strong>运行时常量</strong>：</p>
+<ul>
+<li>当变量的值在运行时确定，但在整个程序运行期间不变时，使用 <code>const</code>。</li>
+</ul>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> runtimeValue = <span class="hljs-built_in">someFunction</span>();<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>不可变参数</strong>：</p>
+<ul>
+<li>当函数参数在函数内部不应被修改时，使用 <code>const</code> 修饰参数。</li>
+</ul>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; input)</span> </span>&#123;<br>    <span class="hljs-comment">// input 不能被修改</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>成员函数</strong>：</p>
+<ul>
+<li>当成员函数不应修改类的成员变量时，使用 <code>const</code> 修饰成员函数</li>
+</ul>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-comment">// 不能修改类的成员变量</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="8-2-什么时候使用-constexpr"><a href="#8-2-什么时候使用-constexpr" class="headerlink" title="8.2 什么时候使用 constexpr"></a>8.2 什么时候使用 <code>constexpr</code></h2><ol>
+<li><p><strong>编译期常量</strong>：</p>
+<ul>
+<li>当变量的值在编译期确定时，使用 <code>constexpr</code>。</li>
+</ul>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> compileTimeValue = <span class="hljs-number">42</span>;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>编译期计算</strong>：</p>
+<ul>
+<li>当函数的返回值可以在编译期计算时，使用 <code>constexpr</code> 修饰函数。</li>
+</ul>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">square</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> x * x;<br>&#125;<br><br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">square</span>(<span class="hljs-number">5</span>);  <span class="hljs-comment">// 编译期计算</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="8-3-什么时候可以互相替换"><a href="#8-3-什么时候可以互相替换" class="headerlink" title="8.3 什么时候可以互相替换"></a>8.3 什么时候可以互相替换</h2><ol>
+<li><p><strong>简单常量</strong>：</p>
+<ul>
+<li>对于简单的常量表达式，<code>const</code> 和 <code>constexpr</code> 可以互相替换，但 <code>constexpr</code> 提供了编译期计算的额外优势。</li>
+</ul>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> x = <span class="hljs-number">10</span>;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> y = <span class="hljs-number">10</span>;  <span class="hljs-comment">// 可以互相替换</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>函数返回值</strong>：</p>
+<ul>
+<li>如果函数的返回值可以在编译期计算，优先使用 <code>constexpr</code>，否则使用 <code>const</code>。</li>
+</ul>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">int</span> <span class="hljs-title">addRuntime</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>逐步引入</strong> <code>constexpr</code>：如果你不确定某个变量或函数是否应该是 <code>constexpr</code>，可以先将其声明为 <code>const</code> 或普通函数，然后逐步引入 <code>constexpr</code>，并观察编译器的反馈。</p>
+<ol>
+<li><strong>测试和验证</strong>：使用单元测试和静态分析工具来验证 <code>constexpr</code> 的使用是否正确。确保在编译期和运行时都能得到预期的结果。</li>
+<li><strong>文档和注释</strong>：在代码中添加注释，说明为什么某个函数或变量被声明为 <code>constexpr</code>。这有助于其他开发者理解你的意图。</li>
+</ol>
+<h1 id="9-总结"><a href="#9-总结" class="headerlink" title="9. 总结"></a>9. 总结</h1><ol>
+<li><code>const</code>：主要用于修饰变量、指针、函数参数和成员函数，表示这些对象在运行时不可变。适用于运行时常量和不可变参数。</li>
+<li><code>constexpr</code>：主要用于修饰变量和函数，表示这些对象在编译期求值。适用于编译期常量和编译期计算。</li>
+</ol>
+<p>通过理解这些区别和详细的使用场景，你可以更好地选择何时使用 <code>constexpr</code> 和 <code>const</code> 修饰函数和变量，从而编写更高效和安全的代码。希望本文能帮助你在实际编程中更好地应用这两个关键字。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>const vs constexpr</div>
+      <div>https://csningg.github.io/posts/2212644689/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>zningg</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/2615319865/" title="HNSW:一种高效的图向量检索算法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">HNSW:一种高效的图向量检索算法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/955192074/" title="lower_bound与upper_bound的用法">
+                        <span class="hidden-mobile">lower_bound与upper_bound的用法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

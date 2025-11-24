@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zningg">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本章主要以对象为基础观念背景，对C++对象模型进行一个概述~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第一章：关于对象">
+<meta property="og:url" content="https://csningg.github.io/posts/726162626/index.html">
+<meta property="og:site_name" content="ning">
+<meta property="og:description" content="本章主要以对象为基础观念背景，对C++对象模型进行一个概述~">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csningg.github.io/pictures/20250523/web/10.jpg">
+<meta property="article:published_time" content="2025-05-20T15:44:57.000Z">
+<meta property="article:modified_time" content="2025-11-21T02:46:03.880Z">
+<meta property="article:author" content="zningg">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/web/10.jpg">
+  
+  
+  
+  <title>第一章：关于对象 - ning</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"csningg.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="第一章：关于对象"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-05-20 23:44" pubdate>
+          2025年5月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          78 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">第一章：关于对象</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本章主要以对象为基础观念背景，对C++对象模型进行一个概述~</p>
+<span id="more"></span>
+
+<p>前情提要，本文示例的编译环境<code>Linux ubuntu-linux-22-04-02-desktop 5.15.0-133-generic #144-Ubuntu SMP Sat Feb 8 14:13:21 UTC 2025 aarch64 aarch64 aarch64 GNU/Linux</code> g++版本<code>g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0</code></p>
+<h1 id="1-基础"><a href="#1-基础" class="headerlink" title="1. 基础"></a>1. 基础</h1><p>首先是不考虑C++的基本的特性，单纯用C++写C，观察下C++在运行时的一些特性。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> &#123;<br><span class="hljs-keyword">public</span>: <span class="hljs-comment">//section1</span><br>    <span class="hljs-type">uint64_t</span> longNo2; <span class="hljs-comment">// 8</span><br><span class="hljs-keyword">public</span>: <span class="hljs-comment">//section2</span><br>    <span class="hljs-type">uint64_t</span> longNo1; <span class="hljs-comment">// 8</span><br>    <span class="hljs-type">uint8_t</span> no1; <span class="hljs-comment">// 1</span><br>    <span class="hljs-type">uint8_t</span> no2; <span class="hljs-comment">// 1</span><br>    <span class="hljs-type">uint8_t</span> no3; <span class="hljs-comment">// 1</span><br><span class="hljs-keyword">public</span>: <span class="hljs-comment">//section3</span><br>    <span class="hljs-type">uint8_t</span> no4; <span class="hljs-comment">// 1</span><br>&#125;;<br><span class="hljs-comment">/// 调试代码</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj = <span class="hljs-built_in">Object</span>();<br>    <span class="hljs-type">size_t</span> sizeObj = <span class="hljs-built_in">sizeof</span>(Object);<br>    cout &lt;&lt; sizeObj &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果<code>sizeObj</code>为 24，调整下不同变量的位置，发现输出结果不同：</p>
+<ul>
+<li>把<code>section2</code>移到<code>section1</code>上方（调整 access sections 的顺序），输出<code>sizeObj</code>为 32；</li>
+<li>把<code>no2</code>移到<code>longNo1</code>上方（调整成员变量的顺序），输出<code>sizeObj</code>为 32；</li>
+</ul>
+<p>为什么会出现这种现象呢？因为有字节对齐！！！</p>
+<p>我们在对上面的程序进行调试。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">(<span class="hljs-type">int</span>)(&amp;(obj.no2) - (<span class="hljs-type">uint8_t</span>*)(&amp;obj.longNo1))<br><span class="hljs-number">9</span><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>首先明确<code>no2</code>和<code>longNo1</code>之间差了9个字节，且<code>longNo1</code>在低地址，<code>no2</code>在高地址</li>
+<li>其次分析上面的debug语句。<code>(int)(&amp;(obj.no2) - (&amp;obj.longNo1))</code>这样写是不行的，因为类型不同的两个变量之间的地址是没办法相减的，报错如下<code>First argument of </code>-‘ is a pointer and second argument is neither an integer nor a pointer of the same type.&#96;</li>
+</ol>
+<aside>
+💡 发现 C++ 对象的成员变量布局和 C 语言的 struct 布局非常相似，同样需要考虑内存字节对齐问题，同样是按照成员声明的顺序进行布局。
+
+</aside>
+
+<p>接下来对比上述变量就行复制，然后查看内存布局。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint64_t</span> longNo2 = <span class="hljs-number">1</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no2 = <span class="hljs-number">12</span>;<br>    <span class="hljs-type">uint64_t</span> longNo1 = <span class="hljs-number">2</span>;<br>    <span class="hljs-type">uint8_t</span> no1 = <span class="hljs-number">11</span>;<br>    <span class="hljs-type">uint8_t</span> no3 = <span class="hljs-number">13</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no4 = <span class="hljs-number">14</span>;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj = <span class="hljs-built_in">Object</span>();<br>    <span class="hljs-type">size_t</span> sizeObj = <span class="hljs-built_in">sizeof</span>(Object);<br>    cout &lt;&lt; sizeObj &lt;&lt; endl;<br>    <br>    Object *objPtr = <span class="hljs-keyword">new</span> Object;<br>    <span class="hljs-type">size_t</span> sizeObjPtr = <span class="hljs-built_in">sizeof</span>(objPtr);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>用GDB的<code>X</code>命令查看对于的内存布局，使用<code>x/32bx &amp;obj</code>打印<code>obj</code>对象的内存，其中<code>b</code>表示以字节划分，32 表示打印 32 个字节的内存空间，<code>x</code>代表的是以16进制打印。打印结果如下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) x/32bx &amp;obj<br>0xffffffffeed0: 0x01    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeed8: 0x0c    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeee0: 0x02    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeee8: 0x0b    0x0d    0x0e    0x00    0x00    0x00    0x00    0x00<br></code></pre></td></tr></table></figure>
+
+<p>首先内存空间是<code>0xff</code>打头，基本可以断定是栈空间（从高位向地位分配）。其次内存空间中有很多值为<code>0x00</code>的 Padding 字节空间，为了满足内存对齐的需要。注意到前 8 个字节中，低位保存低位，所以当前调试平台是使用小端模式（little-endian）。</p>
+<p>继续查看<code>&amp;sizeObj</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><br>(gdb) x/32bx &amp;obj<br>0xffffffffeed0: 0x01    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeed8: 0x0c    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeee0: 0x02    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeee8: 0x0b    0x0d    0x0e    0x00    0x00    0x00    0x00    0x00<br>(gdb) x/8bx &amp;sizeObj<br>0xffffffffeec8: 0x20    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br></code></pre></td></tr></table></figure>
+
+<p>由于栈是从高地址向低地址分配，而<code>&amp;sizeoObj</code> <code>0xffffffffeec8</code> 与<code>&amp;obj</code> <code>0xffffffffeed0</code>刚好差8个字节，是一个<code>size_t</code>的大小。</p>
+<p>从上面的调试过程可见，上面构建的<code>Object</code>对象的内存空间在<strong>栈空间</strong>中。稍微修改一下调试代码，以<code>new</code>方式构建<code>Object</code>对象。编译运行，<code>po objPtr</code>打印<code>objPtr</code>指针（表示<code>objPtr</code>所指向的内存地址），输出结果为 <code>0xaaaaaaac3eb0</code>，此时构建的<code>Object</code>对象存在于内存堆空间中。使用<code>x/32b objPtr</code>查看内存，从数据不难发现它就是个<code>Object</code>对象</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) x/32xb objPtr<br>0xaaaaaaac3eb0: 0x01    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xaaaaaaac3eb8: 0x0c    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xaaaaaaac3ec0: 0x02    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xaaaaaaac3ec8: 0x0b    0x0d    0x0e    0x00    0x00    0x00    0x00    0x00<br>(gdb) x/32xbu objPtr<br>0xaaaaaaac3eb0: 1       0       0       0       0       0       0       0<br>0xaaaaaaac3eb8: 12      0       0       0       0       0       0       0<br>0xaaaaaaac3ec0: 2       0       0       0       0       0       0       0<br>0xaaaaaaac3ec8: 11      13      14      0       0       0       0       0<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) p objPtr <br><span class="hljs-variable">$6</span> = (Object *) 0xaaaaaaac3eb0<br></code></pre></td></tr></table></figure>
+
+<h1 id="2-继承"><a href="#2-继承" class="headerlink" title="2. 继承"></a>2. 继承</h1><p>上面的类的实现与C语言的struct本质上并没有什么区别，C++相比比C语言而言，最突出的优势是封装，继承，多态。那么在上面的基础情况下，我们再考虑下继承的情况。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint64_t</span> longNo2 = <span class="hljs-number">1</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no2 = <span class="hljs-number">12</span>;<br>    <span class="hljs-type">uint64_t</span> longNo1 = <span class="hljs-number">2</span>;<br>    <span class="hljs-type">uint8_t</span> no1 = <span class="hljs-number">11</span>;<br>    <span class="hljs-type">uint8_t</span> no3 = <span class="hljs-number">13</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no4 = <span class="hljs-number">14</span>;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SubClassObject</span> : Object &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint64_t</span> subLongNo1 = <span class="hljs-number">3</span>;<br>    <span class="hljs-type">uint8_t</span> subNo1 = <span class="hljs-number">16</span>;<br>    <span class="hljs-type">uint8_t</span> subNo2 = <span class="hljs-number">15</span>;<br>    <br>&#125;;<br><br><span class="hljs-comment">/// 调试代码</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj;<br>    <span class="hljs-type">size_t</span> sizeObj = <span class="hljs-built_in">sizeof</span>(Object);<br>    <br>    SubClassObject subobj;<br>    <span class="hljs-type">size_t</span> sizeSubobj = <span class="hljs-built_in">sizeof</span>(SubClassObject);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>打印<code>sizeSubobj</code>为 48，<code>x/48b &amp;subobj</code>打印内存空间，不难发现，子类成员变量的数据是直接拼接在基类的成员变量内存空间后面。可以看到低32字节是子类的成员变量，高16字节是派生类的成员变量，派生类是直接append到子类的后面的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) p sizeSubobj <br><span class="hljs-variable">$1</span> = 48<br>(gdb) x/48bx &amp;subobj<br>0xffffffffeeb8: 0x01    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeec0: 0x0c    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeec8: 0x02    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeed0: 0x0b    0x0d    0x0e    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeed8: 0x03    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeee0: 0x10    0x0f    0x00    0x00    0x00    0x00    0x00    0x00<br>(gdb) x/48bu &amp;subobj<br>0xffffffffeeb8: 1       0       0       0       0       0       0       0<br>0xffffffffeec0: 12      0       0       0       0       0       0       0<br>0xffffffffeec8: 2       0       0       0       0       0       0       0<br>0xffffffffeed0: 11      13      14      0       0       0       0       0<br>0xffffffffeed8: 3       0       0       0       0       0       0       0<br>0xffffffffeee0: 16      15      0       0       0       0       0       0<br></code></pre></td></tr></table></figure>
+
+<p>在子类定义代码中，交换<code>subNo1</code>和<code>subLongNo1</code>的顺序会导致<code>sizeSubobj</code>变化么？答案是会变化，交换后<code>sizeSubobj</code> 56。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) x/56xb &amp;subobj<br>0xffffffffeeb0: 0x01    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeeb8: 0x0c    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeec0: 0x02    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeec8: 0x0b    0x0d    0x0e    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeed0: 0x10    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeed8: 0x03    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>0xffffffffeee0: 0x0f    0x00    0x00    0x00    0x00    0x00    0x00    0x00<br>(gdb) x/56xu &amp;subobj<br>0xffffffffeeb0: 1       0       0       0       0       0       0       0<br>0xffffffffeeb8: 12      0       0       0       0       0       0       0<br>0xffffffffeec0: 2       0       0       0       0       0       0       0<br>0xffffffffeec8: 11      13      14      0       0       0       0       0<br>0xffffffffeed0: 16      0       0       0       0       0       0       0<br>0xffffffffeed8: 3       0       0       0       0       0       0       0<br>0xffffffffeee0: 15      0       0       0       0       0       0       0<br>(gdb) p sizeSubobj <br><span class="hljs-variable">$2</span> = 56<br></code></pre></td></tr></table></figure>
+
+<p>同时请注意，在子类是不用用基类的padding空间的。证据如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint64_t</span> longNo2 = <span class="hljs-number">1</span>; <span class="hljs-comment">// 8</span><br><span class="hljs-keyword">public</span>: <br>    <span class="hljs-type">uint64_t</span> longNo1 = <span class="hljs-number">2</span>; <span class="hljs-comment">// 8</span><br>    <span class="hljs-type">uint8_t</span> no2 = <span class="hljs-number">12</span>; <span class="hljs-comment">// 1</span><br>    <span class="hljs-comment">// uint8_t no1 = 11; // 1</span><br>    <span class="hljs-comment">// uint8_t no3 = 13; // 1</span><br><span class="hljs-keyword">public</span>:<br>&#125;;<br><br><span class="hljs-comment">/// 子类定义</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SubClassObject</span> : Object &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> subNo1 = <span class="hljs-number">16</span>;<br>    <span class="hljs-type">uint8_t</span> subNo2 = <span class="hljs-number">15</span>;<br>    <span class="hljs-type">uint8_t</span> subNo3 = <span class="hljs-number">17</span>;<br>    <span class="hljs-type">uint8_t</span> subNo4 = <span class="hljs-number">18</span>;<br>    <br>&#125;;<br><br><span class="hljs-comment">/// 调试代码</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj;<br>    <span class="hljs-type">size_t</span> sizeObj = <span class="hljs-built_in">sizeof</span>(Object);<br>    <br>    SubClassObject subobj;<br>    <span class="hljs-type">size_t</span> sizeSubobj = <span class="hljs-built_in">sizeof</span>(SubClassObject);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) p sizeSubobj <br><span class="hljs-variable">$1</span> = 32<br>(gdb) x/32bu &amp;subobj<br>0xffffffffeec8: 1       0       0       0       0       0       0       0<br>0xffffffffeed0: 2       0       0       0       0       0       0       0<br>0xffffffffeed8: 12      0       0       0       0       0       0       0<br>0xffffffffeee0: 16      15      17      18      0       0       0       0<br></code></pre></td></tr></table></figure>
+
+<h1 id="3-虚拟"><a href="#3-虚拟" class="headerlink" title="3. 虚拟"></a>3. 虚拟</h1><p>类的继承链中是否存在虚拟函数会直接影响<strong>类的实例</strong>的大小。总体是这样的规律：若某个类型声明了 <code>virtual</code> 函数，则直接或间接继承了该类型的<strong>所有</strong>衍生类，都需要维护一张 <code>virtual table</code>，用于保存 <code>virtual</code> 函数指针，而此时声明了 <code>virtual</code> 函数的类的实例以及该类的所有衍生类的实例，都需要保证 8 个字节（64 位机）的内存空间用于保存 <code>virtual table</code> 的内存地址，这就是 <code>vptr</code> 指针。代码示例如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint64_t</span> longNo2 = <span class="hljs-number">1</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no2 = <span class="hljs-number">12</span>;<br>    <span class="hljs-type">uint64_t</span> longNo1 = <span class="hljs-number">1</span>;<br>    <span class="hljs-type">uint8_t</span> no1 = <span class="hljs-number">11</span>;<br>    <span class="hljs-type">uint8_t</span> no3 = <span class="hljs-number">13</span>;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">uint8_t</span> no4 = <span class="hljs-number">14</span>;<br>&#125;; <span class="hljs-comment">// 32</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MidObject</span> : Object &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">vfun</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> </span>&#123;<br>        <span class="hljs-comment">// Abstract Method</span><br>    &#125;<br>&#125;; <span class="hljs-comment">// 40</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SubClassObject1</span> : MidObject &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">vfun</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;implement one&quot;</span>);<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SubClassObject2</span> : MidObject &#123;<br><br>&#125;;<br><br><span class="hljs-comment">/// 调试代码</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj = <span class="hljs-built_in">Object</span>();<br>    cout &lt;&lt; <span class="hljs-built_in">sizeof</span>(obj) &lt;&lt; endl; <span class="hljs-comment">// 32</span><br>    MidObject midObj = <span class="hljs-built_in">MidObject</span>();<br>    cout &lt;&lt; <span class="hljs-built_in">sizeof</span>(midObj) &lt;&lt; endl; <span class="hljs-comment">// 40</span><br>    SubClassObject1 subObj1 = <span class="hljs-built_in">SubClassObject1</span>();<br>    cout &lt;&lt; <span class="hljs-built_in">sizeof</span>(subObj1) &lt;&lt; endl; <span class="hljs-comment">// 40</span><br>    SubClassObject2 subObj2 = <span class="hljs-built_in">SubClassObject2</span>();<br>    cout &lt;&lt; <span class="hljs-built_in">sizeof</span>(subObj2) &lt;&lt; endl; <span class="hljs-comment">// 40</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>sizeof(Object)</code>为 32，因为继承链上没有 virtual 函数，所以无需保存 vptr 指针；</li>
+<li><code>sizeof(MidObject)</code>为 40，因为自身声明了 virtual 函数，所以需要保存 vptr 指针；</li>
+<li><code>sizeof(SubClassObject1)</code>和<code>sizeof(SubClassObject2)</code>均为 40，因为父类<code>MidObject</code>声明了 virtual 函数，所以需要保存 vptr 指针（不管有没实现 virtual 函数）；</li>
+</ul>
+<p>那么，virtual table 大概保存了什么东西呢？</p>
+<p>同样可以用GDB 的<code>x</code>命令来简单探索一下。分别打印<code>midObj</code>、<code>subObj1</code>、<code>subObj2</code>的内存空间。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp">(gdb) x/<span class="hljs-number">32</span>bu &amp;obj<br><span class="hljs-number">0xffffffffee38</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee40</span>: <span class="hljs-number">12</span>      <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee48</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee50</span>: <span class="hljs-number">11</span>      <span class="hljs-number">13</span>      <span class="hljs-number">14</span>      <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br>(gdb) x/<span class="hljs-number">40</span>bu &amp;midObj<br><span class="hljs-number">0xffffffffee58</span>: <span class="hljs-number">200</span>     <span class="hljs-number">28</span>      <span class="hljs-number">171</span>     <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee60</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee68</span>: <span class="hljs-number">12</span>      <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee70</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee78</span>: <span class="hljs-number">11</span>      <span class="hljs-number">13</span>      <span class="hljs-number">14</span>      <span class="hljs-number">240</span>     <span class="hljs-number">15</span>      <span class="hljs-number">240</span>     <span class="hljs-number">15</span>      <span class="hljs-number">240</span><br>(gdb) x/<span class="hljs-number">40</span>bu &amp;subObj1<br><span class="hljs-number">0xffffffffee80</span>: <span class="hljs-number">176</span>     <span class="hljs-number">28</span>      <span class="hljs-number">171</span>     <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee88</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee90</span>: <span class="hljs-number">12</span>      <span class="hljs-number">240</span>     <span class="hljs-number">255</span>     <span class="hljs-number">255</span>     <span class="hljs-number">255</span>     <span class="hljs-number">255</span>     <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffee98</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffeea0</span>: <span class="hljs-number">11</span>      <span class="hljs-number">13</span>      <span class="hljs-number">14</span>      <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br>(gdb) x/<span class="hljs-number">40</span>bu &amp;subObj2<br><span class="hljs-number">0xffffffffeea8</span>: <span class="hljs-number">152</span>     <span class="hljs-number">28</span>      <span class="hljs-number">171</span>     <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">170</span>     <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffeeb0</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffeeb8</span>: <span class="hljs-number">12</span>      <span class="hljs-number">115</span>     <span class="hljs-number">191</span>     <span class="hljs-number">247</span>     <span class="hljs-number">255</span>     <span class="hljs-number">255</span>     <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffeec0</span>: <span class="hljs-number">1</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br><span class="hljs-number">0xffffffffeec8</span>: <span class="hljs-number">11</span>      <span class="hljs-number">13</span>      <span class="hljs-number">14</span>      <span class="hljs-number">247</span>     <span class="hljs-number">255</span>     <span class="hljs-number">255</span>     <span class="hljs-number">0</span>       <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>差异在前 8 个字节，也就是说 GNU编译器将 vptr 保存在实例的首 8 个字节。在派生类不太一样，但是这无所谓，因为主题的数据部分是保持一致的。</p>
+<p><code>midObj</code>、<code>subObj1</code>、<code>subObj2</code>的 vptr 也就是 virtual table 的内存地址分别是<code>0xffffffffee58</code>、<code>0xffffffffee80</code>、<code>0xffffffffeea8</code>。用<code>x/g</code>命令分别打印出出上述三个地址为起始的 8 个字节的内存中所保存的内容，比较明显的是三个内存地址从大小上看应该是 text segment 或 data segment 范畴内的内存地址。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) x/gx 0xffffffffee58<br>0xffffffffee58: 0x0000aaaaaaab1cc8<br>(gdb) x/gx 0xffffffffee80<br>0xffffffffee80: 0x0000aaaaaaab1cb0<br>(gdb) x/gx 0xffffffffeea8<br>0xffffffffeea8: 0x0000aaaaaaab1c98<br></code></pre></td></tr></table></figure>
+
+<p>进一步实例的首地址进行分析，发现其确实是执行不同类的虚函数表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">(gdb) p (void(*)(void)) 0x0000aaaaaaab1cc8<br><span class="hljs-variable">$1</span> = (void (*)(void)) 0xaaaaaaab1cc8 &lt;vtable <span class="hljs-keyword">for</span> MidObject+16&gt;<br>(gdb) p (void(*)(void)) 0x0000aaaaaaab1cb0<br><span class="hljs-variable">$2</span> = (void (*)(void)) 0xaaaaaaab1cb0 &lt;vtable <span class="hljs-keyword">for</span> SubClassObject1+16&gt;<br>(gdb) p (void(*)(void)) 0x0000aaaaaaab1c98<br><span class="hljs-variable">$3</span> = (void (*)(void)) 0xaaaaaaab1c98 &lt;vtable <span class="hljs-keyword">for</span> SubClassObject2+16&gt;<br></code></pre></td></tr></table></figure>
+
+<p>有实现虚函数<code>vfunc</code>的类对象的 virtual table，保存了指向自身实现的<code>vfun</code>的函数指针。而未实现<code>vfun</code>的类对象的 virtual table，则保存了继承链中某个类所实现的<code>vfun</code>的函数指针（这里是指向<code>MidObject</code>实现的<code>vfun</code>）。</p>
+<p>既然虚拟函数有引入 virtual table 的特殊性，那么虚拟继承呢，其会更加复杂，我们再后续的学习中会逐步探索。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>本章简单调试了 C++ 模型的一些特性，发现其内存布局和 Objective-C 的 Runtime 实现还是有一定的相似之处，例如要求<strong>字节对齐</strong>和<strong>继承触发</strong>的对象尺寸扩展的行为特点。</p>
+<p>C++ 实现面向对象，实际是以 C++ 编译器强干预为前提的。这也是为什么编写 C++ 代码过程中，会更容易遇到类型检查相关的编译 Error 提示，尤其是不按规则的强转，因为 C++ 在编译阶段就需要<strong>确立</strong>很多具体的类型信息，例如成员变量在对象内存空间中的偏移，类的成员函数的具体地址，这些类型信息基本不会推迟到运行时决议（也不需要），所以 C++ 原生是没有反射机制的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Object obj = <span class="hljs-built_in">Object</span>();<br>    MidObject midObj = <span class="hljs-built_in">MidObject</span>();<br>    SubClassObject1 subObj1 = <span class="hljs-built_in">SubClassObject1</span>();<br>    SubClassObject2 subObj2 = <span class="hljs-built_in">SubClassObject2</span>();<br>    <br>    <span class="hljs-comment">// 调试代码一：非 virtual 机制</span><br>    MidObject *midObjPtr = (MidObject *)&amp;midObj;<br>    Object *baseObjPtr = (Object *)&amp;midObj;<br>    <br>    <span class="hljs-comment">// 调试代码二：virtual 机制</span><br>    SubClassObject1 *subObjPtr1 = &amp;subObj1;<br>    MidObject *midObjPtr12= (MidObject *)subObjPtr1;<br>    midObjPtr-&gt;<span class="hljs-built_in">vfun</span>(); <span class="hljs-comment">//打印结果：implement it</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如上面调试代码一所示，用 GDB <code>p sizeof(*baseObjPtr)</code>和<code>p sizeof(*midObjPtr)</code>得到的结果分别是 32 和 40，即使<code>baseObjPtr</code>和<code>midObjPtr</code>指向相同的内存地址，但编译阶段实际上已经将其标记为两种类型，所以运行时<code>baseObjPtr</code>和<code>midObjPtr</code>所指向的对象类型就是编译时所声明的类型。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp">(gdb) <span class="hljs-function">p <span class="hljs-title">sizeof</span><span class="hljs-params">(*baseObjPtr)</span></span><br><span class="hljs-function">$3 </span>= <span class="hljs-number">32</span><br>(gdb) <span class="hljs-function">p <span class="hljs-title">sizeof</span><span class="hljs-params">(*midObjPtr)</span></span><br><span class="hljs-function">$4 </span>= <span class="hljs-number">40</span><br>(gdb) p &amp;midObj<br>$<span class="hljs-number">5</span> = (MidObject *) <span class="hljs-number">0xffffffffe9a0</span><br>(gdb) <span class="hljs-built_in">p</span> (MidObject *) &amp;midObj<br>$<span class="hljs-number">6</span> = (MidObject *) <span class="hljs-number">0xffffffffe9a0</span><br>(gdb) <span class="hljs-built_in">p</span> (Object *) &amp;midObj<br>$<span class="hljs-number">7</span> = (Object *) <span class="hljs-number">0xffffffffe9a8</span> <span class="hljs-comment">// 比Midobject高8个字节，是因为减去了虚函数的指向</span><br>(gdb) <span class="hljs-built_in">p</span> (<span class="hljs-type">int</span> *) &amp;midObj<br>$<span class="hljs-number">8</span> = (<span class="hljs-type">int</span> *) <span class="hljs-number">0xffffffffe9a0</span><br>(gdb) <span class="hljs-built_in">p</span> (<span class="hljs-type">void</span> *) &amp;midObj<br>$<span class="hljs-number">9</span> = (<span class="hljs-type">void</span> *) <span class="hljs-number">0xffffffffe9a0</span><br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" class="category-chain-item">读书笔记</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/%E6%B7%B1%E5%BA%A6%E6%8E%A2%E7%B4%A2C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B/" class="category-chain-item">深度探索C++对象模型</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>第一章：关于对象</div>
+      <div>https://csningg.github.io/posts/726162626/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>zningg</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年5月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/4223977684/" title="第二章：构造函数语意学">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第二章：构造函数语意学</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/1979324518/" title="LeetCode-02">
+                        <span class="hidden-mobile">LeetCode-02</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
