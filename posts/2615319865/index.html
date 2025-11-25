@@ -19,12 +19,12 @@
   <meta name="author" content="zningg">
   <meta name="keywords" content="">
   
-    <meta name="description" content="背景HNSW(Hierarchical Navigable Small World)是一种向量检索算法，向量检索算法包含基于树，图，哈希以及量化的各种算法，HNSW是基于图的一种高效ANN(Approximate Nearest Neighbors)检索算法，其在查询性能和召回率上表现十分优异，广泛应用在工业界中。  HNSW的中文名称是分层可导航的最小网络世界，其是基于跳表(Skip List)">
+    <meta name="description" content="背景 HNSW(Hierarchical Navigable Small World)是一种向量检索算法，向量检索算法包含基于树，图，哈希以及量化的各种算法，HNSW是基于图的一种高效ANN(Approximate Nearest Neighbors)检索算法，其在查询性能和召回率上表现十分优异，广泛应用在工业界中。  HNSW的中文名称是分层可导航的最小网络世界，其是基于跳表(Skip List">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HNSW:一种高效的图向量检索算法">
 <meta property="og:url" content="https://csningg.github.io/posts/2615319865/index.html">
 <meta property="og:site_name" content="ning">
-<meta property="og:description" content="背景HNSW(Hierarchical Navigable Small World)是一种向量检索算法，向量检索算法包含基于树，图，哈希以及量化的各种算法，HNSW是基于图的一种高效ANN(Approximate Nearest Neighbors)检索算法，其在查询性能和召回率上表现十分优异，广泛应用在工业界中。  HNSW的中文名称是分层可导航的最小网络世界，其是基于跳表(Skip List)">
+<meta property="og:description" content="背景 HNSW(Hierarchical Navigable Small World)是一种向量检索算法，向量检索算法包含基于树，图，哈希以及量化的各种算法，HNSW是基于图的一种高效ANN(Approximate Nearest Neighbors)检索算法，其在查询性能和召回率上表现十分优异，广泛应用在工业界中。  HNSW的中文名称是分层可导航的最小网络世界，其是基于跳表(Skip List">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://csningg.github.io/pictures/20250523/06/6.jpg">
 <meta property="article:published_time" content="2025-06-15T14:48:32.000Z">
@@ -305,23 +305,27 @@
             
               <div class="markdown-body">
                 
-                <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a><strong>背景</strong></h1><p>HNSW(<strong>Hierarchical Navigable Small World</strong>)是一种向量检索算法，向量检索算法包含基于<strong>树</strong>，<strong>图</strong>，<strong>哈希</strong>以及<strong>量化</strong>的各种算法，HNSW是<strong>基于图</strong>的一种高效ANN(<strong>Approximate Nearest Neighbors</strong>)检索算法，其在查询性能和召回率上表现十分优异，广泛应用在工业界中。</p>
-<p><img src="/pictures/20250523/hnsw/image.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+                <h1 id="背景"><strong>背景</strong></h1>
+<p>HNSW(<strong>Hierarchical Navigable Small World</strong>)是一种向量检索算法，向量检索算法包含基于<strong>树</strong>，<strong>图</strong>，<strong>哈希</strong>以及<strong>量化</strong>的各种算法，HNSW是<strong>基于图</strong>的一种高效ANN(<strong>Approximate Nearest Neighbors</strong>)检索算法，其在查询性能和召回率上表现十分优异，广泛应用在工业界中。</p>
+<p><img src="/pictures/20250523/hnsw/image.png" srcset="/img/loading.gif" lazyload /></p>
 <p>HNSW的中文名称是<strong>分层可导航的最小网络世界</strong>，其是基于跳表(<strong>Skip List</strong>)和可导航的最小网络世界(<strong>NSW</strong>)两种数据结构构建的，因此我们先介绍这两个基础的概念。</p>
-<h1 id="HNSW基础"><a href="#HNSW基础" class="headerlink" title="HNSW基础"></a>HNSW基础</h1><h2 id="跳表"><a href="#跳表" class="headerlink" title="跳表"></a>跳表</h2><p>熟悉Redis的同学对于跳表的原理比较熟悉。跳表的出现主要是解决链表在随机插入，删除，查找的时间复杂度为O(n)的问题，跳表是一种典型的以<strong>空间换时间</strong>的数据结构，通过引入额外层的方法，使得链表的随机访问的时间复杂度为O(logN)。跳表的结构如下，其最上层连接的节点数最少，随着层数向相下，连接的节点越来越多。最后一层，是所有节点相连。</p>
-<p><img src="/pictures/20250523/hnsw/image%201.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<h1 id="hnsw基础">HNSW基础</h1>
+<h2 id="跳表">跳表</h2>
+<p>熟悉Redis的同学对于跳表的原理比较熟悉。跳表的出现主要是解决链表在随机插入，删除，查找的时间复杂度为O(n)的问题，跳表是一种典型的以<strong>空间换时间</strong>的数据结构，通过引入额外层的方法，使得链表的随机访问的时间复杂度为O(logN)。跳表的结构如下，其最上层连接的节点数最少，随着层数向相下，连接的节点越来越多。最后一层，是所有节点相连。</p>
+<p><img src="/pictures/20250523/hnsw/image%201.png" srcset="/img/loading.gif" lazyload /></p>
 <p><strong>查找过程：</strong></p>
 <p>假如我们目标是查找元素i，从最高成开始，一旦找到了链表元素的值<strong>大于i</strong>或者是到了最后一个节点(认为是正无穷)，随即回退到上一个节点，并且移动到下一层，重复上面的过程，直到找到为止。比如要查找元素11，从最高层layer3开始，到最后一个节点(正无穷)，然后回退上一个节点5，到下一层layer2，第二个节点19已经大于11，回退到上一个节点5，然后到下一层layer1，5的下一个节点就是11。到此，返回结果，查到目标元素。</p>
 <p><strong>插入过程：</strong></p>
-<p>如果要插入一个元素，首先要查找到其应该在的位置，这个可应用上述的查找过程。将其插入到<strong>最底层</strong>(layer0)后，是否需要建立layer1层的来连接是通过抛硬币的方式(1&#x2F;2的概率)决定的，如果在layer1层建立连接，那是否要在layer2层建立连接也是通过抛硬币的方式决定的，依次类推……此方法在数据量级较大的时候，可以保证layer0层节点* 1&#x2F;2 ≈ layer1层节点， layer1层节点 * 1&#x2F;2 ≈ layer2层 ……，因此其可以保存插入，查找，删除的时间复杂度为O(logN)。</p>
-<h2 id="SW"><a href="#SW" class="headerlink" title="SW"></a>SW</h2><p>SW是单层的小世界图，在介绍SW之前，需要先了解图论中的一些基本概念。<br>正则图：正则图是指每个顶点都有相同数目邻居的图，即每个顶点的度相同。若每个顶点的度均为 k，称为 k-正则图。</p>
-<p><img src="/pictures/20250523/hnsw/image%202.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p>如果要插入一个元素，首先要查找到其应该在的位置，这个可应用上述的查找过程。将其插入到<strong>最底层</strong>(layer0)后，是否需要建立layer1层的来连接是通过抛硬币的方式(1/2的概率)决定的，如果在layer1层建立连接，那是否要在layer2层建立连接也是通过抛硬币的方式决定的，依次类推……此方法在数据量级较大的时候，可以保证layer0层节点* 1/2 ≈ layer1层节点， layer1层节点 * 1/2 ≈ layer2层 ……，因此其可以保存插入，查找，删除的时间复杂度为O(logN)。</p>
+<h2 id="sw">SW</h2>
+<p>SW是单层的小世界图，在介绍SW之前，需要先了解图论中的一些基本概念。 正则图：正则图是指每个顶点都有相同数目邻居的图，即每个顶点的度相同。若每个顶点的度均为 k，称为 k-正则图。</p>
+<p><img src="/pictures/20250523/hnsw/image%202.png" srcset="/img/loading.gif" lazyload /></p>
 <p>随机图：随机图是指在随机过程的生成的图，也就是节点和节点之间的连接是随机建立的。</p>
-<p><img src="/pictures/20250523/hnsw/image%203.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%203.png" srcset="/img/loading.gif" lazyload /></p>
 <p>六度空间理论：</p>
 <blockquote>
 <p>在1967年Stanley Milgram从Kansas和Nebraska两个州招募了一批志愿者， 请他们分别将一封信转寄给一个住在Cambridge神学院学生的妻子和一个住在Boston郊区的股票经纪人。 他给志愿者们这样的要求：</p>
-<ol>
+<ol type="1">
 <li>虽然有寄信目标的相关信息，如果不是私人关系，不能把信直接寄给TA.</li>
 <li>每次只能把信寄给最有可能知道这个人的熟人。</li>
 <li>原始信封里有15张追踪卡片，每次转寄都要回寄一张给实验者，其他的放在信封里寄给下一个人，这样研究员可以随时追踪这些信函的路径。</li>
@@ -329,7 +333,7 @@
 <p>在到达的信函中，Stanley Milgram计算信函平均到达的节点为5个，也就是我们和一个陌生人建立连接只需要6步</p>
 </blockquote>
 <p>Stanley Milgram基于他的实验提出了著名的<strong>六度分离理论</strong>，这个理论指出:</p>
-<ol>
+<ol type="1">
 <li>现实世界中的短路径是普遍存在的。</li>
 <li>人们可以有效地找到并且利用这些短路径。</li>
 </ol>
@@ -339,25 +343,26 @@
 <li><strong>弱连接</strong>: 弱连接是指从每一个节点上，会有一些随机的边随机连接到网络中的节点上，这些节点是随机均匀的。</li>
 </ul>
 <p><strong>正则图 vs 小世界图 vs 随机图</strong></p>
-<p><img src="/pictures/20250523/hnsw/image%204.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%204.png" srcset="/img/loading.gif" lazyload /></p>
 <p>小世界图在局部同类节点的连接呈现出规则，从全局来看不同类节点的连接呈现出随机性。 这两种性质也就是上面我们所说的<strong>同质性</strong>和<strong>弱连接</strong>。</p>
-<h2 id="NSW"><a href="#NSW" class="headerlink" title="NSW"></a><strong>NSW</strong></h2><p>在向量召回的场景下，以二维向量的召回为例，假设所有的embedding向量都是二维的，如下图所。黑色箭头是构建全量的embedding向量库，红色向量代表的是用户请求向量，即Query Emdedding，向量检索的目标就是在黑色的向量中挑选top K个和红色向量最接近的候选向量。</p>
-<p><img src="/pictures/20250523/hnsw/image%205.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<h2 id="nsw"><strong>NSW</strong></h2>
+<p>在向量召回的场景下，以二维向量的召回为例，假设所有的embedding向量都是二维的，如下图所。黑色箭头是构建全量的embedding向量库，红色向量代表的是用户请求向量，即Query Emdedding，向量检索的目标就是在黑色的向量中挑选top K个和红色向量最接近的候选向量。</p>
+<p><img src="/pictures/20250523/hnsw/image%205.png" srcset="/img/loading.gif" lazyload /></p>
 <p>接下来就是构建NSW，NSW由于具有<strong>同质性</strong>和<strong>弱连接性</strong>，可以具备很好的表现性能，在较快的时间内查找到目标向量。构建好的NSW图如下所示。</p>
-<p><img src="/pictures/20250523/hnsw/image%206.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%206.png" srcset="/img/loading.gif" lazyload /></p>
 <p>其中我们认为红色的边具备<strong>弱连接性</strong>，黑色的边具备<strong>同质性</strong>。红色的称为Long-Range Edge，其可以让两个距离较远的边直接连接起来，不需要经过多个阶段的转发，使得整个图具备高速公路机制。黑色的边，就是Short-Range Edge，用于连接连个节点的点。</p>
 <p><strong>构图过程：</strong></p>
-<p>NSW的构图过程比较简单，对于每插入一个点，找到距离它最近的M个点，跟这M个点建立建立即可。假如我们要构建一张图，M&#x3D;3，如下图表示了构图的过程，黑色的点代表已有的点，红色的点代表新插入的点。<strong>红点会和距离其最近的M个黑点</strong>建立连接。</p>
-<p><img src="/pictures/20250523/hnsw/image%207.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p>NSW的构图过程比较简单，对于每插入一个点，找到距离它最近的M个点，跟这M个点建立建立即可。假如我们要构建一张图，M=3，如下图表示了构图的过程，黑色的点代表已有的点，红色的点代表新插入的点。<strong>红点会和距离其最近的M个黑点</strong>建立连接。</p>
+<p><img src="/pictures/20250523/hnsw/image%207.png" srcset="/img/loading.gif" lazyload /></p>
 <p>那么高速公路机制是如何建立起来的呢？在构图的早期，由于节点的个数比较少，即使两点距离的很远，但还是有可能建立连接的。比如在第四步中的左下和右上两个节点，即使他们俩距离的很远，但是连接还是被建立起来了。而在构图的后期，图中的节点已经很多了，新插入一个节点时，更有可能找到距离它最近的M个节点。因此高速公路在构图的早期已经被建立起来了，在构图后期，不太有可能有高速公路建立起来。</p>
 <p><strong>搜索过程：</strong></p>
 <p>NSW的搜索过程是找到距离候选点最近的M个点，搜索方法是从图中的任意一个点作为起始点出发，使用<strong>贪心</strong>的方法，依次去查找距离target最近的M个点。整个过程需要维护两个优先队列，分别是候选点集candidate(<strong>小顶堆</strong>)，结果集result(<strong>大顶堆</strong>)。比较函数是距离target的远近。以下图为例阐述整个搜索过程。</p>
-<p><img src="/pictures/20250523/hnsw/image%208.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%208.png" srcset="/img/loading.gif" lazyload /></p>
 <p>candidate代表的是候选结果集，队列大小为3，result是结果集，队列大小为3，visited是已经访问过的节点集。(a): 以点A作为起点开始查找，此时结果集，候选集，访问队列都为A(b): 从点A可以得到点G,B，将G,B加入到小顶堆candidate中，顺序为G,B,A。同时将G,B加入到大顶堆result中，顺序为A,B,G(c): 将小顶堆candidate中队首元素pop出来，即G,以G为起点进行广度优先搜索，得到F,E。将E,F假如到candidate中，得到F,E,B。将F假如到result中，得到B,G,F。再将E加入到result中，得到G,E,F(d): 将小顶堆candidate中队首元素pop出来，即F,以F为起点进行广度优先搜索，得到D,将D加入到小顶堆candidate中，得到小顶堆D,E,B。同时将D加入到大顶堆result中，得到大顶堆E,D,F(e): 将小顶堆candidate中队首原生pop出来，即D,以D为起点进行广度优先搜索，得到C,将C加入到小顶堆candidate中，得到E,C,B。同时将C加入到大顶堆中，得到大顶堆E,D,F</p>
 <p><strong>此时candidate中距离target最近距离已经大于等于result中距离target最远距离，搜索结束。</strong></p>
 <p><strong>SEACHER-LAYER:</strong></p>
 <p>在指定层查找K个最近邻节点。</p>
-<p><img src="/pictures/20250523/hnsw/image%209.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%209.png" srcset="/img/loading.gif" lazyload /></p>
 <p><strong>传入参数：</strong></p>
 <p>q:表示需要查找的节点，ep: 固定的起始节点，如果Layer是最顶层，有固定的入口节点。如果不是最顶层则是上一层查询到的最近邻。ef: 查找的邻居节点数目lc: 查询的层数</p>
 <p><strong>输出:</strong></p>
@@ -365,7 +370,7 @@
 <p><strong>功能:</strong></p>
 <p>SEARCH LAYER算法的功能是在给定一个节点q和起始查询节点eq、查询的层lc的情况下，查找出节点q在层lc下的ef个最近邻。</p>
 <p><strong>算法步骤：</strong></p>
-<ol>
+<ol type="1">
 <li>首先根据ep初始化visited set V, candidate set C, 以及动态最近邻W</li>
 <li>当 candidate set 不为空的时候执行:</li>
 </ol>
@@ -380,40 +385,43 @@
 <li>如果distance(e,q) &lt; distance(f,q) 或者 |W| &lt; ef 将 e分别加入 candidate set C和动态最近邻W</li>
 <li>如果 |W| &gt; ef 移除最大元素。</li>
 </ul>
-<ol>
+<ol type="1">
 <li>返回集合W</li>
 </ol>
-<h1 id="HNSW"><a href="#HNSW" class="headerlink" title="HNSW"></a><strong>HNSW</strong></h1><p>HNSW就是将跳表结构应用到图中，其总体思想如下：</p>
-<ol>
-<li>在Layer &#x3D; 0 层中，包含了连通图中所有的点。</li>
+<h1 id="hnsw"><strong>HNSW</strong></h1>
+<p>HNSW就是将跳表结构应用到图中，其总体思想如下：</p>
+<ol type="1">
+<li>在Layer = 0 层中，包含了连通图中所有的点。</li>
 <li>随着层数的增加，每一层的点数逐渐减少并且遵循指数衰减定律</li>
 <li>图节点的最大层数，由随机指数概率衰减函数决定。</li>
 <li>从某个点所在的最高层往下的所有层中均存在该节点。</li>
 <li>在对HNSW进行查询的时候，从最高层开始检索。</li>
 </ol>
-<p><a target="_blank" rel="noopener" href="https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=2e28b19917cb478c9541a99d6f41c3c4&docGuid=nYrT2-8Peq81st"></a></p>
-<p>跳表的每一层，都是一个小世界网络。其中最底层(Layer&#x3D;0)是一个完整的NSW，其它层存储的则是指向图节点的指针索引。使用跳表的原因是<strong>为了少做无用功耽误时间</strong>。在一个上亿量级的小世界网络中进行检索，尽管有高速公路机制的存在，量级大了耗时还是教高。因为NSW的检索时间复杂度是多重对数的。</p>
+<p><a target="_blank" rel="noopener" href="https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=2e28b19917cb478c9541a99d6f41c3c4&amp;docGuid=nYrT2-8Peq81st"></a></p>
+<p>跳表的每一层，都是一个小世界网络。其中最底层(Layer=0)是一个完整的NSW，其它层存储的则是指向图节点的指针索引。使用跳表的原因是<strong>为了少做无用功耽误时间</strong>。在一个上亿量级的小世界网络中进行检索，尽管有高速公路机制的存在，量级大了耗时还是教高。因为NSW的检索时间复杂度是多重对数的。</p>
 <p><em>原因是</em></p>
 <p><em>距离计算次数等于 “检索要经过的节点数量” 乘以 “每个节点的度”。“检索要经过的节点数量” 以及 “每个节点的度”随着图规模的增大，都是对数增长的。两个对数复杂度相乘，是多重对数复杂度了。</em></p>
 <p><strong>解决方案就是分层：</strong></p>
 <p>只要把“每个节点的度”控制住，如果节点的度太高了，就把它们分散到不同层级。这样可以保证，“检索要经过的节点数量”依旧对数增长，而节点的度是常量，那么整个检索过程就是对数增长而不是多重对数增长了。</p>
-<h2 id="插入过程"><a href="#插入过程" class="headerlink" title="插入过程:"></a>插入过程:</h2><p>一个新的节点，在哪一层开始插入，是随机的。随机是带权的，随机到下层的概率较高。如果随机到l层，那么从l-0层都要插入此点。</p>
-<p><img src="/pictures/20250523/hnsw/image%2010.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<p>在图中新插入一个节点，首先通过随机函数确定该节点的最大层l，例如l &#x3D; 2, max layer &#x3D; 5。整个新增流程主要分为两部分，第一步先从最上层开始，使用BFS寻找最近的节点。找到的节点随后被用作下一层的入口点，并继续进行搜索。一旦到达第l层，插入过程将进入第二步。<br>从第l层开始，算法在当前层插入新节点。然后，它在步骤1中的操作与之前相同，但不再只寻找一个最近邻，而是贪婪地搜索efConstruction个最近邻。接着，从efConstruction个邻近节点中选择M个，并建立从插入节点到这些节点的边。之后，算法下降到下一层，每个找到的efConstruction个节点都作为入口点。当新节点及其边被插入到最底层0后，算法终止。</p>
-<p><img src="/pictures/20250523/hnsw/image%2011.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<h2 id="插入过程">插入过程:</h2>
+<p>一个新的节点，在哪一层开始插入，是随机的。随机是带权的，随机到下层的概率较高。如果随机到l层，那么从l-0层都要插入此点。</p>
+<p><img src="/pictures/20250523/hnsw/image%2010.png" srcset="/img/loading.gif" lazyload /></p>
+<p>在图中新插入一个节点，首先通过随机函数确定该节点的最大层l，例如l = 2, max layer = 5。整个新增流程主要分为两部分，第一步先从最上层开始，使用BFS寻找最近的节点。找到的节点随后被用作下一层的入口点，并继续进行搜索。一旦到达第l层，插入过程将进入第二步。 从第l层开始，算法在当前层插入新节点。然后，它在步骤1中的操作与之前相同，但不再只寻找一个最近邻，而是贪婪地搜索efConstruction个最近邻。接着，从efConstruction个邻近节点中选择M个，并建立从插入节点到这些节点的边。之后，算法下降到下一层，每个找到的efConstruction个节点都作为入口点。当新节点及其边被插入到最底层0后，算法终止。</p>
+<p><img src="/pictures/20250523/hnsw/image%2011.png" srcset="/img/loading.gif" lazyload /></p>
 <p>entry_point 是图的入口节点，是在建库(插入数据)时确定的，为当前最大层的第一个节点。</p>
-<p><img src="/pictures/20250523/hnsw/image%2012.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%2012.png" srcset="/img/loading.gif" lazyload /></p>
 <p><strong>启发式裁剪：</strong></p>
-<p>伪代码的第9，10行，可以看到在每一层搜索与插入点最邻近的M个节点的时候，它是先召回了efConstruction个，然后再select了M个(efConstruction &gt;&#x3D; M)。关于启发式裁剪，论文中给出了一种bad case。在图构建的过程当中，会出现形成了两个cluster的场景，如下图所示，假设新插入的节点都离cluster1很近，根据knn搜索，会导致cluster1和cluster2之间，一直没有连接建立，那么从cluster1到cluster2的搜索跳转就会很麻烦，会兜一大圈。</p>
-<p><img src="/pictures/20250523/hnsw/image%2013.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p>伪代码的第9，10行，可以看到在每一层搜索与插入点最邻近的M个节点的时候，它是先召回了efConstruction个，然后再select了M个(efConstruction &gt;= M)。关于启发式裁剪，论文中给出了一种bad case。在图构建的过程当中，会出现形成了两个cluster的场景，如下图所示，假设新插入的节点都离cluster1很近，根据knn搜索，会导致cluster1和cluster2之间，一直没有连接建立，那么从cluster1到cluster2的搜索跳转就会很麻烦，会兜一大圈。</p>
+<p><img src="/pictures/20250523/hnsw/image%2013.png" srcset="/img/loading.gif" lazyload /></p>
 <p>启发式算法可以防止节点数据过于集中，保证图的连通性。例如下图所示结构的图表。一共有三个区域，其中两个区域（位于左侧和顶部）并未相互连接。因此，例如从点A到点B需要穿过另一个区域，路径较长。为了更好地导航，将这两个区域以某种方式连接起来是合乎逻辑的。</p>
-<p><img src="/pictures/20250523/hnsw/image%2014.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<p>例如节点X被插入到图中, 并且需要连接 M&#x3D;2 个其他节点,在这种情况下, 尽管X和B、C是真正的最近邻, 但是这并不能解决上述提到的问题, 启发式方法不仅考虑节点之间的最近距离, 还考虑图中不同区域的连通性.</p>
-<p><img src="/pictures/20250523/hnsw/image%2015.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%2014.png" srcset="/img/loading.gif" lazyload /></p>
+<p>例如节点X被插入到图中, 并且需要连接 M=2 个其他节点,在这种情况下, 尽管X和B、C是真正的最近邻, 但是这并不能解决上述提到的问题, 启发式方法不仅考虑节点之间的最近距离, 还考虑图中不同区域的连通性.</p>
+<p><img src="/pictures/20250523/hnsw/image%2015.png" srcset="/img/loading.gif" lazyload /></p>
 <p>启发式裁剪的叙述如下：红色点Q就是新插入的点，ABCD四个黑色点就是本次召回的点。那么第一个我们铁定选择A，因为A是距离Q最近的。但是第二步，按照最邻近，我们应该选择B，因为B距离Q是第二近的。但是，此时gap就形成了，ABQ成了一派，CD成了一派。启发式裁剪的做法是，此时AQ已经建立了，进行下一轮建立时，最近的是B，但是AB的距离比BQ要小，因此放弃B转而查看下一个最近的点C；CA的距离比CQ要来的大，那么Q就跟C建立连接。附上论文中启发式裁剪的伪代码。</p>
-<p><img src="/pictures/20250523/hnsw/image%2016.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h2 id="查找过程："><a href="#查找过程：" class="headerlink" title="查找过程："></a>查找过程：</h2><p>检索从最高层开始，每次在层节点中贪婪地找到局部最近邻后，便向下搜索一层。最终，在最低层找到的最近邻即为查询的结果。</p>
-<p><img src="/pictures/20250523/hnsw/image%2017.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%2016.png" srcset="/img/loading.gif" lazyload /></p>
+<h2 id="查找过程">查找过程：</h2>
+<p>检索从最高层开始，每次在层节点中贪婪地找到局部最近邻后，便向下搜索一层。最终，在最低层找到的最近邻即为查询的结果。</p>
+<p><img src="/pictures/20250523/hnsw/image%2017.png" srcset="/img/loading.gif" lazyload /></p>
 <p>主要包含以下4几个算法。</p>
 <ul>
 <li>SEACHER-LAYER: 在指定层查询K个最近邻节点。</li>
@@ -424,20 +432,20 @@
 <p><strong>SELECT-NEIGHBORS：</strong></p>
 <p>在<strong>SELECT-NEIGHBORS</strong>主要分为两个部分由SELECT-NEIGHBORS-SIMPLE以及SELECT-NEIGHBORS-HEURISTIC两个算法组成。</p>
 <p><strong>SELECT-NEIGHBORS-SIMPLE和SELECT-NEIGHBORS-HEURISTIC两个算法都是用在图构建的过程中，而不用在KNN的近邻检索，与SIMPLE不同的是HEURISTIC方法添加了更多的随机性，从而同一层节点之间的连接随机性更强。</strong></p>
-<p><img src="/pictures/20250523/hnsw/image%2018.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%2018.png" srcset="/img/loading.gif" lazyload /></p>
 <p><strong>参数输入：</strong></p>
 <p>q:表示需要查询的节点。C:表示查询的候选节点集合。M:表示返回最近邻居的个数。</p>
 <p><strong>输出：</strong></p>
 <p>q在C中的M个最近邻居</p>
 <p><strong>功能：</strong></p>
 <p>选取出节点q在候选集C中的M个最近邻居。</p>
-<p><img src="/pictures/20250523/hnsw/image%2019.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%2019.png" srcset="/img/loading.gif" lazyload /></p>
 <p><strong>参数输入：</strong></p>
 <p>q:表示我们需要查询的节点。C:表示candidate 节点；M:表示返回的最近邻节点的个数M；lc:表示返回的层的编号extendCandidates:表示是否需要扩展candidatekeepPrunedConnection:表示是否需要把废弃节点加入到返回结果中</p>
 <p><strong>返回结果</strong></p>
 <p>通过探索式查找返回最近邻的M个结果。</p>
 <p><strong>K-NN-SEACHER</strong></p>
-<p><img src="/pictures/20250523/hnsw/image%2020.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><img src="/pictures/20250523/hnsw/image%2020.png" srcset="/img/loading.gif" lazyload /></p>
 <p>从固定的enter节点进入，在顶层开始检索。 在每一层检索到唯一一个最近邻然后作为下一层入口节点。最后在底层检索top K个最相似节点。</p>
 
                 

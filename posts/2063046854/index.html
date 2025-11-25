@@ -306,18 +306,16 @@
             
               <div class="markdown-body">
                 
-                <p>本文是在学习数据结构与算法的记录于思考，包括但不限于LeetCode，算法笔记，算法思想的记录……</p>
-<span id="more"></span>
-
-<h1 id="数据结构与算法之美"><a href="#数据结构与算法之美" class="headerlink" title="数据结构与算法之美"></a>数据结构与算法之美</h1><h2 id="递归-分治"><a href="#递归-分治" class="headerlink" title="递归&amp;分治"></a>递归&amp;分治</h2><p>递归：</p>
+                <p>本文是在学习数据结构与算法的记录于思考，包括但不限于LeetCode，算法笔记，算法思想的记录…… <span id="more"></span></p>
+<h1 id="数据结构与算法之美">数据结构与算法之美</h1>
+<h2 id="递归分治">递归&amp;分治</h2>
+<p>递归：</p>
 <p>递归的本质就是循环，只是与我们传统理解的<code>for</code>，<code>while</code>不同，其是用函数来进行循环。递归的实现和盗梦空间里的场景非常类似，可以在梦里再进入梦境，但是总归有梦醒的时候。所以之前的故事，从前有座山，山里有座庙，庙里有个和尚讲故事……，这是个死递归，因为没有递归返回的时候。</p>
 <p>因此我们在编写递归程序的时候，一定要避免这种情况，一定要有递归跳出的时候。所以递归的模板总结如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#  level 表示当前进入了递归的哪一层</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">recuresion</span>(<span class="hljs-params">level, param1, param2, ...</span>)<br>    <span class="hljs-keyword">if</span> level &gt; MAX_LEVEL<br>        print_result()<br>        <span class="hljs-keyword">return</span><br>    <span class="hljs-comment"># 当前层处理逻辑</span><br>    process_data(level, data...)<br>    <span class="hljs-comment"># 进入下一层</span><br>    <span class="hljs-variable language_">self</span>.recuresion(level + <span class="hljs-number">1</span>, p1, ...)<br><br>    <span class="hljs-comment"># 当前层如果需要一下后置处理</span><br>    reverse_state(level)<br></code></pre></td></tr></table></figure>
-
 <p>分治：</p>
 <p>分治需要将大问题分割成小问题，然后依次处理各个小问题，最后合并。思想比较简单，但是实现起来就没那么简单了，算法模板如下所示：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">divide_conquer</span>(<span class="hljs-params">problem, param1, param2, ...</span>)<br>    <span class="hljs-keyword">if</span> problem <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        print_result()<br>        <span class="hljs-keyword">return</span><br>    <br>    data = process_data(problem)<br>    subproblems = spilt_problem(problem, data)<br><br>    subresult1 = <span class="hljs-variable language_">self</span>.divide_conquer(subproblems[<span class="hljs-number">0</span>], p1, p2, ...)<br>    subresult2 = <span class="hljs-variable language_">self</span>.divide_conquer(subproblems[<span class="hljs-number">1</span>], p1, p2, ...)<br>    subresult3 = <span class="hljs-variable language_">self</span>.divide_conquer(subproblems[<span class="hljs-number">2</span>], p1, p2, ...)<br>    <span class="hljs-comment"># ...</span><br><br>    result = process_result(subresult1, subresult2, subresult3, ...)<br></code></pre></td></tr></table></figure>
-
 
                 
               </div>

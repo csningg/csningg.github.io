@@ -243,7 +243,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          732 字
+          727 字
         
       </span>
     
@@ -305,12 +305,11 @@
             
               <div class="markdown-body">
                 
-                <p>在C++中，字符串的常用表示形式有3中，分别是<code>string</code>，<code>const char*</code> ，<code>char*</code>，这三者在<strong>内存管理</strong>，<strong>可变形</strong>，以及<strong>接口兼容性</strong>中有显著的差别，需要注意区分。</p>
-<span id="more"></span>
-
-<h1 id="基本区别"><a href="#基本区别" class="headerlink" title="基本区别"></a>基本区别</h1><table>
+                <p>在C++中，字符串的常用表示形式有3中，分别是<code>string</code>，<code>const char*</code> ，<code>char*</code>，这三者在<strong>内存管理</strong>，<strong>可变形</strong>，以及<strong>接口兼容性</strong>中有显著的差别，需要注意区分。 <span id="more"></span></p>
+<h1 id="基本区别">基本区别</h1>
+<table>
 <thead>
-<tr>
+<tr class="header">
 <th><strong>类型</strong></th>
 <th><strong>说明</strong></th>
 <th><strong>可变性</strong></th>
@@ -318,64 +317,67 @@
 <th><strong>典型用途</strong></th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr class="odd">
 <td><strong><code>std::string</code></strong></td>
 <td>C++ 标准库字符串类，封装了动态字符数组</td>
 <td>可变</td>
 <td>自动管理内存（RAII）</td>
 <td>通用字符串操作</td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong><code>char*</code></strong></td>
 <td>指向可变字符数组的指针（C 风格字符串）</td>
 <td>可变</td>
-<td>需手动管理内存（<code>new</code>&#x2F;<code>delete</code>）</td>
+<td>需手动管理内存（<code>new</code>/<code>delete</code>）</td>
 <td>与 C 接口交互</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><strong><code>const char*</code></strong></td>
 <td>指向<strong>不可变</strong>字符数组的指针（C 风格字符串字面量）</td>
 <td>不可变</td>
-<td>通常是静态存储（如 <code>&quot;hello&quot;</code>）</td>
+<td>通常是静态存储（如 <code>"hello"</code>）</td>
 <td>字符串常量、只读访问</td>
 </tr>
-</tbody></table>
-<h1 id="在模板编程中的差异"><a href="#在模板编程中的差异" class="headerlink" title="在模板编程中的差异"></a>在模板编程中的差异</h1><p>在模板编程时，<code>string</code>、<code>char*</code> 和 <code>const char*</code> 的行为可能不同，主要涉及：</p>
-<ol>
+</tbody>
+</table>
+<h1 id="在模板编程中的差异">在模板编程中的差异</h1>
+<p>在模板编程时，<code>string</code>、<code>char*</code> 和 <code>const char*</code> 的行为可能不同，主要涉及：</p>
+<ol type="1">
 <li><strong>类型推导</strong>（<code>auto</code>、<code>decltype</code>）</li>
 <li><strong>函数重载</strong>（<code>T</code> vs <code>const T&amp;</code>）</li>
 <li><strong>字符串操作</strong>（<code>size()</code>、<code>c_str()</code> 等）</li>
 <li><strong>内存管理</strong>（是否需要 <code>delete</code>）</li>
 </ol>
-<h2 id="类型推导"><a href="#类型推导" class="headerlink" title="类型推导"></a>类型推导</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    std::cout &lt;&lt; str &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;hello&quot;</span>);       <span class="hljs-comment">// T = const char[6]（数组退化到 const char*）</span><br>    <span class="hljs-built_in">print</span>(std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;world&quot;</span>));  <span class="hljs-comment">// T = std::string</span><br>    <span class="hljs-type">char</span> arr[] = <span class="hljs-string">&quot;abc&quot;</span>;<br>    <span class="hljs-built_in">print</span>(arr);           <span class="hljs-comment">// T = char[4]（数组退化到 char*）</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
+<h2 id="类型推导">类型推导</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    std::cout &lt;&lt; str &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;hello&quot;</span>);       <span class="hljs-comment">// T = const char[6]（数组退化到 const char*）</span><br>    <span class="hljs-built_in">print</span>(std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;world&quot;</span>));  <span class="hljs-comment">// T = std::string</span><br>    <span class="hljs-type">char</span> arr[] = <span class="hljs-string">&quot;abc&quot;</span>;<br>    <span class="hljs-built_in">print</span>(arr);           <span class="hljs-comment">// T = char[4]（数组退化到 char*）</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <ul>
-<li><code>&quot;hello&quot;</code> 是 <code>const char[6]</code>，但会退化为 <code>const char*</code>。</li>
+<li><code>"hello"</code> 是 <code>const char[6]</code>，但会退化为 <code>const char*</code>。</li>
 <li><code>std::string</code> 保持原类型。</li>
 <li><code>char[]</code> 会退化为 <code>char*</code></li>
 </ul>
-<h2 id="函数重载"><a href="#函数重载" class="headerlink" title="函数重载"></a>函数重载</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">if</span> <span class="hljs-title">constexpr</span> <span class="hljs-params">(std::is_same_v&lt;T, <span class="hljs-type">const</span> <span class="hljs-type">char</span>*&gt;)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;C-string: &quot;</span> &lt;&lt; str &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-built_in">constexpr</span> (std::is_same_v&lt;T, std::string&gt;) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;std::string: &quot;</span> &lt;&lt; str &lt;&lt; std::endl;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">process</span>(<span class="hljs-string">&quot;hello&quot;</span>);       <span class="hljs-comment">// 匹配 const char*</span><br>    <span class="hljs-built_in">process</span>(std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;world&quot;</span>));  <span class="hljs-comment">// 匹配 std::string</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
+<h2 id="函数重载">函数重载</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">if</span> <span class="hljs-title">constexpr</span> <span class="hljs-params">(std::is_same_v&lt;T, <span class="hljs-type">const</span> <span class="hljs-type">char</span>*&gt;)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;C-string: &quot;</span> &lt;&lt; str &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-built_in">constexpr</span> (std::is_same_v&lt;T, std::string&gt;) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;std::string: &quot;</span> &lt;&lt; str &lt;&lt; std::endl;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">process</span>(<span class="hljs-string">&quot;hello&quot;</span>);       <span class="hljs-comment">// 匹配 const char*</span><br>    <span class="hljs-built_in">process</span>(std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;world&quot;</span>));  <span class="hljs-comment">// 匹配 std::string</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <ul>
 <li>可以用 <code>if constexpr</code> 或 <strong>SFINAE</strong> 区分不同类型。</li>
 </ul>
-<h2 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h2><p><code>std::string</code> 提供 <code>size()</code>、<code>substr()</code> 等方法，但 <code>char*</code> 和 <code>const char*</code> 没有：</p>
+<h2 id="字符串操作">字符串操作</h2>
+<p><code>std::string</code> 提供 <code>size()</code>、<code>substr()</code> 等方法，但 <code>char*</code> 和 <code>const char*</code> 没有：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">printLength</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">if</span> <span class="hljs-title">constexpr</span> <span class="hljs-params">(std::is_same_v&lt;T, std::string&gt;)</span> </span>&#123;<br>        std::cout &lt;&lt; str.<span class="hljs-built_in">size</span>() &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        std::cout &lt;&lt; std::<span class="hljs-built_in">strlen</span>(str) &lt;&lt; std::endl;  <span class="hljs-comment">// 需要 #include &lt;cstring&gt;</span><br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">printLength</span>(<span class="hljs-string">&quot;hello&quot;</span>);       <span class="hljs-comment">// 调用 strlen</span><br>    <span class="hljs-built_in">printLength</span>(std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;world&quot;</span>));  <span class="hljs-comment">// 调用 size()</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
 <ul>
 <li><strong><code>char*</code> 和 <code>const char*</code></strong> 需要用 <code>strlen()</code> 计算长度。</li>
 <li><strong><code>std::string</code></strong> 可以直接用 <code>size()</code>。</li>
 </ul>
-<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">cleanup</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">if</span> <span class="hljs-title">constexpr</span> <span class="hljs-params">(std::is_same_v&lt;T, <span class="hljs-type">char</span>*&gt;)</span> </span>&#123;<br>        <span class="hljs-keyword">delete</span>[] str;  <span class="hljs-comment">// 假设 str 是动态分配的</span><br>    &#125;<br>    <span class="hljs-comment">// std::string 和 const char* 不需要手动释放</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">char</span>* dynamicStr = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-number">10</span>];<br>    <span class="hljs-built_in">strcpy</span>(dynamicStr, <span class="hljs-string">&quot;test&quot;</span>);<br>    <span class="hljs-built_in">cleanup</span>(dynamicStr);  <span class="hljs-comment">// 需要 delete[]</span><br><br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* literal = <span class="hljs-string">&quot;hello&quot;</span>;<br>    <span class="hljs-built_in">cleanup</span>(literal);  <span class="hljs-comment">// 无操作</span><br><br>    std::string s = <span class="hljs-string">&quot;world&quot;</span>;<br>    <span class="hljs-built_in">cleanup</span>(s);  <span class="hljs-comment">// 无操作</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
+<h2 id="内存管理">内存管理</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">cleanup</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">if</span> <span class="hljs-title">constexpr</span> <span class="hljs-params">(std::is_same_v&lt;T, <span class="hljs-type">char</span>*&gt;)</span> </span>&#123;<br>        <span class="hljs-keyword">delete</span>[] str;  <span class="hljs-comment">// 假设 str 是动态分配的</span><br>    &#125;<br>    <span class="hljs-comment">// std::string 和 const char* 不需要手动释放</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">char</span>* dynamicStr = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-number">10</span>];<br>    <span class="hljs-built_in">strcpy</span>(dynamicStr, <span class="hljs-string">&quot;test&quot;</span>);<br>    <span class="hljs-built_in">cleanup</span>(dynamicStr);  <span class="hljs-comment">// 需要 delete[]</span><br><br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* literal = <span class="hljs-string">&quot;hello&quot;</span>;<br>    <span class="hljs-built_in">cleanup</span>(literal);  <span class="hljs-comment">// 无操作</span><br><br>    std::string s = <span class="hljs-string">&quot;world&quot;</span>;<br>    <span class="hljs-built_in">cleanup</span>(s);  <span class="hljs-comment">// 无操作</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <ul>
 <li><strong><code>char*</code></strong> 可能需要手动 <code>delete[]</code>（如果动态分配）。</li>
 <li><strong><code>const char*</code></strong> 通常是字面量，不能 <code>delete</code>。</li>
 <li><strong><code>std::string</code></strong> 自动管理内存。</li>
 </ul>
-<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p> <strong>统一接口（使用 <code>std::string_view</code>，C++17+）</strong></p>
+<h2 id="最佳实践">最佳实践</h2>
+<p> <strong>统一接口（使用 <code>std::string_view</code>，C++17+）</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string_view&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print</span><span class="hljs-params">(T str)</span> </span>&#123;<br>    <span class="hljs-function">std::string_view <span class="hljs-title">sv</span><span class="hljs-params">(str)</span></span>;  <span class="hljs-comment">// 兼容 std::string, char*, const char*</span><br>    std::cout &lt;&lt; sv &lt;&lt; <span class="hljs-string">&quot; (length: &quot;</span> &lt;&lt; sv.<span class="hljs-built_in">size</span>() &lt;&lt; <span class="hljs-string">&quot;)\n&quot;</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;hello&quot;</span>);       <span class="hljs-comment">// const char*</span><br>    <span class="hljs-built_in">print</span>(std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;world&quot;</span>));  <span class="hljs-comment">// std::string</span><br>    <span class="hljs-type">char</span> arr[] = <span class="hljs-string">&quot;abc&quot;</span>;<br>    <span class="hljs-built_in">print</span>(arr);           <span class="hljs-comment">// char*</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
-
 <p><strong><code>std::string_view</code></strong> 可以统一处理所有字符串类型，避免拷贝。</p>
 
                 

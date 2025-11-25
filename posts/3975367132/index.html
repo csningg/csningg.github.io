@@ -306,37 +306,37 @@
             
               <div class="markdown-body">
                 
-                <p>本文是LeetCode刷题记录的第一批</p>
-<span id="more"></span>
-
-<h1 id="303-区域和检索-数组不可变"><a href="#303-区域和检索-数组不可变" class="headerlink" title="303. 区域和检索 - 数组不可变"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/range-sum-query-immutable/"><strong>303. 区域和检索 - 数组不可变</strong></a></h1><p>题目描述：给个数组，给个区间，求<code>[left, right]</code>的和。</p>
+                <p>本文是LeetCode刷题记录的第一批 <span id="more"></span></p>
+<h1 id="区域和检索---数组不可变"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/range-sum-query-immutable/"><strong>303. 区域和检索 - 数组不可变</strong></a></h1>
+<p>题目描述：给个数组，给个区间，求<code>[left, right]</code>的和。</p>
 <p>解题思路：</p>
 <p>用前缀和，前缀和定义为<code>s[i] = num[0] + …… + num[i - 1]，s[j] = num[0] + …… + num[i - 1] + num[i] + …… + num[j - 1]</code>。那么从<code>i→j</code>的和是<code>num[i] + …… + num[j] = s[j + 1] - s[i]</code></p>
-<p>在上述背景下，s[0] &#x3D; 0，为什么这么定义呢？</p>
-<ol>
-<li>考虑边界条件，如果left为0，直接-s[0]就可以了，否则还需要考虑left&#x3D;0的情况。</li>
-<li>假设定义<code>s[i] = num[0] + …… + num[i]</code>, <code>s[j] = num[0] + …… + num[i] + num[i + 1] + …… num[j]</code>，那么[i,j] &#x3D; s[j] - s[i-1]。 此时要求<code>i &gt;= 1</code>，对于i为0的情况，需要单独考虑。</li>
+<p>在上述背景下，s[0] = 0，为什么这么定义呢？</p>
+<ol type="1">
+<li>考虑边界条件，如果left为0，直接-s[0]就可以了，否则还需要考虑left=0的情况。</li>
+<li>假设定义<code>s[i] = num[0] + …… + num[i]</code>, <code>s[j] = num[0] + …… + num[i] + num[i + 1] + …… num[j]</code>，那么[i,j] = s[j] - s[i-1]。 此时要求<code>i &gt;= 1</code>，对于i为0的情况，需要单独考虑。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">NumArray</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">NumArray</span>(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums) &#123;<br>        m_sum.<span class="hljs-built_in">resize</span>(nums.<span class="hljs-built_in">size</span>() + <span class="hljs-number">1</span>);<br>        m_sum[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt;= nums.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            m_sum[i] += m_sum[i - <span class="hljs-number">1</span>] + nums[i - <span class="hljs-number">1</span>];<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">sumRange</span><span class="hljs-params">(<span class="hljs-type">int</span> left, <span class="hljs-type">int</span> right)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> m_sum[right + <span class="hljs-number">1</span>] - m_sum[left];<br>    &#125;<br><span class="hljs-keyword">private</span>:<br>    vector&lt;<span class="hljs-type">int</span>&gt; m_sum; <br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>总结：</p>
-<ol>
+<ol type="1">
 <li>对于前缀和，要考虑<code>s[0]</code>的情况，一般设置<code>s[0]=0</code>，那么<code>[i-j]</code>的和可以写成<code>s[i + 1] - s[j]</code>。</li>
 </ol>
-<h1 id="560-和为k的子数组"><a href="#560-和为k的子数组" class="headerlink" title="560. 和为k的子数组"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/subarray-sum-equals-k/?envType=study-plan-v2&envId=top-100-liked"><strong>560. 和为k的子数组</strong></a></h1><p>给你一个整数数组 <code>nums</code> 和一个整数 <code>k</code> ，请你统计并返回 *该数组中和为 <code>k</code> 的子数组的个数。</p>
+<h1 id="和为k的子数组"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/subarray-sum-equals-k/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>560. 和为k的子数组</strong></a></h1>
+<p>给你一个整数数组 <code>nums</code> 和一个整数 <code>k</code> ，请你统计并返回 *该数组中和为 <code>k</code> 的子数组的个数。</p>
 <p>子数组是数组中元素的连续非空序列。</p>
 <p>此题适合用前缀和的方式去解答，首先前缀和的基本思路是定义<code>s[0] = 0</code>, <code>sum[i] = sum[i - 1] + nums[i - 1]</code></p>
 <p>计算和为k的连续子数组，计算方法是只要数组中任意两个数之间的差值是k，就是满足题意的。</p>
 <p>前缀和得出后如何求数组中和为<code>k</code>的子数组的个数呢？</p>
-<p>从左到右遍历前缀和数组，如果右边的某位-左边的某位&#x3D;k，则满足题意。但是如果直接按照这种方式模拟，又是暴力求解。</p>
+<p>从左到右遍历前缀和数组，如果右边的某位-左边的某位=k，则满足题意。但是如果直接按照这种方式模拟，又是暴力求解。</p>
 <p>所以此时用一个hash表去记录，从左到右查找，直接加上目标元素的<code>value</code>值。然后把当前的元素值放在map表中。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">subarraySum</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums, <span class="hljs-type">int</span> k)</span> </span>&#123;<br>        <span class="hljs-type">int</span> res = <span class="hljs-number">0</span>;<br>        <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">sum</span><span class="hljs-params">(nums.size() + <span class="hljs-number">1</span>, <span class="hljs-number">0</span>)</span></span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; nums.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            sum[i + <span class="hljs-number">1</span>] = sum[i] + nums[i];<br>        &#125;<br>        unordered_map&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; sum_cnt;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> value : sum) &#123;<br>            <span class="hljs-keyword">if</span> (sum_cnt.<span class="hljs-built_in">count</span>(value - k) != <span class="hljs-number">0</span>) &#123;<br>                res += sum_cnt[value - k];<br>            &#125;<br>            sum_cnt[value]++;<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h1 id="239-滑动窗口最大值"><a href="#239-滑动窗口最大值" class="headerlink" title="239. 滑动窗口最大值"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/sliding-window-maximum/?envType=study-plan-v2&envId=top-100-liked"><strong>239. 滑动窗口最大值</strong></a></h1><p>给你一个整数数组 <code>nums</code>，有一个大小为 <code>k</code> **的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 <code>k</code> 个数字。滑动窗口每次只向右移动一位。</p>
+<h1 id="滑动窗口最大值"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/sliding-window-maximum/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>239. 滑动窗口最大值</strong></a></h1>
+<p>给你一个整数数组 <code>nums</code>，有一个大小为 <code>k</code> **的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 <code>k</code> 个数字。滑动窗口每次只向右移动一位。</p>
 <p>返回 <em>滑动窗口中的最大值</em> 。</p>
-<hr>
+<hr />
 <p>此题在难度为hard，并没有思路。题解描述为使用双端队列来做，队列是单调的，队首对应的元素一直是组大的。然后队列的大小没必要是滑动窗口的大小。因为要保证队列元素有序，所以双端队列的大小是小于滑动窗口的大小的。</p>
 <p>有一个比较有意思的记忆方法：公司的人数有k，数组的下标对应的是员工的年龄，数组的值对应的是员工的能力。</p>
-<ol>
+<ol type="1">
 <li>如果当前员工比公司最差的员工的还差，则不让他进公司</li>
 <li>如果当前员工进入了公司，就要把最差的踢出去。</li>
 <li>团队最厉害的人到了年纪，也必须要踢出去。</li>
@@ -345,66 +345,65 @@
 <p>其中，单调栈是指双端队列中的数据是有序的，到底是&lt;还是≤是无所谓的，因为决定滑动窗口大小的是i和队首的大小。</p>
 <p>为什么最后一个循环一定是满足题意的，考虑一下最后的结果，就是从刚开始第一个窗口处开始，每次加一个元素，都会有一个结果加入的res中。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">maxSlidingWindow</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums, <span class="hljs-type">int</span> k)</span> </span>&#123;<br>        <span class="hljs-comment">// 滑动窗口，求窗口内的最大值</span><br>        vector&lt;<span class="hljs-type">int</span>&gt; res;<br>        res.<span class="hljs-built_in">reserve</span>(nums.<span class="hljs-built_in">size</span>());<br>        deque&lt;<span class="hljs-type">int</span>&gt; qu;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; nums.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            <span class="hljs-comment">// 维护单调栈，此处是&lt;还是&lt;=</span><br>            <span class="hljs-keyword">while</span> (!qu.<span class="hljs-built_in">empty</span>() &amp;&amp; nums[qu.<span class="hljs-built_in">back</span>()] &lt; nums[i]) &#123;<br>                qu.<span class="hljs-built_in">pop_back</span>();<br>            &#125;<br>            qu.<span class="hljs-built_in">push_back</span>(i);<br><br>            <span class="hljs-keyword">if</span> (i - qu.<span class="hljs-built_in">front</span>() &gt;= k) &#123;<br>                qu.<span class="hljs-built_in">pop_front</span>();<br>            &#125;<br>            <span class="hljs-comment">// 每次走到这，一定是满足题意了，除了第一次还没形成过一个窗口</span><br>            <span class="hljs-keyword">if</span> (i &gt;= k - <span class="hljs-number">1</span>) &#123;<br>                res.<span class="hljs-built_in">emplace_back</span>(nums[qu.<span class="hljs-built_in">front</span>()]);<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-<h1 id="54-螺旋矩阵"><a href="#54-螺旋矩阵" class="headerlink" title="54. 螺旋矩阵"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/spiral-matrix/description/?envType=study-plan-v2&envId=top-100-liked"><strong>54. 螺旋矩阵</strong></a></h1><blockquote>
+<h1 id="螺旋矩阵"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/spiral-matrix/description/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>54. 螺旋矩阵</strong></a></h1>
+<blockquote>
 <p>本题是个模拟题，还是有难度的，因为相对来说比较绕</p>
 </blockquote>
 <p>螺旋矩阵用肉眼观察是比较好得出结论，但是用程序模拟还是需要费点功夫。</p>
 <p>方法: 定义上下左右的边界，都是闭区间的。然后上下，或者左右边界不符合条件时，就要跳出循环</p>
-<ol>
-<li><p>————-&gt; 遍历条件是从最左边到最右边，遍历完后，这一行就没了，所以upper要+1,加1完之后要判断和down的关系决定是否要推出</p>
-</li>
-<li><p>遍历条件是从upper-&gt;down，在最右边，遍历完后，–right,减一之后还要判断和left的关系，决定是否要推出循环。</p>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs 1c"><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br>V<br></code></pre></td></tr></table></figure></li>
-<li><p>遍历条件是从right到left<code>&lt;------------</code>，遍历完之后，down要减一，减一之后要和upper进行比对，判断。</p>
-</li>
-<li><p>遍历条件是从down到upper，遍历完之后，left要+1。加1之后再进行比对判断。</p>
-</li>
+<ol type="1">
+<li><p>————-&gt; 遍历条件是从最左边到最右边，遍历完后，这一行就没了，所以upper要+1,加1完之后要判断和down的关系决定是否要推出</p></li>
+<li><p>遍历条件是从upper-&gt;down，在最右边，遍历完后，–right,减一之后还要判断和left的关系，决定是否要推出循环。 <figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs 1c"><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br><span class="hljs-string">|</span><br>V<br></code></pre></td></tr></table></figure></p></li>
+<li><p>遍历条件是从right到left<code>&lt;------------</code>，遍历完之后，down要减一，减一之后要和upper进行比对，判断。</p></li>
+<li><p>遍历条件是从down到upper，遍历完之后，left要+1。加1之后再进行比对判断。</p></li>
 </ol>
-<h1 id="48-旋转矩阵"><a href="#48-旋转矩阵" class="headerlink" title="48. 旋转矩阵"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/rotate-image/?envType=study-plan-v2&envId=top-100-liked"><strong>48. 旋转矩阵</strong></a></h1><blockquote>
+<h1 id="旋转矩阵"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/rotate-image/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>48. 旋转矩阵</strong></a></h1>
+<blockquote>
 <p>矩阵的题目对我来说都有点难度，因为对模拟的要求比较高</p>
 </blockquote>
-<p>此题还算比较简单,因为只涉及到了两次交换,第一次是对称交换,对称交开始也没有写对，第二次循环应该是基于第一层循环来做。<br><code>for (int i = 0; i &lt; n; ++i) &#123;for (int j = 0; j &lt; i; ++j)&#125;</code>,在循环体内要，j&lt;i 才是对的。 </p>
-<h1 id="240-搜索二维矩阵-II"><a href="#240-搜索二维矩阵-II" class="headerlink" title="240. 搜索二维矩阵 II"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/search-a-2d-matrix-ii/description/?envType=study-plan-v2&envId=top-100-liked"><strong>240. 搜索二维矩阵 II</strong></a></h1><p>在一个排列有序的二维矩阵中搜索想要的字符是需要点技术的，不能从最小开始搜索，也不能从最大开始搜索。原因是如果从最小开始搜索<br>不符合条件有两个去处，那么此时就得再进行判断。也不能从最大开始搜索，原因是从最大开始搜索后，不满足题意也要从两个方向开始改动</p>
+<p>此题还算比较简单,因为只涉及到了两次交换,第一次是对称交换,对称交开始也没有写对，第二次循环应该是基于第一层循环来做。 <code>for (int i = 0; i &lt; n; ++i) &#123;for (int j = 0; j &lt; i; ++j)&#125;</code>,在循环体内要，j&lt;i 才是对的。</p>
+<h1 id="搜索二维矩阵-ii"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/search-a-2d-matrix-ii/description/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>240. 搜索二维矩阵 II</strong></a></h1>
+<p>在一个排列有序的二维矩阵中搜索想要的字符是需要点技术的，不能从最小开始搜索，也不能从最大开始搜索。原因是如果从最小开始搜索 不符合条件有两个去处，那么此时就得再进行判断。也不能从最大开始搜索，原因是从最大开始搜索后，不满足题意也要从两个方向开始改动</p>
 <p>因此需要找个不大不小的，所有要么是左上角，要么是右小角：</p>
-<p>左上角：<br>相等则返回， 大于则排除一行，小于则排除一列，逐步往里缩小</p>
-<p>右小角：<br>相等则返回，大于则排序一列，小于则排序最下面一行，逐步往里缩小</p>
-<h1 id="215-数组中的第K个最大元素"><a href="#215-数组中的第K个最大元素" class="headerlink" title="215. 数组中的第K个最大元素"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/kth-largest-element-in-an-array/description/?envType=study-plan-v2&envId=top-100-liked"><strong>215. 数组中的第K个最大元素</strong></a></h1><p>[题目描述]：数组无序，有可能重复，求排序完后第K大的元素。要求：时间复杂度O(n)</p>
+<p>左上角： 相等则返回， 大于则排除一行，小于则排除一列，逐步往里缩小</p>
+<p>右小角： 相等则返回，大于则排序一列，小于则排序最下面一行，逐步往里缩小</p>
+<h1 id="数组中的第k个最大元素"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/kth-largest-element-in-an-array/description/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>215. 数组中的第K个最大元素</strong></a></h1>
+<p>[题目描述]：数组无序，有可能重复，求排序完后第K大的元素。要求：时间复杂度O(n)</p>
 <p>解答：</p>
-<ol>
+<ol type="1">
 <li>排序完后获取第K大的元素，时间复杂度不符合要求。</li>
 <li>用优先队列，时间复杂度为<code>O(NlogK)</code>，不合题意</li>
 <li>使用快排，时间复杂度平均情况下是<code>O(N)</code>,最坏的情况下可能达<code>O(N^2)</code></li>
 </ol>
 <p>因此此处采用快排的方式求解。快排是一个递归的过程，每次都要找到当前元素应该在的位置，即该位置左边的元素都大于等于此元素，右边的元素都小于等与此元素。至于该元素左边和右边的元素整体的顺序不做要求，比如有元素[4,10,3,4,5,6]，在经历了一次快排后，要求第一个元素4需要在其应该在的位置上。</p>
 <p>一次快排的具体步骤：</p>
-<ol>
+<ol type="1">
 <li>随机选取一个位置，也可以选择第一个，要求结束此次快排时，目标元素在其应该在的位置。</li>
-<li>开始找目标元素的位置。<ol>
+<li>开始找目标元素的位置。
+<ol type="1">
 <li>从第二个元素到最后一个元素之间寻找</li>
 <li>如果left所指向的元素大于等于目标元素，则不应该动left所指向的元素，我们最后的目标就是大于等于目标元素的元素在左边。</li>
 <li>如果left所指向的元素小于等于目标元素，则也不应该动right所指向的元素，理由同上。</li>
 <li>最终left所指的元素是第一个小于目标元素的元素，或者是数组的最后一个位置，此时left的位置是无效的。</li>
 <li>最终right所指的元素是第一个大于目标元素的元素，或者是指向第一个元素，此时right的位置是有效的。</li>
-</ol>
-</li>
+</ol></li>
 <li>当跳出循环时，一定是l &gt; r，因为这是循环终止的条件，由于right是第一个大于目标元素的位置，所以目标元素可以与right进行交换，可以保证左变的元素都大于等于目标元素。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">Partition</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp;nums, <span class="hljs-type">int</span> left, <span class="hljs-type">int</span> right)</span> </span>&#123;<br>    <span class="hljs-type">int</span> pivot = left;<br>    <span class="hljs-type">int</span> l = left + <span class="hljs-number">1</span>, r = right;<br>    <span class="hljs-keyword">while</span> (l &lt;= r) &#123;<br>        <span class="hljs-keyword">while</span> (l &lt;= r &amp;&amp; nums[l] &gt;= nums[pivot]) l++;<br>        <span class="hljs-keyword">while</span> (l &lt;= r &amp;&amp; nums[r] &lt;= nums[pivot]) r--; <br>        <span class="hljs-keyword">if</span> (l &lt; r) &#123;<br>            <span class="hljs-built_in">swap</span>(nums[l], nums[r]);<br>        &#125;<br>    &#125;<br>    <span class="hljs-built_in">swap</span>(nums[pivot], nums[r]);<br>    <span class="hljs-keyword">return</span> r;<br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>把所有过程串联起来</p>
-<ol>
+<ol type="1">
 <li>首选需要不断的寻找，直到找到最后正确的位置。</li>
 <li>如果位置比目标位置小，说明需要向右边找</li>
 <li>如果位置比目标位置大，说明需要向左边找</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">findKthLargest</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums, <span class="hljs-type">int</span> k)</span> </span>&#123;<br>    <span class="hljs-type">int</span> l = <span class="hljs-number">0</span>, r = nums.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>        <span class="hljs-type">int</span> pos = <span class="hljs-built_in">Partition</span>(nums, l, r);<br>        <span class="hljs-keyword">if</span> (pos == k - <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> nums[pos];<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (pos &lt; k - <span class="hljs-number">1</span>) l = pos + <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">else</span> r = pos - <span class="hljs-number">1</span>;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
-
-<h1 id="394-字符串解码"><a href="#394-字符串解码" class="headerlink" title="394. 字符串解码"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/decode-string/description/?envType=study-plan-v2&envId=top-100-liked"><strong>394. 字符串解码</strong></a></h1><p>给定一个经过编码的字符串，返回它解码后的字符串。</p>
+<h1 id="字符串解码"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/decode-string/description/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>394. 字符串解码</strong></a></h1>
+<p>给定一个经过编码的字符串，返回它解码后的字符串。</p>
 <p>编码规则为: <code>k[encoded_string]</code>，表示其中方括号内部的 <code>encoded_string</code> 正好重复 <code>k</code> 次。注意 <code>k</code> 保证为正整数。</p>
 <p>你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。</p>
 <p>此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 <code>k</code> ，例如不会出现像 <code>3a</code> 或 <code>2[4]</code> 的输入。</p>
 <p>思路：</p>
-<p>本题的本质是将字符串用分配率展开，比如如<code>3[a2[c]b]</code> 使用一次分配律-&gt; <code>3[accb]</code> 再使用一次分配律-&gt;<code>accbaccbaccb</code> </p>
+<p>本题的本质是将字符串用分配率展开，比如如<code>3[a2[c]b]</code> 使用一次分配律-&gt; <code>3[accb]</code> 再使用一次分配律-&gt;<code>accbaccbaccb</code></p>
 <p>需要使用<strong>双栈结构</strong>来处理<strong>嵌套字符串</strong>重复模式。有<strong>字符串栈</strong>和<strong>数字栈</strong>两个</p>
 <ul>
 <li>数字栈用来存储每个 <strong><code>k[encoded_string]</code></strong> 结构中的重复次数 <strong><code>k</code></strong></li>
@@ -412,53 +411,57 @@
 </ul>
 <p>整个算法过程类似一个状态机的转换，根据不同的情况做不同的操作</p>
 <p>遍历字符串，总共有以下几种可能：</p>
-<ol>
-<li>数字<ol>
-<li>用num记录当前数字，因为有可能是十位数或者百位数，所以为 <code>num = num * 10 + (s[i] - &#39;0&#39;);</code></li>
-</ol>
-</li>
-<li>字符<ol>
+<ol type="1">
+<li>数字
+<ol type="1">
+<li>用num记录当前数字，因为有可能是十位数或者百位数，所以为 <code>num = num * 10 + (s[i] - '0');</code></li>
+</ol></li>
+<li>字符
+<ol type="1">
 <li>用res记录当前的字符状态，如果是字符则拼接在后面。</li>
-</ol>
-</li>
-<li>左括号<ol>
+</ol></li>
+<li>左括号
+<ol type="1">
 <li>碰到左括号时，前面一定会有数字和已经解码的字符串，如果左括号前就是数字，则默认解码的字符串为空</li>
-<li>此时的数字代表着下一次要重复的字符串的次数，字符串代表的<code>pre_str</code>，后续要<code>pre_str +</code> </li>
+<li>此时的数字代表着下一次要重复的字符串的次数，字符串代表的<code>pre_str</code>，后续要<code>pre_str +</code></li>
 <li>碰到左括号时，状态机要置空，接下来是单独的一层，<code>res</code>和<code>num</code>都置空</li>
-</ol>
-</li>
-<li>右括号<ol>
+</ol></li>
+<li>右括号
+<ol type="1">
 <li>碰到右括号，说明需要展开了</li>
 <li>把当前的字符串 *数字栈顶元素，这个是[]里面的处理逻辑，<code>res</code>代表的内层字符串，<code>str_top()</code>代表的外层字符串</li>
 <li>字符串栈顶 + b的结果</li>
 <li>记录当前字符串的情况</li>
-</ol>
-</li>
+</ol></li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">string <span class="hljs-title">decodeString</span><span class="hljs-params">(string s)</span> </span>&#123;<br>        stack&lt;<span class="hljs-type">int</span>&gt; nums_st;<br>        stack&lt;string&gt; str_st;<br>        <span class="hljs-type">int</span> num = <span class="hljs-number">0</span>;<br>        string res&#123;<span class="hljs-string">&quot;&quot;</span>&#125;;<br>        <br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; s.<span class="hljs-built_in">size</span>(); i++) &#123;<br>            <span class="hljs-keyword">if</span> (s[i] &gt;= <span class="hljs-string">&#x27;0&#x27;</span> &amp;&amp; s[i] &lt;= <span class="hljs-string">&#x27;9&#x27;</span>) &#123;<br>                num = num * <span class="hljs-number">10</span> + s[i] - <span class="hljs-string">&#x27;0&#x27;</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (s[i] &gt;= <span class="hljs-string">&#x27;a&#x27;</span> &amp;&amp; s[i] &lt;= <span class="hljs-string">&#x27;z&#x27;</span> || s[i] &gt;= <span class="hljs-string">&#x27;A&#x27;</span> &amp;&amp;  s[i] &lt;= <span class="hljs-string">&#x27;Z&#x27;</span>) &#123;<br>                res += s[i];<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (s[i] == <span class="hljs-string">&#x27;[&#x27;</span>) &#123;<br>                nums_st.<span class="hljs-built_in">push</span>(num);<br>                str_st.<span class="hljs-built_in">push</span>(res);<br>                num = <span class="hljs-number">0</span>;<br>                res = <span class="hljs-string">&quot;&quot;</span>; <br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (s[i] == <span class="hljs-string">&#x27;]&#x27;</span>) &#123;<br>                <span class="hljs-type">int</span> time = nums_st.<span class="hljs-built_in">top</span>();<br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; time; ++i) &#123;<br>                    str_st.<span class="hljs-built_in">top</span>() += res;<br>                &#125;<br>                res = str_st.<span class="hljs-built_in">top</span>();<br>                nums_st.<span class="hljs-built_in">pop</span>();<br>                str_st.<span class="hljs-built_in">pop</span>();<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h1 id="347-前-K-个高频元素"><a href="#347-前-K-个高频元素" class="headerlink" title="347. 前 K 个高频元素"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/top-k-frequent-elements/"><strong>347. 前 K 个高频元素</strong></a></h1><p>常规模拟题</p>
-<ol>
+<h1 id="前-k-个高频元素"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/top-k-frequent-elements/"><strong>347. 前 K 个高频元素</strong></a></h1>
+<p>常规模拟题</p>
+<ol type="1">
 <li>会自定义大顶堆（默认less），小顶堆（great）的比较函数</li>
 <li>priority_queue不能使用迭代器，只能通过pop的循环方法不断循环跳出。</li>
 <li>自定义的lambda比较函数不能做为类的成员函数，由于是自定义的比较函数，因此可以出现在任何地方。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br><br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">topKFrequent</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums, <span class="hljs-type">int</span> k)</span> </span>&#123;<br>        unordered_map&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; key_cnt;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; num : nums) &#123;<br>            key_cnt[num]++;<br>        &#125;<br>        <span class="hljs-keyword">auto</span> cmp = [](<span class="hljs-type">const</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; lhs, <span class="hljs-type">const</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; rhs) &#123;<br>            <span class="hljs-keyword">return</span> lhs.second &gt; rhs.second;<br>        &#125;;<br>        priority_queue&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;, vector&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; &gt;, <span class="hljs-keyword">decltype</span>(cmp)&gt; <span class="hljs-built_in">pq</span>(cmp);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; key_val : key_cnt) &#123;<br>            <span class="hljs-keyword">if</span> (pq.<span class="hljs-built_in">size</span>() &lt; k) &#123;<br>                pq.<span class="hljs-built_in">push</span>(key_val);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">auto</span>&amp; tmp = pq.<span class="hljs-built_in">top</span>();<br>                <span class="hljs-keyword">if</span> (tmp.second &lt; key_val.second) &#123;<br>                    pq.<span class="hljs-built_in">pop</span>();<br>                    pq.<span class="hljs-built_in">push</span>(key_val);<br>                &#125;<br>            &#125;<br>        &#125;<br>        vector&lt;<span class="hljs-type">int</span>&gt; res;<br>        res.<span class="hljs-built_in">reserve</span>(k);<br>        <span class="hljs-keyword">while</span> (!pq.<span class="hljs-built_in">empty</span>()) &#123;<br>            res.<span class="hljs-built_in">emplace_back</span>(pq.<span class="hljs-built_in">top</span>().first);<br>            pq.<span class="hljs-built_in">pop</span>();<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-<h1 id="42-接雨水"><a href="#42-接雨水" class="headerlink" title="42. 接雨水"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/trapping-rain-water/"><strong>42. 接雨水</strong></a></h1><p>方法一：单调栈</p>
+<h1 id="接雨水"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/trapping-rain-water/"><strong>42. 接雨水</strong></a></h1>
+<p>方法一：单调栈</p>
 <p>想想不是接雨水，而是填水泥。水泥会把坑填平，当水泥把坑填平时，高度就不变了。</p>
 <p>需要<strong>左（栈顶元素的下一个元素）右（当前元素）</strong>以及<strong>中间柱子（栈顶元素）</strong>的高度才能计算得到最终的结果。</p>
-<p><img src="/../pictures/729image.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>思路：</p>
-<ol>
+<p><img src="../pictures/729image.png" srcset="/img/loading.gif" lazyload alt="image.png" /> 思路：</p>
+<ol type="1">
 <li>从左到右遍历数组</li>
 <li>如果栈不为空，并且栈顶元素大于等于当前元素，则可以接水了，栈顶元素就是中间的柱子。如果当前元素小于栈顶元素，则需要继续遍历</li>
 <li>将中间的柱子pop出栈，如果此时栈为空，则break</li>
 <li>否则则再次取栈顶元素，此时只用栈顶元素，求栈顶元素与当前元素的位置之差作为宽，高是两边柱子的较小值减去中间元素。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">trap</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; height)</span> </span>&#123;<br>        <span class="hljs-type">int</span> res = <span class="hljs-number">0</span>;<br>        stack&lt;<span class="hljs-type">int</span>&gt; st;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; height.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            <span class="hljs-keyword">while</span> (!st.<span class="hljs-built_in">empty</span>() &amp;&amp; height[i] &gt;= height[st.<span class="hljs-built_in">top</span>()]) &#123;<br>                <span class="hljs-type">int</span> bottom_h = height[st.<span class="hljs-built_in">top</span>()];<br>                st.<span class="hljs-built_in">pop</span>();<br>                <span class="hljs-keyword">if</span> (st.<span class="hljs-built_in">empty</span>()) <br>                    <span class="hljs-keyword">break</span>;<br>                <span class="hljs-type">int</span> lens = i - st.<span class="hljs-built_in">top</span>() - <span class="hljs-number">1</span>;<br>                <span class="hljs-type">int</span> hei = (<span class="hljs-built_in">min</span>(height[i], height[st.<span class="hljs-built_in">top</span>()]) - bottom_h);<br>                res += lens * hei;<br>            &#125;<br>            st.<span class="hljs-built_in">push</span>(i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>        <br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-<h1 id="739-每日温度"><a href="#739-每日温度" class="headerlink" title="739. 每日温度"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/daily-temperatures/description/"><strong>739. 每日温度</strong></a></h1><p>给定一个整数数组 temperatures ，表示每天的温度，返回一个数组 answer ，其中 answer[i] 是指对于第 i 天，下一个更高温度出现在几天后。如果气温在这之后都不会升高，请在该位置用 0 来代替。</p>
+<h1 id="每日温度"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/daily-temperatures/description/"><strong>739. 每日温度</strong></a></h1>
+<p>给定一个整数数组 temperatures ，表示每天的温度，返回一个数组 answer ，其中 answer[i] 是指对于第 i 天，下一个更高温度出现在几天后。如果气温在这之后都不会升高，请在该位置用 0 来代替。</p>
 <p>参考<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1VN411J7S7/?vd_source=e0aee50f101b406f0d1414f984f3f5c0">灵神</a>的解答</p>
 <p>方法一：右往左遍历</p>
-<p><img src="/./pictures/729image.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure>
+<img src="./pictures/729image.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
+</figure>
 <p>当遍历到5时，由于2比5小，所以2排除，3比5小，3也排除，6比5大，所以应该是6的下标减去5的下标得到目标答案。</p>
 <p>既然在遍历到5时，把2和3排除掉了，那么2和3还有可能是5左边的元素的目标答案，显然不可能，由于5的存在，5左边的元素不会选择2和3作为比其大的天气的温度。</p>
 <ul>
@@ -468,26 +471,24 @@
 <p>因此是此题用单调栈。</p>
 <p>栈中元素保证严格递减，栈中存放的是下一个更大的数。</p>
 <p>在此题中，栈中存储的应该是数组的下标，存储数组下标的好处一是可以直接用下标相减得到目标答案。二也可以通过下标的比较获得元素的大小。</p>
-<ol>
+<ol type="1">
 <li>从右向左遍历</li>
 <li>当栈顶元素<strong>小于等于</strong>当前当前元素时，需要将元素pop出来，最后跳出循环时，栈顶元素一定是大于当前元素的。</li>
 <li>由于栈顶元素是大于当前元素的，所以将当前元素压榨是可以保证栈的单调性的。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dailyTemperatures</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; temperatures)</span> </span>&#123;<br>        stack&lt;<span class="hljs-type">int</span>&gt; st;<br>        <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">res</span><span class="hljs-params">(temperatures.size(), <span class="hljs-number">0</span>)</span></span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = temperatures.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i--) &#123;<br>            <span class="hljs-keyword">while</span> (!st.<span class="hljs-built_in">empty</span>() &amp;&amp; temperatures[st.<span class="hljs-built_in">top</span>()] &lt;= temperatures[i]) &#123;<br>                st.<span class="hljs-built_in">pop</span>();<br>            &#125;<br>            <span class="hljs-keyword">if</span> (!st.<span class="hljs-built_in">empty</span>()) &#123;<br>                res[i] = st.<span class="hljs-built_in">top</span>() - i;<br>            &#125;<br>            st.<span class="hljs-built_in">push</span>(i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>方法二：从左到右遍历</p>
 <p>从左到右遍历，栈中存储的元素是<strong>还没找到第一个大于它的元素</strong>，如果找到了，就将其pop出来。</p>
-<ol>
+<ol type="1">
 <li>如果当前元素大于栈顶元素了，则需要更新栈顶元素的结果值。这里需要不断循环，直到栈顶元素小于等于当前元素，</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dailyTemperatures</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; temperatures)</span> </span>&#123;<br>        <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">res</span><span class="hljs-params">(temperatures.size(), <span class="hljs-number">0</span>)</span></span>;<br>        stack&lt;<span class="hljs-type">int</span>&gt; st;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; temperatures.<span class="hljs-built_in">size</span>(); ++i) &#123;<br>            <span class="hljs-keyword">while</span> (!st.<span class="hljs-built_in">empty</span>() &amp;&amp; temperatures[i] &gt; temperatures[st.<span class="hljs-built_in">top</span>()]) &#123;<br>                res[st.<span class="hljs-built_in">top</span>()] = i - st.<span class="hljs-built_in">top</span>();<br>                st.<span class="hljs-built_in">pop</span>();<br>            &#125;<br>            st.<span class="hljs-built_in">push</span>(i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <aside>
-💡
-
+<p>💡</p>
 <p>及时去除无用数据</p>
 <p>保证栈中数据有序</p>
 </aside>
+
                 
               </div>
             

@@ -305,45 +305,38 @@
             
               <div class="markdown-body">
                 
-                <p>GDB是C++程序员常用的工具，很多时候需要查看内存情况，本文主要介绍x命令的使用</p>
-<span id="more"></span>
-
+                <p>GDB是C++程序员常用的工具，很多时候需要查看内存情况，本文主要介绍x命令的使用 <span id="more"></span></p>
 <p>可以使用命令 <code>x</code>（“examine”的缩写）以多种格式检查内存，<strong>不受程序数据类型</strong>的限制。</p>
 <p><strong>语法有以下3种：</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">x/nfu addr<br>x addr<br>x<br></code></pre></td></tr></table></figure>
-
 <p>使用 <code>x</code> 命令检查内存，是本节的主题！</p>
 <p><code>n</code>、<code>f</code> 和 <code>u</code> 是可选参数，用于指定<strong>显示多少内存</strong>以及<strong>如何格式化（其中fu可以换位置，无所谓）</strong>；</p>
 <p><code>addr</code> 是一个表达式，表示开始显示内存的地址。如果使用 <code>nfu</code> 的默认值，可以省略斜杠 <code>/</code>。某些命令会为 <code>addr</code> 设置方便的默认值。</p>
 <p><strong>参数说明：</strong></p>
-<ol>
+<ol type="1">
 <li><p><strong><code>n</code>（重复计数）</strong></p>
-<p> 重复计数是一个十进制整数，默认值为 1。它指定要显示多少内存（以单位 <code>u</code> 字节计算）。如果指定负数，则从 <code>addr</code> 开始向后检查内存。</p>
-</li>
+<p>重复计数是一个十进制整数，默认值为 1。它指定要显示多少内存（以单位 <code>u</code> 字节计算）。如果指定负数，则从 <code>addr</code> 开始向后检查内存。</p></li>
 <li><p><strong><code>f</code>（显示格式）</strong></p>
-<p> 显示格式是 <code>print</code> 命令使用的格式之一（如 <code>x</code>、<code>d</code>、<code>u</code>、<code>o</code>、<code>t</code>、<code>a</code>、<code>c</code>、<code>f</code>、<code>s</code>），还包括 <code>i</code>（机器指令）和 <code>m</code>（显示内存标签）。初始默认格式为 <code>x</code>（十六进制），每次使用 <code>x</code> 或 <code>print</code> 后默认格式会改变。经常使用的是<code>x</code>、<code>d</code>(十进制)、<code>u</code>(无符号数)</p>
-</li>
+<p>显示格式是 <code>print</code> 命令使用的格式之一（如 <code>x</code>、<code>d</code>、<code>u</code>、<code>o</code>、<code>t</code>、<code>a</code>、<code>c</code>、<code>f</code>、<code>s</code>），还包括 <code>i</code>（机器指令）和 <code>m</code>（显示内存标签）。初始默认格式为 <code>x</code>（十六进制），每次使用 <code>x</code> 或 <code>print</code> 后默认格式会改变。经常使用的是<code>x</code>、<code>d</code>(十进制)、<code>u</code>(无符号数)</p></li>
 <li><p><strong><code>u</code>（单位大小）</strong></p>
-<p> 单位大小可以是以下之一：</p>
+<p>单位大小可以是以下之一：</p>
 <ul>
 <li><code>b</code>：字节。</li>
 <li><code>h</code>：半字（两个字节）。</li>
 <li><code>w</code>：字（四个字节）。这是初始默认值。</li>
-<li><code>g</code>：大字（八个字节）。每次使用 <code>x</code> 指定单位大小后，该单位会成为下次使用 <code>x</code> 时的默认单位。对于 <code>i</code> 格式，单位大小会被忽略且通常不写。对于 <code>s</code> 格式，单位大小默认为 <code>b</code>，除非显式指定。例如：<ul>
+<li><code>g</code>：大字（八个字节）。每次使用 <code>x</code> 指定单位大小后，该单位会成为下次使用 <code>x</code> 时的默认单位。对于 <code>i</code> 格式，单位大小会被忽略且通常不写。对于 <code>s</code> 格式，单位大小默认为 <code>b</code>，除非显式指定。例如：
+<ul>
 <li><code>x/hs</code> 显示 16 位字符字符串。</li>
 <li><code>x/ws</code> 显示 32 位字符串。下次使用 <code>x/s</code> 时会恢复显示 8 位字符串。注意，结果取决于当前编译单元的编程语言。例如，C 语言中 <code>s</code> 会使用 UTF-16 编码，而 <code>w</code> 会使用 UTF-32。编码由编程语言决定，不可更改。</li>
-</ul>
-</li>
-</ul>
-</li>
+</ul></li>
+</ul></li>
 <li><p><strong><code>addr</code>（起始地址）</strong></p>
-<p> <code>addr</code> 是 GDB 开始显示内存的地址。表达式不必是指针（但可以是），它始终被解释为字节内存的整数地址。默认地址通常是上次检查地址的下一个位置，但其他命令也会设置默认地址：</p>
+<p><code>addr</code> 是 GDB 开始显示内存的地址。表达式不必是指针（但可以是），它始终被解释为字节内存的整数地址。默认地址通常是上次检查地址的下一个位置，但其他命令也会设置默认地址：</p>
 <ul>
 <li><code>info breakpoints</code>：设置为最后列出的断点地址。</li>
 <li><code>info line</code>：设置为某行的起始地址。</li>
 <li><code>print</code>：如果用它显示内存中的值。</li>
-</ul>
-</li>
+</ul></li>
 </ol>
 <p><strong>示例：</strong></p>
 <ul>
@@ -367,7 +360,6 @@
 <p><strong>当前指令标记：</strong></p>
 <p>检查机器指令时，当前程序计数器（PC）指向的指令会用 <code>=&gt;</code> 标记。例如：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp">(gdb) x/<span class="hljs-number">5</span>i $pc<span class="hljs-number">-6</span><br>   <span class="hljs-number">0x804837f</span> &lt;main<span class="hljs-number">+11</span>&gt;: mov    %esp,%ebp<br>   <span class="hljs-number">0x8048381</span> &lt;main<span class="hljs-number">+13</span>&gt;: push   %ecx<br>   <span class="hljs-number">0x8048382</span> &lt;main<span class="hljs-number">+14</span>&gt;: sub    $<span class="hljs-number">0x4</span>,%esp<br>=&gt; <span class="hljs-number">0x8048385</span> &lt;main<span class="hljs-number">+17</span>&gt;: movl   $<span class="hljs-number">0x8048460</span>,(%esp)<br>   <span class="hljs-number">0x804838c</span> &lt;main<span class="hljs-number">+24</span>&gt;: call   <span class="hljs-number">0x80482d4</span> &lt;puts@plt&gt;<br></code></pre></td></tr></table></figure>
-
 <p><strong>内存标签（<code>m</code> 格式）：</strong></p>
 <p>若架构支持内存标签，可用 <code>m</code> 显示标签。标签按颗粒大小（一个标签覆盖的字节数）显示。例如 AArch64 的颗粒大小为 16 字节，因此每 16 字节显示一个标签。</p>
 <p>由于 <code>x</code> 的输出不强制对齐边界，标签信息指向每行显示的初始地址。若一行中跨越标签边界，标签会在下一行显示。<code>m</code> 格式不影响其他指定的格式。</p>
@@ -390,10 +382,10 @@
 <li>无参数：比较所有可加载段。</li>
 <li><code>r</code>：比较所有只读可加载段。对于远程目标，若支持内存块 CRC 校验（<code>qCRC</code> 数据包），可加速比较。</li>
 </ul>
-<hr>
+<hr />
 <p><strong>总结：</strong></p>
 <p>GDB 的 <code>x</code> 命令用于灵活检查内存，支持多种格式（如十六进制、指令、字符串等）和单位大小（字节、字等）。关键特性包括：</p>
-<ol>
+<ol type="1">
 <li><strong>参数组合</strong>：<code>nfu</code> 分别控制数量、格式和单位，顺序灵活。</li>
 <li><strong>默认继承</strong>：上次使用的参数（如单位、格式）会成为下次默认值。</li>
 <li><strong>反向检查</strong>：负计数可从地址向前扫描。</li>

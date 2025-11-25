@@ -308,7 +308,8 @@
                 
                 <p>本文是LeetCode刷题记录的第二批</p>
 <span id="more"></span>
-<h1 id="155-最小栈"><a href="#155-最小栈" class="headerlink" title="155. 最小栈"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/min-stack/description/?envType=study-plan-v2&envId=top-100-liked"><strong>155. 最小栈</strong></a></h1><p>设计一个支持 <code>push</code> ，<code>pop</code> ，<code>top</code> 操作，并能在常数时间内检索到最小元素的栈。</p>
+<h1 id="最小栈"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/min-stack/description/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>155. 最小栈</strong></a></h1>
+<p>设计一个支持 <code>push</code> ，<code>pop</code> ，<code>top</code> 操作，并能在常数时间内检索到最小元素的栈。</p>
 <p>实现 <code>MinStack</code> 类:</p>
 <ul>
 <li><code>MinStack()</code> 初始化堆栈对象。</li>
@@ -322,37 +323,38 @@
 <p>如此往栈中新加入数据时，只需要使用<code>geMin()</code>与当前的值取最小值，作为新加入数据的最小值即可。</p>
 <p>在初始化栈时，需要额外<code>(0, INT_MAX)</code>作为初始值，如此在后续添加数据时可以直接使用<code>getMin()</code></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MinStack</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MinStack</span>() &#123;<br>        min_st.<span class="hljs-built_in">push</span>(&#123;<span class="hljs-number">0</span>, INT_MAX&#125;);<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">push</span><span class="hljs-params">(<span class="hljs-type">int</span> val)</span> </span>&#123;<br>        min_st.<span class="hljs-built_in">push</span>(&#123;val, <span class="hljs-built_in">min</span>(<span class="hljs-built_in">getMin</span>(), val)&#125;);<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">pop</span><span class="hljs-params">()</span> </span>&#123;<br>        min_st.<span class="hljs-built_in">pop</span>();<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">top</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> min_st.<span class="hljs-built_in">top</span>().first;<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getMin</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> min_st.<span class="hljs-built_in">top</span>().second;<br>    &#125;<br><span class="hljs-keyword">private</span>:<br>    stack&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;&gt; min_st;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>此题中用到了make_pair，关于其用法如下：</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th><strong>方法</strong></th>
 <th><strong>示例</strong></th>
 <th><strong>备注</strong></th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr class="odd">
 <td><code>std::make_pair</code></td>
 <td><code>auto p = std::make_pair(1, 2);</code></td>
 <td>最简洁、推荐</td>
 </tr>
-<tr>
+<tr class="even">
 <td>直接构造 <code>pair</code></td>
 <td><code>std::pair&lt;int, int&gt; p(1, 2);</code></td>
 <td>明确创建对象</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>列表初始化</td>
 <td><code>std::pair&lt;int, int&gt; p&#123;1, 2&#125;;</code></td>
 <td>C++11特性</td>
 </tr>
-<tr>
+<tr class="even">
 <td>复制构造</td>
 <td><code>auto p = std::pair&lt;int, int&gt;(1, 2);</code></td>
 <td>也可以用，效果一样</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ul>
 <li>通常建议用 <code>std::make_pair()</code>，因为它可以自动推导类型。</li>
 <li>如果明确类型，直接用构造函数也很好。</li>
@@ -362,65 +364,62 @@
 <p>具体来说：</p>
 <p><strong><code>std::pair</code> 是一个模板类</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">pair</span> &#123;<br>    T1 first;<br>    T2 second;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>可以用它来定义不同类型的pair，比如：</p>
-<p><code>std::pair&lt;int, int&gt; p1(1, 2);  std::pair&lt;std::string, double&gt; p2(&quot;hello&quot;, 3.14);</code></p>
+<p><code>std::pair&lt;int, int&gt; p1(1, 2);  std::pair&lt;std::string, double&gt; p2("hello", 3.14);</code></p>
 <p><code>std::make_pair</code> 是一个模板函数</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;</span><br><span class="hljs-function">std::pair&lt;T1, T2&gt; <span class="hljs-title">make_pair</span><span class="hljs-params">(T1 t, T2 u)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">pair</span>&lt;T1, T2&gt;(t, u);<br>&#125;<br></code></pre></td></tr></table></figure>
-
 <ul>
 <li>模板参数：<code>T1</code> 和 <code>T2</code> <strong>根据传入的参数自动推导</strong>。</li>
 <li>返回值：<code>pair&lt;T1, T2&gt;</code>。</li>
 </ul>
-<h1 id="50-Pow-x-n"><a href="#50-Pow-x-n" class="headerlink" title="50. Pow(x, n)"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/powx-n/description/"><strong>50. Pow(x, n)</strong></a></h1><p>实现 <a target="_blank" rel="noopener" href="https://www.cplusplus.com/reference/valarray/pow/">pow(<em>x</em>, <em>n</em>)</a> ，即计算 <code>x</code> 的整数 <code>n</code> 次幂函数（即，<code>xn</code> ）。</p>
+<h1 id="powx-n"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/powx-n/description/"><strong>50. Pow(x, n)</strong></a></h1>
+<p>实现 <a target="_blank" rel="noopener" href="https://www.cplusplus.com/reference/valarray/pow/">pow(<em>x</em>, <em>n</em>)</a> ，即计算 <code>x</code> 的整数 <code>n</code> 次幂函数（即，<code>xn</code> ）。</p>
 <p>解答：</p>
-<ol>
+<ol type="1">
 <li>使用库函数，直接调用<code>pow(x,n)</code> 显然不合题意</li>
 <li>使用暴力循环，直接循环n次，求得最后结果，显然也不合题意</li>
 <li>使用分治的方法</li>
 </ol>
 <p>为什么采用分治的方法？常规来讲，对<code>n</code>个<code>x</code>求积，可以先求出<code>n/2</code>个<code>x</code>的积，然后再想乘。同理，对于<code>n/2</code>个<code>x</code>的积，可以先求出<code>n/4</code>个<code>x</code>的积，然后再想乘。直到最终<code>n</code>为0时，是已经到达了递归的最深层，此时，梦改醒了。</p>
 <p>在求<code>n</code>个<code>x</code>的积时，由于不知道<code>n</code>的奇偶性，因此开始需要分类讨论。如果是奇数，则需要额外再乘个<code>x</code>，当进入第二层后，就会确定一直是偶数了，不会再走到奇数的分支。</p>
-<ol>
+<ol type="1">
 <li>如果<code>n</code>是负数，需要求其倒数，注意<code>n</code>要<strong>取反</strong></li>
 <li>如果<code>n</code>是奇数，第一步就将其转成偶数</li>
 <li>如果n是偶数，则需要计算 <code>x*x</code> 的 <code>n/2</code>次方</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">double</span> <span class="hljs-title">myPow</span><span class="hljs-params">(<span class="hljs-type">double</span> x, <span class="hljs-type">int</span> n)</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (n == <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span> <span class="hljs-number">1</span> / <span class="hljs-built_in">pow</span>(x, -n);<br>        <span class="hljs-keyword">if</span> (n % <span class="hljs-number">2</span>) &#123;<br>            <span class="hljs-keyword">return</span> x * <span class="hljs-built_in">myPow</span>(x, n - <span class="hljs-number">1</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">myPow</span>(x * x , n / <span class="hljs-number">2</span>);<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>以上是采用递归+分治的方法去做，也可以直接去做，结合位运算，以下是整体思路。</p>
-<ol>
+<ol type="1">
 <li>针对负数做特殊处理</li>
 <li>在循环中获取最后的结果值pow</li>
 <li>如果n是奇数，多乘x，这个在每轮循环中都有可能出现。</li>
 <li>否则直接求得x的平方，n右移两位。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">double</span> <span class="hljs-title">myPow</span><span class="hljs-params">(<span class="hljs-type">double</span> x, <span class="hljs-type">int</span> n)</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">0</span>) &#123;<br>            x = <span class="hljs-number">1</span> / x;<br>            n = -n;<br>        &#125;<br>        <span class="hljs-type">int</span> pow = <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">while</span> (n)<br>        &#123;<br>            <span class="hljs-keyword">if</span> (n &amp; <span class="hljs-number">1</span>) &#123;<br>                pow = x * pow;<br>            &#125;<br>            x *= x;<br>            n = n &gt;&gt; <span class="hljs-number">1</span>;<br>        &#125; <br>        <span class="hljs-keyword">return</span> pow;   <br>    &#125;<br>&#125;；<br></code></pre></td></tr></table></figure>
-
-<h1 id="128-最长连续序列"><a href="#128-最长连续序列" class="headerlink" title="128. 最长连续序列"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/longest-consecutive-sequence/description/?envType=study-plan-v2&envId=top-100-liked"><strong>128. 最长连续序列</strong></a></h1><p>给定一个未排序的整数数组 <code>nums</code> ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。</p>
+<h1 id="最长连续序列"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/longest-consecutive-sequence/description/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>128. 最长连续序列</strong></a></h1>
+<p>给定一个未排序的整数数组 <code>nums</code> ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。</p>
 <p>请你设计并实现时间复杂度为 <code>O(n)</code> **的算法解决此问题。</p>
-<ol>
+<ol type="1">
 <li>排序后求解，时间复杂度不合题意</li>
 <li>核心思想，如果在遍历<code>x</code>的时候，发现<code>x-1</code>也在数组里面，那么一定不会以<code>x</code>为起点，至少应该以<code>x-1</code>为起点。</li>
 <li>如果找到了<code>x</code>，其是当前序列最小的，需要循环去遍历<code>x+1</code>是否存在，求得以<code>x</code>开始的序列的长度。</li>
-<li>数组需要去重，因此需要将其放在<code>set</code>里面，然后去**遍历<code>set</code>**求解。</li>
+<li>数组需要去重，因此需要将其放在<code>set</code>里面，然后去<strong>遍历<code>set</code></strong>求解。</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">longestConsecutive</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums)</span> </span>&#123;<br>        <span class="hljs-type">int</span> res = <span class="hljs-number">0</span>;<br>        <span class="hljs-function">unordered_set <span class="hljs-title">st</span><span class="hljs-params">(nums.begin(), nums.end())</span></span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; num : st) &#123;<br>            <span class="hljs-comment">// 如果i - 1 存在，则一定不用从i -1 开始遍历</span><br>            <span class="hljs-keyword">if</span> (st.<span class="hljs-built_in">count</span>(num - <span class="hljs-number">1</span>)) &#123;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br>            <span class="hljs-type">int</span> tmp = num + <span class="hljs-number">1</span>;<br>            <span class="hljs-keyword">while</span> (st.<span class="hljs-built_in">count</span>(tmp)) &#123;<br>                tmp++;<br>            &#125;<br>            res = <span class="hljs-built_in">max</span>(res, tmp - num);<br>        &#125;<br>        <br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>另外，其中对于容器的遍历，请用现代C++推荐的<code>based_for</code>形式，无论是关系型容器还是序列性容器，如果只是提取元素，建议<code>for (const auto&amp; val : vec) &#123; /* 访问val */ &#125;</code></p>
-<h1 id="200-岛屿数量"><a href="#200-岛屿数量" class="headerlink" title="200. 岛屿数量"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/number-of-islands/description/?envType=study-plan-v2&envId=top-100-liked"><strong>200. 岛屿数量</strong></a></h1><p>给你一个由 <code>&#39;1&#39;</code>（陆地）和 <code>&#39;0&#39;</code>（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
-<p>岛屿总是被水包围，并且每座岛屿只能由水平方向和&#x2F;或竖直方向上相邻的陆地连接形成。</p>
+<h1 id="岛屿数量"><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/number-of-islands/description/?envType=study-plan-v2&amp;envId=top-100-liked"><strong>200. 岛屿数量</strong></a></h1>
+<p>给你一个由 <code>'1'</code>（陆地）和 <code>'0'</code>（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。</p>
 <p>此外，你可以假设该网格的四条边均被水包围。</p>
 <p>对于图的遍历，要求掌握DFS和BFS两种算法，此题由于陆地是连续的，因此要使用DFS遍历。</p>
 <p>使用DFS遍历图时，要注意边界条件，边界条件是递归的出口。</p>
 <p>此题中应该是</p>
-<ol>
+<ol type="1">
 <li>不超过矩阵的范围</li>
 <li>还没有被填充（假设填充时将此块置2）</li>
 </ol>
 <p>所以DFS的算法应该这样写：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">numIslands</span><span class="hljs-params">(vector&lt;vector&lt;<span class="hljs-type">char</span>&gt;&gt;&amp; grid)</span> </span>&#123;<br>        <span class="hljs-type">int</span> row = grid.<span class="hljs-built_in">size</span>(), col = grid[<span class="hljs-number">0</span>].<span class="hljs-built_in">size</span>();<br>        std::function&lt;<span class="hljs-type">void</span>(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)&gt; dfs = [&amp;](<span class="hljs-type">int</span> i, <span class="hljs-type">int</span> j) &#123;<br>            <span class="hljs-keyword">if</span> (i &lt; <span class="hljs-number">0</span> || i &gt;= row || j &lt; <span class="hljs-number">0</span> || j &gt;=  col || grid[i][j] != <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br>            grid[i][j] = <span class="hljs-string">&#x27;2&#x27;</span>;<br>            <span class="hljs-built_in">dfs</span>(i - <span class="hljs-number">1</span>, j);<br>            <span class="hljs-built_in">dfs</span>(i + <span class="hljs-number">1</span>, j);<br>            <span class="hljs-built_in">dfs</span>(i, j - <span class="hljs-number">1</span>);<br>            <span class="hljs-built_in">dfs</span>(i, j + <span class="hljs-number">1</span>);<br>        &#125;;<br>        <span class="hljs-type">int</span> ans = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; row; ++i) &#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; col; ++j) &#123;<br>                <span class="hljs-keyword">if</span> (grid[i][j] == <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>                    <span class="hljs-built_in">dfs</span>(i, j);<br>                    ans++;<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> ans;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>此题的难点主要在于养成图算法的思路，如果遍历整个图？如何写DFS等？</p>
 
                 
