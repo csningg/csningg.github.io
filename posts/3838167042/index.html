@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://csningg.github.io/pictures/20250523/11.25/Untitled/dff374c348_indexing-in-vector-database.png">
 <meta property="article:published_time" content="2025-11-24T12:30:47.000Z">
-<meta property="article:modified_time" content="2025-11-25T04:45:16.987Z">
+<meta property="article:modified_time" content="2025-11-25T04:51:31.919Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="向量检索">
 <meta name="twitter:card" content="summary_large_image">
@@ -340,7 +340,7 @@
 </ul>
 <h2 id="整体流程">整体流程</h2>
 <figure>
-<img src="/pictures/20250523/11.25/Untitled/image.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
+<img src="../pictures/20250523/11.25/Untitled/image.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
 </figure>
 <p>Figure 1 展示了 <strong>VSAG（Vector Search Algorithm Graph）</strong> 的整个搜索框架流程。它将整个搜索过程分为了三个主要阶段：<strong>存储（Partial Redundant Storage）</strong>、<strong>搜索执行（Deterministic Access Greedy Search）</strong> 和 <strong>结果优化（Selective Re-rank）</strong>，同时贯穿了自动参数调优。</p>
 <p>以下是对这张图的<strong>分步详细解释</strong>：</p>
@@ -400,7 +400,7 @@
 </ul>
 <p><strong>预取技术</strong></p>
 <figure>
-<img src="/pictures/20250523/11.25/Untitled/image%201.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
+<img src="../pictures/20250523/11.25/Untitled/image%201.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
 </figure>
 <p>Figure 2 直观地展示了 VSAG 如何利用 <strong>软件预取</strong>（Software-based Prefetch)技术，将传统的“串行等待”内存访问模式优化为“并行流水线”模式，从而显著减少 CPU 的空转等待时间。</p>
 <p>以下是详细的分步解释：</p>
@@ -449,7 +449,7 @@
 </ul>
 <h3 id="确定性贪婪访问">确定性贪婪访问</h3>
 <figure>
-<img src="/pictures/20250523/11.25/Untitled/image%202.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
+<img src="../pictures/20250523/11.25/Untitled/image%202.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
 </figure>
 <p>软件预取有一定的局限性，比如在图 3(a) 中，<span class="math inline"><em>x</em><sub>2</sub></span> 和 <span class="math inline"><em>x</em><sub>3</sub></span> 已经被访问过，不需要重新计算距离。这使得对这些向量的预取变得无效。此外，在计算 <span class="math inline"><em>x</em><sub>4</sub></span> 时，由于预取间隔太短，预取也可能会失败。</p>
 <h4 id="确定性访问">确定性访问</h4>
@@ -459,7 +459,7 @@
 <p>如图 3(b) 所示，调整后的模式表明在批量处理期间，确定性访问策略消除了访问 <span class="math inline"><em>x</em><sub>2</sub></span> 和 <span class="math inline"><em>x</em><sub>3</sub></span> 的需要。因此，搜索逻辑从 <span class="math inline"><em>x</em><sub>1</sub></span> 直接推进到 <span class="math inline"><em>x</em><sub>4</sub></span>。这种序列修改使得预取机制能够在计算 <span class="math inline"><em>x</em><sub>1</sub></span> 时瞄准 <span class="math inline"><em>x</em><sub>4</sub></span>。图 3(c) 进一步揭示了异步预取的时间特性：数据加载过程需要两个向量计算周期才能填充缓存行。当 <span class="math inline"><em>x</em><sub>1</sub></span> 的计算开始时，只能预取 <span class="math inline"><em>x</em><sub>4</sub></span> 向量。在 <span class="math inline"><em>x</em><sub>1</sub></span> 和 <span class="math inline"><em>x</em><sub>4</sub></span> 的计算之后，步长预取策略确保了 <span class="math inline"><em>x</em><sub>6</sub></span> 数据的及时缓存填充，这些数据可立即用于后续计算。</p>
 <h3 id="确定性贪婪访问伪码">确定性贪婪访问伪码</h3>
 <figure>
-<img src="/pictures/20250523/11.25/Untitled/image%203.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
+<img src="../pictures/20250523/11.25/Untitled/image%203.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
 </figure>
 <p>从表面上看，这段代码与标准的基于图的近似最近邻搜索（如 HNSW）中的贪婪搜索逻辑非常相似。<strong>然而，VSAG 的全部性能提升和设计优势，都隐藏在算法中关键操作的底层实现细节中。</strong></p>
 <p><strong>1. 算法概述与标准流程</strong> 该算法描述了在 VSAG 构建的图索引 (<span class="math inline"><em>G</em></span>) 上，从一个入口点开始搜索，最终找到最接近查询向量 (<span class="math inline"><em>q</em></span>) 的 L 个候选者（即 <span class="math inline"><em>e</em><em>f</em><sub><em>s</em></sub></span>）的过程。</p>
@@ -556,7 +556,7 @@
 <p>VSAG 通过冗余向量存储将空间分区索引的优势整合到基于图的索引算法中。通过在每个节点的数据结构中将邻居列表与其对应的向量共同定位，实现了顺序内存访问。这种设计确保了邻居检索操作只需要在连续内存区域内进行顺序访问，从而充分利用了硬件预取能力。</p>
 <p>如图 1 所示，考虑 10 个连续存储在内存中的向量。即使在访问 <span class="math inline"><em>x</em><sub>1</sub></span> 到 <span class="math inline"><em>x</em><sub>5</sub></span> 且 <span class="math inline"><em>x</em><sub>2</sub></span> 和 <span class="math inline"><em>x</em><sub>3</sub></span> 不是立即需要的情况下，硬件预取器仍然可以主动将 <span class="math inline"><em>x</em><sub>4</sub></span> 加载到缓存中。这种行为源于将相邻向量（<span class="math inline"><em>x</em><sub>1</sub></span> 到 <span class="math inline"><em>x</em><sub>5</sub></span>）存储在连续内存地址中所创建的内存局部性。一致的内存布局和可预测的访问模式通过硬件优化，有效地弥补了基于软件的预取效率低下的问题。</p>
 <h4 id="balance-of-computational-efficiency-and-memory-utilization计算效率与内存利用的平衡">Balance of Computational Efficiency and Memory Utilization（计算效率与内存利用的平衡）</h4>
-<p>为了解决工业应用中固定实例规格（例如 4 核 16G，2 核 8G）导致的计算-内存资源不平衡，我们提出了 PRS，以利用硬件预取来减少 CPU 空闲时间。一个可动态调整的冗余比率 <span class="math inline"><em>δ</em></span> 控制了图中冗余存储的邻居向量的比例，平衡了预取效率和 CPU 利用率。当 <span class="math inline"><em>δ</em> = 1</span> 时，完全冗余最大化硬件预取效益，以更高的内存消耗为代价实现峰值 CPU 利用率。相反，当 <span class="math inline"><em>δ</em> = 0</span> 时，消除冗余以最小化内存使用，但牺牲了预取效率。这种灵活性实现了对工作负载感知的资源优化。 <img src="/pictures/20250523/11.25/Untitled/image4.png" srcset="/img/loading.gif" lazyload alt="alt text" /></p>
+<p>为了解决工业应用中固定实例规格（例如 4 核 16G，2 核 8G）导致的计算-内存资源不平衡，我们提出了 PRS，以利用硬件预取来减少 CPU 空闲时间。一个可动态调整的冗余比率 <span class="math inline"><em>δ</em></span> 控制了图中冗余存储的邻居向量的比例，平衡了预取效率和 CPU 利用率。当 <span class="math inline"><em>δ</em> = 1</span> 时，完全冗余最大化硬件预取效益，以更高的内存消耗为代价实现峰值 CPU 利用率。相反，当 <span class="math inline"><em>δ</em> = 0</span> 时，消除冗余以最小化内存使用，但牺牲了预取效率。这种灵活性实现了对工作负载感知的资源优化。 <img src="../pictures/20250523/11.25/Untitled/image4.png" srcset="/img/loading.gif" lazyload alt="alt text" /></p>
 <p>对于高吞吐量/高召回率场景（图 4 (a)），将 <span class="math inline"><em>δ</em></span> 增加到 1 优先考虑 CPU 效率，以更少的计算资源满足苛刻的目标。在内存受限、吞吐量要求适中的环境（图 4 (b)）中，将 <span class="math inline"><em>δ</em></span> 减少到 0 减轻了内存压力，同时允许实例降配（例如 4 核 16G 降至 2 核 8G），通过受控的计算扩展来保持服务质量并降低基础设施成本。</p>
 <p>PRS (Partial Redundant Storage) 是 VSAG 解决内存访问瓶颈的终极策略，它利用 <strong>硬件预取</strong> 的高效率来弥补软件预取的不足。</p>
 <p>方法： 通过在每个节点的数据结构中冗余存储邻居的压缩向量（共同定位），在物理内存中创造出顺序访问模式。效益： 这种顺序模式激活了 CPU 的硬件预取器，实现自动、高效地将邻居数据加载到缓存，彻底解决了基于图的 ANNS 算法中随机内存访问效率低下的问题。灵活性： 引入了可动态调整的冗余比率 <span class="math inline"><em>δ</em></span>，允许用户根据实际的硬件配置和业务需求（如高吞吐 vs 内存受限）来灵活平衡内存消耗和计算效率。</p>
