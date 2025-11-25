@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://csningg.github.io/pictures/20250523/11.25/dff374c348_indexing-in-vector-database.png">
 <meta property="article:published_time" content="2025-11-24T12:30:47.000Z">
-<meta property="article:modified_time" content="2025-11-25T04:58:20.706Z">
+<meta property="article:modified_time" content="2025-11-25T05:30:39.126Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="向量检索">
 <meta name="twitter:card" content="summary_large_image">
@@ -448,9 +448,7 @@
 <li>这解释了为什么 VSAG 能大幅降低 L3 Cache Miss Rate 并提升 QPS。</li>
 </ul>
 <h3 id="确定性贪婪访问">确定性贪婪访问</h3>
-<figure>
-<img src="../pictures/20250523/11.25/image%202.png" srcset="/img/loading.gif" lazyload alt="" /><figcaption>image.png</figcaption>
-</figure>
+<p><img src="/pictures/20250523/hnsw/image%202.png" srcset="/img/loading.gif" lazyload /></p>
 <p>软件预取有一定的局限性，比如在图 3(a) 中，<span class="math inline"><em>x</em><sub>2</sub></span> 和 <span class="math inline"><em>x</em><sub>3</sub></span> 已经被访问过，不需要重新计算距离。这使得对这些向量的预取变得无效。此外，在计算 <span class="math inline"><em>x</em><sub>4</sub></span> 时，由于预取间隔太短，预取也可能会失败。</p>
 <h4 id="确定性访问">确定性访问</h4>
 <p>VSAG 只预取那些尚未被访问过的边。该机制首先批量处理所有邻居节点以确定它们的访问状态。随后，未被访问的邻居被逻辑分组，并进行<strong>集体预取</strong>。这种战略性方法确保了每个预取的内存地址仅对应于计算必需的数据，从而提高了预取效率，并最大程度地减少了冗余内存操作。</p>
