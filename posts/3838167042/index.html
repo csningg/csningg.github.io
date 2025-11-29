@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://csningg.github.io/pictures/20250523/11.25/dff374c348_indexing-in-vector-database.png">
 <meta property="article:published_time" content="2025-11-24T12:30:47.000Z">
-<meta property="article:modified_time" content="2025-11-25T05:33:06.704Z">
+<meta property="article:modified_time" content="2025-11-25T06:25:44.920Z">
 <meta property="article:author" content="zningg">
 <meta property="article:tag" content="向量检索">
 <meta name="twitter:card" content="summary_large_image">
@@ -339,8 +339,7 @@
 <li><strong>选择性重排序 (Selective Re-rank)：</strong> 先用低精度（量化后）向量快速筛选出一批候选者，再对其中极少部分进行高精度重算，兼顾了速度和准确率。</li>
 </ul>
 <h2 id="整体流程">整体流程</h2>
-<p><img src="/pictures/20250523/11.25/image.png" srcset="/img/loading.gif" lazyload /></p>
-<p>Figure 1 展示了 <strong>VSAG（Vector Search Algorithm Graph）</strong> 的整个搜索框架流程。它将整个搜索过程分为了三个主要阶段：<strong>存储（Partial Redundant Storage）</strong>、<strong>搜索执行（Deterministic Access Greedy Search）</strong> 和 <strong>结果优化（Selective Re-rank）</strong>，同时贯穿了自动参数调优。</p>
+<p><img src="/pictures/20250523/11.25/image.png" srcset="/img/loading.gif" lazyload /> $$ Figure 1 展示了 <strong>VSAG（Vector Search Algorithm Graph）</strong> 的整个搜索框架流程。它将整个搜索过程分为了三个主要阶段：<strong>存储（Partial Redundant Storage）</strong>、<strong>搜索执行（Deterministic Access Greedy Search）</strong> 和 <strong>结果优化（Selective Re-rank）</strong>，同时贯穿了自动参数调优。</p>
 <p>以下是对这张图的<strong>分步详细解释</strong>：</p>
 <p><strong>第一步：部分冗余存储</strong></p>
 <p>这是 VSAG 的数据存储基础，旨在优化内存访问效率。</p>
@@ -743,6 +742,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/posts/1736571982/" title="一个C++后端工程师的思考">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一个C++后端工程师的思考</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

@@ -1,0 +1,775 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zningg">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="大模型时代下的突围：一名C++后端工程师的未来5年技术进阶之路 摘要： 在生成式AI（AIGC）席卷全球的今天，作为一名身处互联网核心业务线的C++开发工程师，我常常思考：代码生成的效率越来越高，传统的后端开发护城河在哪里？本文记录了我在负责大规模向量召回（ANN）工程中的思考，并制定了从“后台开发”向“AI Infra（人工智能基础设施）”转型的五年职业规划。 一、 现状：站在流量与算力的十字路">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个C++后端工程师的思考">
+<meta property="og:url" content="https://csningg.github.io/posts/1736571982/index.html">
+<meta property="og:site_name" content="ning">
+<meta property="og:description" content="大模型时代下的突围：一名C++后端工程师的未来5年技术进阶之路 摘要： 在生成式AI（AIGC）席卷全球的今天，作为一名身处互联网核心业务线的C++开发工程师，我常常思考：代码生成的效率越来越高，传统的后端开发护城河在哪里？本文记录了我在负责大规模向量召回（ANN）工程中的思考，并制定了从“后台开发”向“AI Infra（人工智能基础设施）”转型的五年职业规划。 一、 现状：站在流量与算力的十字路">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://csningg.github.io/pictures/20250523/11.25/Untitled/image9.png">
+<meta property="article:published_time" content="2025-11-29T08:50:29.000Z">
+<meta property="article:modified_time" content="2025-11-29T09:00:36.469Z">
+<meta property="article:author" content="zningg">
+<meta property="article:tag" content="思考">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://csningg.github.io/pictures/20250523/11.25/Untitled/image9.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>一个C++后端工程师的思考 - ning</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/macpanel.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"csningg.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":"https://csningg.github.io/"}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong class="navbar-title">Zning</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一个C++后端工程师的思考"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-29 16:50" pubdate>
+          2025年11月29日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          13 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">一个C++后端工程师的思考</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="大模型时代下的突围一名c后端工程师的未来5年技术进阶之路"><strong>大模型时代下的突围：一名C++后端工程师的未来5年技术进阶之路</strong></h2>
+<p><strong>摘要：</strong> 在生成式AI（AIGC）席卷全球的今天，作为一名身处互联网核心业务线的C++开发工程师，我常常思考：代码生成的效率越来越高，传统的后端开发护城河在哪里？本文记录了我在负责大规模向量召回（ANN）工程中的思考，并制定了从“后台开发”向“AI Infra（人工智能基础设施）”转型的五年职业规划。</p>
+<h3 id="一-现状站在流量与算力的十字路口">一、 现状：站在流量与算力的十字路口</h3>
+<p>目前，我身处国内一线互联网大厂的核心商业化部门，主要负责<strong>搜推系统中的召回（Recall）环节</strong>，特别是基于<strong>ANN（近似最近邻搜索）</strong>的工程落地。</p>
+<p>简单来说，我的工作是在毫秒级的时间限制内，从亿级海量数据中快速“捞”出最匹配用户意图的内容。这看似是一个常规的后端工作，但其实它正处于两个时代的交汇点： 1. <strong>传统高并发时代</strong>：我们需要极致的C++性能优化，处理极高的QPS（每秒查询率），对内存管理、锁竞争、指令集优化有着苛刻的要求。 2. <strong>AI大模型时代</strong>：随着Embedding技术的普及和大模型的落地，向量检索成为了连接海量数据与大模型的“神经突触”。</p>
+<p>虽然目前的工作稳定且处于核心链路，但我深知：<strong>单纯写业务逻辑的C++代码，在未来5年内极易被AI替代或被更低成本的人力取代。</strong> 唯有向下深挖底层算力，向上拥抱AI架构，才能建立真正的不可替代性。</p>
+<h3 id="二-思考为什么选择ai-infra作为方向">二、 思考：为什么选择“AI Infra”作为方向？</h3>
+<p>在恐慌“被大模型取代”之前，我意识到一个事实：<strong>淘金热中，卖铲子的人永远不会失业。</strong></p>
+<p>大模型（LLM）虽然强大，但它有三个致命弱点：<strong>贵、慢、记性差</strong>。 * <strong>贵与慢</strong>：推理成本高，不可能对所有数据进行全量推理。 * <strong>记性差</strong>：模型有Token限制，且无法实时更新知识。</p>
+<p>解决这些问题的核心方案是 <strong>RAG（检索增强生成）</strong>，而RAG的核心引擎就是<strong>向量数据库（Vector Database）</strong>。</p>
+<p>我目前所从事的ANN工程，正是向量数据库的雏形。因此，我的职业护城河不在于“写C++”，而在于 <strong>“如何构建让大模型跑得更快、更便宜、更准的基础设施”</strong>。这就是<strong>AI Infra</strong>。</p>
+<h3 id="三-规划切实可行的五年进阶路径">三、 规划：切实可行的五年进阶路径</h3>
+<p>为了实现从“C++功能开发”到“AI系统架构师”的转型，我将未来5年划分为三个阶段：</p>
+<h4 id="第一阶段第1-2年极致性能优化hpc-筑基">第一阶段（第1-2年）：极致性能优化（HPC）—— 筑基</h4>
+<p>这一阶段的目标是成为团队内的“性能压舱石”。不仅仅是会用Faiss或HNSWlib，而是要具备手写核心算子的能力。</p>
+<ul>
+<li><strong>行动方案：</strong>
+<ul>
+<li><strong>深耕SIMD指令集</strong>：熟练掌握AVX2/AVX-512指令集，在向量距离计算（L2/IP/Cosine）中榨干CPU的每一个时钟周期。</li>
+<li><strong>内存友好的编程</strong>：深入理解CPU Cache Line、False Sharing和NUMA架构。在召回场景中，Cache Miss是最大的性能杀手，我要做的就是让数据在CPU缓存中“流淌”起来。</li>
+<li><strong>无锁编程</strong>：在高并发场景下，精通C++ Memory Order，减少上下文切换带来的开销。</li>
+</ul></li>
+</ul>
+<h4 id="第二阶段第2-4年拥抱异构计算与存储-破圈">第二阶段（第2-4年）：拥抱异构计算与存储 —— 破圈</h4>
+<p>随着向量维度的膨胀（大模型Embedding通常在1024维以上），纯CPU计算已成瓶颈。这一阶段的关键是<strong>跨越CPU与GPU的鸿沟</strong>。</p>
+<ul>
+<li><strong>行动方案：</strong>
+<ul>
+<li><strong>掌握CUDA编程</strong>：这是我职业生涯最关键的转型。学习如何利用GPU的大规模并行能力加速向量检索（如RAPIDS RAFT）。</li>
+<li><strong>探索存算分离</strong>：研究DiskANN等技术，利用NVMe SSD替代昂贵的内存来存储索引。在降本增效的大背景下，谁能帮公司节省50%的服务器成本，谁就是核心人才。</li>
+<li><strong>理解量化技术</strong>：深入研究PQ（乘积量化）、SQ甚至Binary Quantization。如何把浮点向量压缩成int8甚至二进制位而不损失精度，是工程与算法结合的黄金领域。</li>
+</ul></li>
+</ul>
+<h4 id="第三阶段第5年及以后ai架构师与云原生-统筹">第三阶段（第5年及以后）：AI架构师与云原生 —— 统筹</h4>
+<p>此时，我的目标不再是单一模块的优化，而是设计能够支撑千亿级数据、服务于大模型的通用检索架构。</p>
+<ul>
+<li><strong>行动方案：</strong>
+<ul>
+<li><strong>构建RAG基础设施</strong>：设计支持混合检索（关键词+向量）的系统，解决大模型落地的“最后一公里”问题。</li>
+<li><strong>分布式系统深造</strong>：深入Raft/Paxos协议，解决大规模分布式向量库的一致性与高可用问题。</li>
+<li><strong>开源影响力</strong>：尝试向Milvus、Faiss等开源社区贡献代码，建立行业影响力。</li>
+</ul></li>
+</ul>
+<h3 id="四-结语做技术的长期主义者">四、 结语：做技术的长期主义者</h3>
+<p>互联网行业充满了不确定性，裁员的阴云也时常笼罩。但技术发展的底层逻辑是不变的：<strong>对算力的渴求无止境，对效率的追求无止境。</strong></p>
+<p>在未来的五年里，我不会把自己定义为一个“写C++广告后台的人”，而是一个<strong>“专注高性能计算与异构系统的AI Infra工程师”</strong>。</p>
+<p>大模型不是我们的敌人，它是我们施展拳脚的舞台。只要掌握了驾驭算力和数据的底层能力，无论技术风口如何变幻，我们都能在时代的洪流中站稳脚跟。</p>
+<p><strong>路虽远，行则将至。</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%80%9D%E8%80%83/" class="print-no-link">#思考</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一个C++后端工程师的思考</div>
+      <div>https://csningg.github.io/posts/1736571982/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>zningg</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/3838167042/" title="VSAG框架概述">
+                        <span class="hidden-mobile">VSAG框架概述</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"csningg/comment","repo-id":"R_kgDOOvyAGA","category":"General","category-id":"DIC_kwDOOvyAGM4Cqinz","theme-light":"light","theme-dark":"dark","mapping":"pathname","reactions-enabled":1,"emit-metadata":0,"input-position":"bottom","lang":"zh-CN"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <div>
+    <span id="timeDate">正在载入天数...</span>
+    <span id="times">载入时分秒...</span>
+    <script>
+    var now = new Date();
+    function createtime(){
+        var grt= new Date("03/08/2025 00:00:00");
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if(String(mnum).length ==1 ){
+                  mnum = "0" + mnum;
+        }
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if(String(snum).length ==1 ){
+                  snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "🚀已持续航行&nbsp"+dnum+"&nbsp天";  
+        document.getElementById("times").innerHTML = hnum + "&nbsp时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒";
+    }
+    setInterval("createtime()",250);
+    </script>
+  </div>
+
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
